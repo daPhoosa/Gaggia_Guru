@@ -23,6 +23,9 @@
 #define DEFAULT_PRESS_KI           8.0f    // % per bar*s
 #define DEFAULT_PRESS_KD           0.0f    // % per bar/s
 
+// Dashboard graph time window (seconds of history shown).
+#define DEFAULT_GRAPH_WINDOW_S     60.0f
+
 // Allowed ranges for user settings (the API rejects values outside these).
 #define LIMIT_COFFEE_TEMP_MIN      80.0f
 #define LIMIT_COFFEE_TEMP_MAX     120.0f
@@ -31,6 +34,8 @@
 #define LIMIT_PRESSURE_MIN          1.0f
 #define LIMIT_PRESSURE_MAX         11.0f
 #define LIMIT_GAIN_MAX           1000.0f
+#define LIMIT_GRAPH_WINDOW_MIN     10.0f
+#define LIMIT_GRAPH_WINDOW_MAX    600.0f
 
 // ---- Safety limits (fixed) --------------------------------------------------
 // Hardware backstop: 165 C manual-reset high-limit thermostat + thermal fuse.

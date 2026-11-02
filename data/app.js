@@ -93,6 +93,7 @@ const STATE_LABEL = { IDLE: 'Idle', BREWING: 'Brewing', STEAM: 'Steam', HOT_WATE
                       FAULT: 'Fault', INHIBITED: 'Paused' };
 function renderMachine(m) {
   if (page !== 'home') return;
+  graph.push(m);
   const st = $('#mState');
   st.textContent = STATE_LABEL[m.state] || m.state;
   st.className = 'state ' + m.state.toLowerCase();
@@ -122,6 +123,133 @@ function renderMachine(m) {
     ['Mains', `${(+m.mainsHz).toFixed(1)} Hz`],
   ]);
 }
+
+// ---------- machine graph (home page, Machine card) ----------
+// Scrolls right to left: the right edge is "now". Left axis °C (auto-scaled),
+// right axis bar (fixed 0-12, the sensor range). Gridlines are shared by both.
+const graph = (() => {
+  if (page !== 'home') return { push() {} };
+  const cv = $('#mGraph'), ctx = cv.getContext('2d');
+  const KEEP_S = 600, GAP_S = 4, DIVS = 6, P_MAX = 12;
+  let windowS = 60, data = [], colors = {}, w = 0, h = 0, dpr = 1, lastDraw = 0;
+
+  const css = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  const readColors = () => {
+    colors = { temp: css('--g-temp'), press: css('--g-press'), grid: css('--line'), text: css('--muted') };
+  };
+  readColors();
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', readColors);
+
+  // Setting canvas.width/height clears it, so only do it on a real size change, then redraw.
+  const resize = () => {
+    const nd = window.devicePixelRatio || 1, nw = cv.clientWidth, nh = cv.clientHeight;
+    if (nd === dpr && nw === w && nh === h) return;
+    dpr = nd; w = nw; h = nh;
+    cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
+    draw();
+  };
+  new ResizeObserver(resize).observe(cv);
+  resize();
+
+  fetch('/api/settings').then((r) => r.json())
+    .then((j) => { windowS = +j.values.graphWindowS || 60; }).catch(() => {});
+
+  function push(m) {
+    const t = performance.now() / 1000;
+    data.push({
+      t,
+      temp: m.temp == null ? null : +m.temp,
+      set: +m.setpoint,
+      press: m.pressure == null ? null : +m.pressure,
+      pset: m.pressureTarget ? +m.pressureTarget : null,   // only while brewing
+    });
+    while (data.length && data[0].t < t - KEEP_S) data.shift();
+  }
+
+  // Temperature axis: DIVS equal steps of a "nice" size covering lo..hi.
+  function tempAxis(lo, hi) {
+    for (const st of [1, 2, 5, 10, 20, 25, 50]) {
+      const a = Math.floor(lo / st) * st;
+      if (a + DIVS * st >= hi) return { lo: a, st };
+    }
+    return { lo: 0, st: 50 };
+  }
+
+  function draw() {
+    const now = performance.now() / 1000, t0 = now - windowS;
+    const L = 36, R = 28, T = 8, B = 18, pw = w - L - R, ph = h - T - B;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, w, h);
+    if (pw <= 0 || ph <= 0) return;
+
+    let lo = Infinity, hi = -Infinity;
+    for (const d of data) {
+      if (d.t < t0) continue;
+      for (const v of [d.temp, d.set]) if (v != null) { lo = Math.min(lo, v); hi = Math.max(hi, v); }
+    }
+    if (!isFinite(lo)) { lo = 90; hi = 110; }
+    const ta = tempAxis(lo - 2, hi + 2);
+    const X = (t) => L + (t - t0) / windowS * pw;
+    const YT = (v) => T + ph - (v - ta.lo) / (ta.st * DIVS) * ph;
+    const YP = (v) => T + ph - v / P_MAX * ph;
+
+    // horizontal grid + axis labels (°C left, bar right)
+    ctx.font = '11px system-ui, sans-serif';
+    ctx.lineWidth = 1;
+    ctx.textBaseline = 'middle';
+    for (let i = 0; i <= DIVS; i++) {
+      const y = Math.round(T + ph - i / DIVS * ph) + 0.5;
+      ctx.strokeStyle = colors.grid;
+      ctx.beginPath(); ctx.moveTo(L, y); ctx.lineTo(L + pw, y); ctx.stroke();
+      ctx.fillStyle = colors.temp; ctx.textAlign = 'right';
+      ctx.fillText(ta.lo + i * ta.st, L - 5, y);
+      ctx.fillStyle = colors.press; ctx.textAlign = 'left';
+      ctx.fillText(i * P_MAX / DIVS, L + pw + 5, y);
+    }
+    // vertical time grid, labelled in seconds ago
+    const step = [5, 10, 15, 30, 60, 120].find((s) => windowS / s <= 6) || 120;
+    ctx.fillStyle = colors.text; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    for (let s = 0; s <= windowS; s += step) {
+      const x = Math.round(L + pw - s / windowS * pw) + 0.5;
+      ctx.strokeStyle = colors.grid;
+      ctx.beginPath(); ctx.moveTo(x, T); ctx.lineTo(x, T + ph); ctx.stroke();
+      ctx.fillText(s ? `-${s}s` : 'now', Math.min(Math.max(x, L + 12), L + pw - 12), T + ph + 4);
+    }
+
+    // series, clipped to the plot area; gaps where data is missing
+    ctx.save();
+    ctx.beginPath(); ctx.rect(L, T, pw, ph); ctx.clip();
+    const line = (key, Y, color, dash) => {
+      ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.setLineDash(dash); ctx.lineJoin = 'round';
+      ctx.beginPath();
+      let pen = false, prevT = -Infinity;
+      for (const d of data) {
+        const v = d[key];
+        if (v == null || d.t - prevT > GAP_S) pen = false;
+        prevT = d.t;
+        if (v == null || d.t < t0 - GAP_S) continue;
+        const x = X(d.t), y = Y(v);
+        pen ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+        pen = true;
+      }
+      ctx.stroke();
+    };
+    line('set', YT, colors.temp, [6, 4]);
+    line('pset', YP, colors.press, [6, 4]);
+    line('temp', YT, colors.temp, []);
+    line('press', YP, colors.press, []);
+    ctx.restore();
+    ctx.setLineDash([]);
+  }
+
+  // Redraw ~30 fps for smooth scrolling (requestAnimationFrame pauses in background tabs).
+  const frame = (ts) => {
+    if (ts - lastDraw >= 33) { lastDraw = ts; draw(); }
+    requestAnimationFrame(frame);
+  };
+  requestAnimationFrame(frame);
+  return { push };
+})();
 
 let pollTimer;
 const pollOnce = () => {

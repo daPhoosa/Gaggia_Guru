@@ -9,6 +9,8 @@ struct MachineSettings {
   float brewPressureBar;
   float tempKp, tempKi, tempKd;
   float pressKp, pressKi, pressKd;
+  float graphWindowS;  // dashboard graph history (display only)
+  // New fields go at the END (settings.cpp migrates older saved layouts).
 };
 
 namespace Settings {

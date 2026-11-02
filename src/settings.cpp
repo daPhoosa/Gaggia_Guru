@@ -11,12 +11,20 @@
 
 namespace {
 
-constexpr uint16_t kVersion = 1;  // bump when MachineSettings layout changes
+constexpr uint16_t kVersion = 2;  // bump when MachineSettings layout changes
 
 struct Stored {
   uint16_t version;
   MachineSettings s;
 };
+
+// Version 1 layout: the first 9 floats of MachineSettings (no graphWindowS).
+struct StoredV1 {
+  uint16_t version;
+  float f[9];
+};
+static_assert(offsetof(MachineSettings, graphWindowS) == sizeof(StoredV1::f),
+              "v1 migration assumes new fields were appended");
 
 struct Field {
   const char *key;
@@ -34,6 +42,7 @@ const Field kFields[] = {
     {"pressKp", offsetof(MachineSettings, pressKp), 0, LIMIT_GAIN_MAX},
     {"pressKi", offsetof(MachineSettings, pressKi), 0, LIMIT_GAIN_MAX},
     {"pressKd", offsetof(MachineSettings, pressKd), 0, LIMIT_GAIN_MAX},
+    {"graphWindowS", offsetof(MachineSettings, graphWindowS), LIMIT_GRAPH_WINDOW_MIN, LIMIT_GRAPH_WINDOW_MAX},
 };
 constexpr size_t kFieldCount = sizeof(kFields) / sizeof(kFields[0]);
 
@@ -81,6 +90,7 @@ MachineSettings defaults() {
   s.pressKp = DEFAULT_PRESS_KP;
   s.pressKi = DEFAULT_PRESS_KI;
   s.pressKd = DEFAULT_PRESS_KD;
+  s.graphWindowS = DEFAULT_GRAPH_WINDOW_S;
   return s;
 }
 
@@ -89,15 +99,28 @@ void begin() {
   current = defaults();
 
   Stored st;
+  StoredV1 v1;
   Preferences p;
   p.begin("savant", true);
-  size_t n = p.getBytesLength("settings") == sizeof(st) ? p.getBytes("settings", &st, sizeof(st)) : 0;
+  const size_t len = p.getBytesLength("settings");
+  size_t n = 0;
+  bool migrated = false;
+  if (len == sizeof(st)) {
+    n = p.getBytes("settings", &st, sizeof(st));
+  } else if (len == sizeof(v1) && p.getBytes("settings", &v1, sizeof(v1)) == sizeof(v1) && v1.version == 1) {
+    st.version = kVersion;
+    st.s = defaults();                        // new fields get their defaults
+    memcpy(&st.s, v1.f, sizeof(v1.f));        // old fields keep the saved values
+    n = sizeof(st);
+    migrated = true;
+  }
   p.end();
 
   String err;
   if (n == sizeof(st) && st.version == kVersion && validate(st.s, err)) {
     current = st.s;
-    Serial.println("[Settings] Loaded from NVS");
+    if (migrated) save(current);
+    Serial.println(migrated ? "[Settings] Migrated v1 settings from NVS" : "[Settings] Loaded from NVS");
   } else {
     Serial.println("[Settings] Using defaults");
   }
