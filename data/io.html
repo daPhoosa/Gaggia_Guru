@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#2563eb">
+  <title>IO Status · Gaggia Savant</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body data-page="io">
+  <header class="bar">
+    <a class="back" href="/" aria-label="Back to dashboard">‹</a>
+    <h1>IO Status</h1>
+    <span id="conn" class="pill off">offline</span>
+  </header>
+
+  <main>
+    <div class="chips" id="filters" role="tablist">
+      <button class="chip active" data-f="all">All <b></b></button>
+      <button class="chip" data-f="used">In use <b></b></button>
+      <button class="chip" data-f="Digital">Digital <b></b></button>
+      <button class="chip" data-f="Analog">Analog <b></b></button>
+      <button class="chip" data-f="Communications">Comms <b></b></button>
+      <button class="chip" data-f="Unused">Unused <b></b></button>
+    </div>
+
+    <ul id="pins" class="pins"><li class="muted">Loading…</li></ul>
+    <p class="muted foot" id="ioFoot">Names and types come from <code>include/io_pins.h</code>. Tap a pin for notes.</p>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+# clangd config for an ESP32 (Xtensa GCC) PlatformIO project.
+# Regenerate compile_commands.json after changing libs/flags:
+#   pio run -e esp32-serial -t compiledb
+CompileFlags:
+  Remove:
+    - -mlongcalls
+    - -mtext-section-literals
+    - -mfix-esp32-psram-cache-issue
+    - -mfix-esp32-psram-cache-strategy=*
+    - -fstrict-volatile-bitfields
+    - -fno-tree-switch-conversion
+    - -freorder-blocks
+    - -fipa-pta
+  Add:
+    - -Wno-unknown-warning-option
+Diagnostics:
+  Suppress:
+    - drv_unknown_argument
+    - drv_unsupported_opt

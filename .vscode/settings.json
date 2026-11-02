@@ -1,0 +1,10 @@
+{
+  // Let clangd ask the ESP32 GCC for its built-in/system include paths.
+  "clangd.arguments": [
+    "--query-driver=${userHome}/.platformio/packages/toolchain-xtensa-esp32/bin/xtensa-esp32-elf-*",
+    "--compile-commands-dir=${workspaceFolder}",
+    "--header-insertion=never"
+  ],
+  // Avoid conflicts if the Microsoft C/C++ extension is also installed.
+  "C_Cpp.intelliSenseEngine": "disabled"
+}

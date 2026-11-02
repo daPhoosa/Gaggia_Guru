@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#2563eb">
+  <title>Update · Gaggia Savant</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body data-page="update">
+  <header class="bar">
+    <a class="back" href="/" aria-label="Back to dashboard">‹</a>
+    <h1>Update</h1>
+    <span id="conn" class="pill off">offline</span>
+  </header>
+
+  <main>
+    <section class="card">
+      <h2>Installed</h2>
+      <dl id="fwInfo" class="kv"></dl>
+    </section>
+
+    <section class="card">
+      <h2>Upload update</h2>
+      <form id="otaForm">
+        <div class="seg" role="radiogroup">
+          <label><input type="radio" name="target" value="firmware" checked><span>Firmware</span></label>
+          <label><input type="radio" name="target" value="fs"><span>Web files</span></label>
+        </div>
+        <label class="file">
+          <input type="file" name="file" accept=".bin" required>
+          <span id="fileName">Choose .bin file…</span>
+        </label>
+        <p class="muted hint" id="hint"></p>
+        <button type="submit" class="primary">Upload</button>
+      </form>
+      <div class="bar-track"><span id="otaBar"></span></div>
+      <p id="otaMsg" class="muted"></p>
+    </section>
+
+    <section class="card">
+      <h2>Power</h2>
+      <button id="rebootBtn" class="danger">Reboot device</button>
+    </section>
+  </main>
+
+  <div id="toast" role="status"></div>
+  <script src="app.js"></script>
+</body>
+</html>

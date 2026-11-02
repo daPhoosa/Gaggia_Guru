@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#2563eb">
+  <title>Gaggia Savant</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body data-page="home">
+  <header class="bar">
+    <h1>Gaggia Savant</h1>
+    <span id="conn" class="pill off">offline</span>
+  </header>
+
+  <main>
+    <p class="sub"><span id="hostname">gaggia-savant</span> · <span id="ipaddr">–</span></p>
+
+    <nav class="tiles">
+      <a class="tile" href="wifi.html">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 8.5a15 15 0 0 1 20 0M5 12a10 10 0 0 1 14 0M8.5 15.5a5 5 0 0 1 7 0"/><circle cx="12" cy="19" r="1.3"/></svg>
+        <span>Wi-Fi</span>
+        <small id="wifiSub">Network settings</small>
+      </a>
+      <a class="tile" href="update.html">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M4 20h16"/></svg>
+        <span>Update</span>
+        <small id="fwSub">Firmware &amp; files</small>
+      </a>
+      <a class="tile" href="io.html">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4"/></svg>
+        <span>IO Status</span>
+        <small id="ioSub">Pin names &amp; states</small>
+      </a>
+    </nav>
+
+    <!-- Add your own application widgets here -->
+
+    <section class="card">
+      <h2>Device status</h2>
+      <dl id="info" class="kv"></dl>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
