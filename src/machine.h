@@ -29,7 +29,7 @@ struct Status {
   bool pressureValid;
   float pressureBar;
   float pressureTargetBar;  // 0 unless brewing
-  uint16_t pressurePinMv;   // raw pin voltage of the last sample (for the IO Status page)
+  uint16_t pressurePinMv;   // pin voltage: smoothed when valid, live sample when out of range
   float heaterDuty;         // 0-100 %
   uint8_t pumpPower;        // 0-100 %
   bool heaterOn, valveOn, coffeeLight, steamLight;

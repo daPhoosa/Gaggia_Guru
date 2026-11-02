@@ -38,7 +38,7 @@ uint8_t coffeeCnt = 0, steamCnt = 0;
 // sensors
 uint32_t lastTcMs = 0, lastTcOkMs = 0;
 uint8_t tcFails = 0;
-float pressFiltered = 0;
+float pressPinMvFilt = 0;                // EMA-smoothed pin voltage (mV)
 bool pressPrimed = false;
 uint32_t pressBadSinceMs = 0;
 bool pressBad = false;
@@ -119,7 +119,9 @@ void tick() {
 
   Sensors::PressureReading pr = Sensors::readPressure();
   if (pr.ok) {
-    pressFiltered = pressPrimed ? pressFiltered + 0.3f * (pr.bar - pressFiltered) : pr.bar;
+    // Smooth the pin voltage (pump pulsation), then convert: one smoothed value
+    // feeds the PID, the dashboard and the IO Status page.
+    pressPinMvFilt = pressPrimed ? pressPinMvFilt + 0.3f * (pr.pinMv - pressPinMvFilt) : pr.pinMv;
     pressPrimed = true;
     pressBad = false;
   } else if (!pressBad) {
@@ -127,8 +129,9 @@ void tick() {
     pressBadSinceMs = now;
   }
   st.pressureValid = pr.ok && pressPrimed;
-  st.pressureBar = pressFiltered;
-  st.pressurePinMv = pr.pinMv;
+  st.pressureBar = Sensors::pressureBarFromPinMv(pressPinMvFilt);
+  // Out of range: show the live sample, not a stale smoothed value.
+  st.pressurePinMv = st.pressureValid ? static_cast<uint16_t>(lroundf(pressPinMvFilt)) : pr.pinMv;
 
   if (now - hzWindowStart >= 1000) {
     uint32_t zc = Pump::zeroCrossCount();

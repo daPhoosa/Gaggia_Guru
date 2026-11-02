@@ -20,6 +20,7 @@ PlatformIO / Arduino firmware with:
 ## Layout
 
 ```
+IO_design.md          pin assignments, wiring and signal conditioning (hardware reference)
 platformio.ini        build envs: esp32-serial (USB) and esp32-ota (Wi-Fi)
 partitions.csv        4MB: 2 × 1.5MB OTA app slots, 896KB LittleFS, coredump
 include/config.h      hostname, passwords, AP name, timings  ← edit first

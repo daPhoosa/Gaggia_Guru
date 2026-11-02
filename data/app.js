@@ -276,7 +276,8 @@ if (page === 'io') {
     const st = el('div', 'st');
     if (p.mv != null) {
       const v = el('div', 'av', (p.mv / 1000).toFixed(2) + ' V');
-      if (p.raw != null) v.append(el('small', null, 'raw ' + p.raw));
+      if (p.bar != null) v.append(el('small', null, (+p.bar).toFixed(2) + ' bar'));
+      else if (p.raw != null) v.append(el('small', null, 'raw ' + p.raw));
       st.append(v);
     } else if (p.level != null) {
       st.append(el('span', 'lv ' + (p.level ? 'hi' : 'lo'), p.level ? 'HIGH' : 'LOW'));

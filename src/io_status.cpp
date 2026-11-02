@@ -40,6 +40,7 @@ struct PinState {
   int8_t level;      // 0/1, or -1 if unknown
   int8_t pull;       // 1 = pull-up, -1 = pull-down, 0 = none
   int16_t mv;        // ADC millivolts (Analog pins), -1 if n/a
+  float bar;         // pressure pin: smoothed pressure in bar, NAN if n/a
   const char *note;  // runtime note (e.g. ADC2 + Wi-Fi), or nullptr
 };
 
@@ -81,7 +82,7 @@ bool routedToRtc(uint8_t g) {  // pad switched to the RTC/analog domain (ADC, DA
 }
 
 PinState sample(const IoPinInfo &p) {
-  PinState s{Mode::Input, -1, 0, -1, nullptr};
+  PinState s{Mode::Input, -1, 0, -1, NAN, nullptr};
   const uint8_t g = p.gpio;
   const uint32_t mux = regRead(GPIO_PIN_MUX_REG[g]);
   s.pull = (mux & FUN_PU) ? 1 : (mux & FUN_PD) ? -1 : 0;
@@ -90,7 +91,10 @@ PinState sample(const IoPinInfo &p) {
     // Never read the ADC here; show the owner's last sample instead.
     s.mode = Mode::Analog;
     if (g == PIN_PRESSURE) {
-      s.mv = Machine::status().pressurePinMv;
+      const Machine::Status m = Machine::status();
+      s.mv = m.pressurePinMv;
+      if (m.pressureValid) s.bar = m.pressureBar;
+      else s.note = "Sensor out of range (live, unsmoothed)";
     } else if (isAdc2(g) && WiFi.getMode() != WIFI_OFF) {
       s.note = "ADC2 pin: not readable while Wi-Fi is on";
     } else if (!isAdc1(g) && !isAdc2(g)) {
@@ -164,6 +168,7 @@ String json() {
     if (s.level >= 0) o["level"] = s.level;
     o["pull"] = s.pull > 0 ? "up" : s.pull < 0 ? "down" : "";
     if (s.mv >= 0) o["mv"] = s.mv;
+    if (!isnan(s.bar)) o["bar"] = serialized(String(s.bar, 2));
     if (s.note) o["note"] = s.note;
   }
   doc["uptime"] = millis() / 1000;

@@ -23,5 +23,6 @@ struct PressureReading {
 };
 void beginPressure();
 PressureReading readPressure();
+float pressureBarFromPinMv(float pinMv);  // divider + sensor scaling, clamped to >= 0
 
 }  // namespace Sensors

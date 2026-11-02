@@ -85,9 +85,14 @@ PressureReading readPressure() {
   r.pinMv = static_cast<uint16_t>(mv / kSamples);
   r.sensorV = pinV / PRESSURE_DIVIDER_RATIO;
   r.ok = r.sensorV >= PRESSURE_V_VALID_LOW && r.sensorV <= PRESSURE_V_VALID_HIGH;
-  float bar = (r.sensorV - PRESSURE_V_MIN) / (PRESSURE_V_MAX - PRESSURE_V_MIN) * PRESSURE_FULL_SCALE_BAR;
-  r.bar = bar < 0 ? 0 : bar;
+  r.bar = pressureBarFromPinMv(mv / static_cast<float>(kSamples));
   return r;
+}
+
+float pressureBarFromPinMv(float pinMv) {
+  const float sensorV = pinMv / 1000.0f / PRESSURE_DIVIDER_RATIO;
+  const float bar = (sensorV - PRESSURE_V_MIN) / (PRESSURE_V_MAX - PRESSURE_V_MIN) * PRESSURE_FULL_SCALE_BAR;
+  return bar < 0 ? 0 : bar;
 }
 
 }  // namespace Sensors
