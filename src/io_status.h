@@ -2,8 +2,9 @@
 #include <Arduino.h>
 
 // Read-only status of the pins listed in include/io_pins.h.
-// Pins are sampled from the main loop without reconfiguring them; the only
-// exception is pins typed "Analog", which are read with analogRead().
+// Pins are sampled from the main loop without reconfiguring them. The ADC is
+// never touched here: analog values come from the module that owns the pin
+// (the pressure input is read only by the machine control task).
 namespace IoStatus {
 
 void begin();

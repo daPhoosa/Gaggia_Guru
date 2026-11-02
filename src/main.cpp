@@ -2,28 +2,17 @@
 //  - Wi-Fi station with fallback setup AP + captive portal
 //  - OTA updates: ArduinoOTA (espota) and browser upload (/api/update)
 //  - Async web server serving a LittleFS dashboard with live WebSocket status
-//
-// Add your application code in appSetup()/appLoop() below.
+//  - Machine control (src/machine.*) runs in its own task, independent of the above
 
 #include <Arduino.h>
 #include <esp_ota_ops.h>
 
 #include "config.h"
 #include "io_status.h"
+#include "machine.h"
 #include "ota.h"
 #include "web_server.h"
 #include "wifi_manager.h"
-
-// ---------------------------------------------------------------------------
-// Application hooks
-// ---------------------------------------------------------------------------
-static void appSetup() {
-  // TODO: initialise your sensors / peripherals here.
-}
-
-static void appLoop() {
-  // TODO: non-blocking application logic here (avoid long delay() calls).
-}
 
 // ---------------------------------------------------------------------------
 static void updateStatusLed() {
@@ -47,6 +36,7 @@ static void confirmOtaImage() {
 }
 
 void setup() {
+  Machine::safeOutputs();  // FIRST: heater, pump, valve and lights OFF
   Serial.begin(115200);
   delay(200);
   Serial.printf("\n\n=== %s v%s (%s %s) ===\n", DEVICE_HOSTNAME, FW_VERSION, __DATE__, __TIME__);
@@ -56,13 +46,12 @@ void setup() {
   pinMode(STATUS_LED_PIN, OUTPUT);
 #endif
 
+  Machine::begin();        // control starts before the (blocking) Wi-Fi connect
   WifiManager::begin();
   Ota::begin();
   IoStatus::begin();
   WebUi::begin();
   confirmOtaImage();
-
-  appSetup();
 }
 
 void loop() {
@@ -72,5 +61,4 @@ void loop() {
   WebUi::loop();
   updateStatusLed();
   IoStatus::loop();
-  appLoop();
 }

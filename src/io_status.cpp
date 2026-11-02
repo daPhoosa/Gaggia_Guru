@@ -8,6 +8,9 @@
 #include <soc/io_mux_reg.h>
 #include <soc/rtc_io_periph.h>
 
+#include "io_pins.h"
+#include "machine.h"
+
 // Raw register access. (The ESP-IDF REG_* macros contain a compile-time assert
 // that warns when expanded inside an anonymous namespace.)
 static inline uint32_t regRead(uint32_t addr) { return *reinterpret_cast<volatile uint32_t *>(addr); }
@@ -36,7 +39,6 @@ struct PinState {
   Mode mode;
   int8_t level;      // 0/1, or -1 if unknown
   int8_t pull;       // 1 = pull-up, -1 = pull-down, 0 = none
-  int16_t raw;       // ADC raw (Analog pins), -1 if n/a
   int16_t mv;        // ADC millivolts (Analog pins), -1 if n/a
   const char *note;  // runtime note (e.g. ADC2 + Wi-Fi), or nullptr
 };
@@ -79,20 +81,22 @@ bool routedToRtc(uint8_t g) {  // pad switched to the RTC/analog domain (ADC, DA
 }
 
 PinState sample(const IoPinInfo &p) {
-  PinState s{Mode::Input, -1, 0, -1, -1, nullptr};
+  PinState s{Mode::Input, -1, 0, -1, nullptr};
   const uint8_t g = p.gpio;
   const uint32_t mux = regRead(GPIO_PIN_MUX_REG[g]);
   s.pull = (mux & FUN_PU) ? 1 : (mux & FUN_PD) ? -1 : 0;
 
   if (p.type == IoType::Analog) {
+    // Never read the ADC here; show the owner's last sample instead.
     s.mode = Mode::Analog;
-    if (isAdc2(g) && WiFi.getMode() != WIFI_OFF) {
+    if (g == PIN_PRESSURE) {
+      s.mv = Machine::status().pressurePinMv;
+    } else if (isAdc2(g) && WiFi.getMode() != WIFI_OFF) {
       s.note = "ADC2 pin: not readable while Wi-Fi is on";
-    } else if (isAdc1(g) || isAdc2(g)) {
-      s.raw = analogRead(g);
-      s.mv = analogReadMilliVolts(g);
-    } else {
+    } else if (!isAdc1(g) && !isAdc2(g)) {
       s.note = "No ADC on this pin";
+    } else {
+      s.note = "Not sampled (no owner reports a value)";
     }
     return s;
   }
@@ -128,7 +132,6 @@ PinState sample(const IoPinInfo &p) {
 namespace IoStatus {
 
 void begin() {
-  analogReadResolution(12);
   lastSample = millis() - 1000;
 }
 
@@ -160,7 +163,6 @@ String json() {
     o["mode"] = modeName(s.mode);
     if (s.level >= 0) o["level"] = s.level;
     o["pull"] = s.pull > 0 ? "up" : s.pull < 0 ? "down" : "";
-    if (s.raw >= 0) o["raw"] = s.raw;
     if (s.mv >= 0) o["mv"] = s.mv;
     if (s.note) o["note"] = s.note;
   }

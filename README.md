@@ -23,14 +23,20 @@ PlatformIO / Arduino firmware with:
 platformio.ini        build envs: esp32-serial (USB) and esp32-ota (Wi-Fi)
 partitions.csv        4MB: 2 × 1.5MB OTA app slots, 896KB LittleFS, coredump
 include/config.h      hostname, passwords, AP name, timings  ← edit first
+include/machine_config.h  setpoint/PID defaults, safety limits, control timing
 include/io_pins.h     every GPIO: '#define PIN_X n // Name | Type | notes'
 scripts/gen_io_pins.py  pre-build: io_pins.h comments → include/io_pins_table.gen.h
-src/main.cpp          setup/loop + appSetup()/appLoop() hooks for your code
+src/main.cpp          setup/loop; loads forced OFF first, machine control started before Wi-Fi
+src/machine.*         state machine, heater/pump PID, safety faults (own FreeRTOS task + watchdog)
+src/sensors.*         MAX31855K thermocouple, XDB401 pressure sensor
+src/pump.*            RobotDyn dimmer: zero-cross ISR, full-cycle pulse-skip modulation
+src/settings.*        user settings (setpoints, PID gains) in NVS
+src/pid.h             PID controller
 src/wifi_manager.*    STA connect, fallback AP, captive DNS, scan, NVS creds
 src/ota.*             ArduinoOTA
 src/web_server.*      HTTP routes, JSON API, WebSocket, browser OTA
 src/io_status.*       read-only pin sampling for /api/io
-data/                 web UI → LittleFS: index.html (dashboard), wifi.html,
+data/                 web UI → LittleFS: index.html (dashboard), settings.html, wifi.html,
                       update.html, io.html, shared style.css + app.js
 ```
 
@@ -68,6 +74,11 @@ Bump `-DFW_VERSION` in `platformio.ini` to see the new version on the dashboard.
 |--------|--------------------------------|--------|--------------------------------------|
 | GET    | `/api/status`                  | –      | Device status JSON                   |
 | WS     | `/ws`                          | –      | Status JSON pushed every 2 s         |
+| GET    | `/api/machine`                 | –      | Machine state, temperature, pressure, outputs, fault |
+| WS     | `/ws` (`"type":"machine"`)     | –      | Machine JSON pushed every 0.5 s      |
+| GET    | `/api/settings`                | –      | Settings values, defaults and limits |
+| POST   | `/api/settings` (any of the setting keys) | admin | Validate, apply and save settings |
+| POST   | `/api/settings/reset`          | admin  | Restore default settings             |
 | GET    | `/api/io`                      | –      | Pin names/types (from io_pins.h) + live state |
 | GET    | `/api/wifi/scan`               | –      | Nearby networks (async; poll)        |
 | POST   | `/api/wifi` (`ssid`, `pass`)   | admin† | Save credentials and reboot          |
@@ -92,13 +103,34 @@ Each active line must be:
 - `scripts/gen_io_pins.py` parses the comments on every build and fails the build with a
   clear message on a bad type, duplicate GPIO, flash pin or missing comment.
 - The dashboard's **IO Status** page shows each pin's name, type, mode (IN/OUT/PERIPH/ANALOG),
-  pull-up/down and level (HIGH/LOW), refreshed every second. Reading is non-invasive; only
-  pins typed `Analog` are sampled with `analogRead()`. ADC2 pins can't be read while Wi-Fi is on —
-  use ADC1 (GPIO32–39) for analog inputs.
+  pull-up/down and level (HIGH/LOW), refreshed every second. Reading is non-invasive and the
+  page never touches the ADC: the pressure pin shows the control task's latest sample.
+  ADC2 pins can't be read while Wi-Fi is on — use ADC1 (GPIO32–39) for analog inputs.
+
+## Machine operation
+
+| Coffee | Steam | State       | Boiler target | Pump                 | Valve  |
+|--------|-------|-------------|---------------|----------------------|--------|
+| off    | off   | `IDLE`      | coffee (107 °C) | off                | closed |
+| on     | off   | `BREWING`   | coffee        | PID to brew pressure (6 bar) | open |
+| off    | on    | `STEAM`     | steam (145 °C)  | off                | closed |
+| on     | on    | `HOT_WATER` | steam         | 100 %                | closed |
+
+- **Lights:** the active mode's light is on when the boiler is within ±2 °C of its target.
+  Both blink on a fault.
+- **Coffee switch arming:** if the Coffee switch is on at power-up (or after an update),
+  it is ignored until turned off and on again. The pump also stops after 120 s of
+  continuous running and needs the same off/on cycle.
+- **Faults** (latched until power cycle, everything off): thermocouple fault, boiler
+  above 155 °C, boiler not heating at full power for 120 s (high-limit tripped, fuse,
+  element or loose probe), no zero-cross signal while pumping, pressure sensor out of
+  range while brewing. The dashboard shows the cause.
+- Firmware updates and reboots switch all loads off first.
+- Settings (temperatures, pressure, PID gains) are on the dashboard **Settings** page.
 
 ## Adding your own features
 
-- Put peripheral init in `appSetup()` and non-blocking logic in `appLoop()` (`src/main.cpp`).
+- Machine behaviour lives in `src/machine.cpp` (`tick()` runs every 50 ms).
 - Add fields to `statusJson()` in `src/web_server.cpp` and render them in `data/app.js`
   — they're pushed to the dashboard automatically.
 - Add routes in `WebUi::begin()`.

@@ -16,7 +16,26 @@
   <main>
     <p class="sub"><span id="hostname">gaggia-savant</span> · <span id="ipaddr">–</span></p>
 
+    <section class="card machine">
+      <div class="card-head">
+        <h2>Machine</h2>
+        <span id="mState" class="state">–</span>
+      </div>
+      <p id="mAlert" class="alert" hidden></p>
+      <div class="gauges">
+        <div class="gauge"><small>Boiler</small><b id="mTemp">–</b><span id="mSet">&nbsp;</span></div>
+        <div class="gauge"><small>Pressure</small><b id="mPress">–</b><span id="mPressT">&nbsp;</span></div>
+        <div class="gauge"><small>Shot</small><b id="mShot">–</b><span>seconds</span></div>
+      </div>
+      <dl id="mInfo" class="kv"></dl>
+    </section>
+
     <nav class="tiles">
+      <a class="tile" href="settings.html">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg>
+        <span>Settings</span>
+        <small id="setSub">Temperatures, pressure &amp; tuning</small>
+      </a>
       <a class="tile" href="wifi.html">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 8.5a15 15 0 0 1 20 0M5 12a10 10 0 0 1 14 0M8.5 15.5a5 5 0 0 1 7 0"/><circle cx="12" cy="19" r="1.3"/></svg>
         <span>Wi-Fi</span>
@@ -33,8 +52,6 @@
         <small id="ioSub">Pin names &amp; states</small>
       </a>
     </nav>
-
-    <!-- Add your own application widgets here -->
 
     <section class="card">
       <h2>Device status</h2>

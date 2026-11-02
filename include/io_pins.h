@@ -1,6 +1,6 @@
 #pragma once
 // ===========================================================================
-// ESP32-WROOM-32U hardware IO pin map (38-pin prototype/DevKit board)
+// Gaggia Savant - ESP32-WROOM-32U hardware IO pin map (38-pin DevKit board)
 // ===========================================================================
 //
 // EVERY ACTIVE PIN LINE MUST FOLLOW THIS FORMAT (parsed at build time by
@@ -12,55 +12,65 @@
 //   Type   One of: Analog, Digital, Communications, Unused
 //   Notes  Free text: board label, restrictions, what's connected, ...
 //
-// When you give a pin a job, update its line, e.g.
-//   #define PIN_GPIO4   4   // GPIO4 | Unused | ADC2_0, touch T0
-// becomes
-//   #define PIN_RELAY_1 4   // RELAY_1 | Digital | drives K1 via Q1
-//
 // Lines that start with "//" are ignored (pins not on a typical 38-pin board,
 // or not usable). Each GPIO number may be active only once.
+//
+// Machine: Gaggia Classic Pro, 120 V / 60 Hz. Stock thermostats removed.
+// Heater chain: SSR -> 165 C manual-reset high-limit thermostat -> thermal fuse -> element.
+//
+// Hardware rules for this build
+//   - Every SSR / dimmer drive pin has an external 10k pull-down so loads stay
+//     OFF while the ESP32 is in reset, booting or being flashed.
+//   - Coffee/Steam switches feed 3.3 V (never 5 V). Internal pull-down is
+//     enabled in firmware; add external 10k pull-down + 100 nF for noise.
+//   - RobotDyn dimmer VCC = 3.3 V (its Z-C output is pulled up to VCC).
+//   - MAX31855K board VCC = 3.3 V (chip max 3.6 V). Conversion ~100 ms (<= 10 Hz).
+//     Thermocouple MUST be ungrounded/insulated junction: a probe touching the
+//     earthed boiler makes the MAX31855 report a short-to-GND fault.
+//   - XDB401 pressure sensor: 5 V supply, 0.5-4.5 V out through a divider
+//     (10k top / 12k bottom -> 0.27-2.45 V at the pin). Never feed 4.5 V direct.
 //
 // Quick reference
 //   Input only, no internal pull-ups/downs : GPIO34, 35, 36 (VP), 39 (VN)
 //   Strapping pins (level at reset matters): GPIO0, 2, 5, 12, 15
 //   ADC1 (usable with Wi-Fi on)            : GPIO32-39
 //   ADC2 (NOT usable while Wi-Fi is on)    : GPIO0, 2, 4, 12-15, 25-27
-//   DAC                                    : GPIO25 (DAC1), GPIO26 (DAC2)
+//   GPIO36/39 can raise false interrupts while the ADC is active: no ISRs there.
 // ===========================================================================
 
 // ---- Left header (top to bottom, antenna end up): 3V3, EN, then ------------
-#define PIN_GPIO36      36  // GPIO36 | Unused | Board VP. Input only, no pull-ups. ADC1_0
-#define PIN_GPIO39      39  // GPIO39 | Unused | Board VN. Input only, no pull-ups. ADC1_3
-#define PIN_GPIO34      34  // GPIO34 | Unused | Input only, no pull-ups. ADC1_6
-#define PIN_GPIO35      35  // GPIO35 | Unused | Input only, no pull-ups. ADC1_7
-#define PIN_GPIO32      32  // GPIO32 | Unused | ADC1_4, touch T9, XTAL32_P
-#define PIN_GPIO33      33  // GPIO33 | Unused | ADC1_5, touch T8, XTAL32_N
-#define PIN_GPIO25      25  // GPIO25 | Unused | DAC1, ADC2_8
-#define PIN_GPIO26      26  // GPIO26 | Unused | DAC2, ADC2_9
-#define PIN_GPIO27      27  // GPIO27 | Unused | ADC2_7, touch T7
-#define PIN_GPIO14      14  // GPIO14 | Unused | ADC2_6, touch T6, HSPI CLK. Outputs PWM at boot
-#define PIN_GPIO12      12  // GPIO12 | Unused | Strapping (MTDI): must be LOW at reset. ADC2_5, HSPI MISO
-#define PIN_GPIO13      13  // GPIO13 | Unused | ADC2_4, touch T4, HSPI MOSI
+#define PIN_PRESSURE      36  // PRESSURE | Analog | Board VP. XDB401 0-1.2 MPa via 10k/12k divider. ADC1_0, input only
+#define PIN_GPIO39        39  // GPIO39 | Unused | Spare. Board VN. Input only, no pull-ups. ADC1_3. No interrupts (errata)
+#define PIN_PUMP_ZC       34  // PUMP_ZC | Digital | RobotDyn dimmer Z-C input (interrupt). 120 zero-crosses/s at 60 Hz. Input only
+#define PIN_HX711_DOUT    35  // HX711_DOUT | Communications | Scale load-cell data (future, not fitted). Input only
+#define PIN_GPIO32        32  // GPIO32 | Unused | Spare (flow meter / tank level). ADC1_4, touch T9
+#define PIN_GPIO33        33  // GPIO33 | Unused | Spare (flow meter / tank level). ADC1_5, touch T8
+#define PIN_PUMP_PSM      25  // PUMP_PSM | Digital | RobotDyn dimmer PSM/gate output. Pulse-skip control. 10k pull-down
+#define PIN_HEATER_SSR    26  // HEATER_SSR | Digital | Boiler heater SSR (via thermal fuses). 10k pull-down
+#define PIN_VALVE_SSR     27  // VALVE_SSR | Digital | 3-way solenoid valve SSR. 10k pull-down
+#define PIN_STEAM_LIGHT   14  // STEAM_LIGHT | Digital | Steam temperature light SSR. Pulses at boot (harmless flicker)
+#define PIN_GPIO12        12  // GPIO12 | Unused | Spare, avoid. Strapping (MTDI): must be LOW at reset. ADC2_5
+#define PIN_COFFEE_LIGHT  13  // COFFEE_LIGHT | Digital | Coffee temperature light SSR
 // #define PIN_GPIO9     9  // FLASH_D2 | Communications | Board SD2. Internal SPI flash - do not use
 // #define PIN_GPIO10   10  // FLASH_D3 | Communications | Board SD3. Internal SPI flash - do not use
 // #define PIN_GPIO11   11  // FLASH_CMD | Communications | Board CMD. Internal SPI flash - do not use
 //                          (then 5V)
 
 // ---- Right header (top to bottom): GND, then -------------------------------
-#define PIN_GPIO23      23  // GPIO23 | Unused | VSPI MOSI
-#define PIN_GPIO22      22  // GPIO22 | Unused | Default I2C SCL
-#define PIN_UART0_TX     1  // UART0_TX | Communications | Board TX0. USB serial / programming
-#define PIN_UART0_RX     3  // UART0_RX | Communications | Board RX0. USB serial / programming
-#define PIN_GPIO21      21  // GPIO21 | Unused | Default I2C SDA
-#define PIN_GPIO19      19  // GPIO19 | Unused | VSPI MISO
-#define PIN_GPIO18      18  // GPIO18 | Unused | VSPI CLK
-#define PIN_GPIO5        5  // GPIO5 | Unused | Strapping: HIGH at reset. VSPI CS. Outputs PWM at boot
-#define PIN_GPIO17      17  // GPIO17 | Unused | Default UART2 TX
-#define PIN_GPIO16      16  // GPIO16 | Unused | Default UART2 RX
-#define PIN_GPIO4        4  // GPIO4 | Unused | ADC2_0, touch T0
-#define PIN_GPIO0        0  // GPIO0 | Unused | BOOT button. Strapping: LOW at reset = download mode
-#define PIN_STATUS_LED   2  // STATUS_LED | Digital | On-board LED. Strapping: LOW/float at reset
-#define PIN_GPIO15      15  // GPIO15 | Unused | Strapping (MTDO): HIGH at reset. ADC2_3, HSPI CS
+#define PIN_GPIO23        23  // GPIO23 | Unused | Spare. VSPI MOSI
+#define PIN_I2C_SCL       22  // I2C_SCL | Communications | Reserved I2C bus (ADS1115 / OLED / tank sensor)
+#define PIN_UART0_TX       1  // UART0_TX | Communications | Board TX0. USB serial / programming
+#define PIN_UART0_RX       3  // UART0_RX | Communications | Board RX0. USB serial / programming
+#define PIN_I2C_SDA       21  // I2C_SDA | Communications | Reserved I2C bus (ADS1115 / OLED / tank sensor)
+#define PIN_TC_SO         19  // TC_SO | Communications | MAX31855 SO, boiler thermocouple (VSPI MISO)
+#define PIN_TC_SCK        18  // TC_SCK | Communications | MAX31855 SCK, boiler thermocouple (VSPI CLK)
+#define PIN_TC_CS          5  // TC_CS | Communications | MAX31855 chip select, boiler thermocouple. Strapping: HIGH at reset (CS idles high)
+#define PIN_STEAM_SW      17  // STEAM_SW | Digital | Steam switch, 3.3 V = on. Internal pull-down
+#define PIN_COFFEE_SW     16  // COFFEE_SW | Digital | Coffee switch, 3.3 V = on. Internal pull-down
+#define PIN_HX711_SCK      4  // HX711_SCK | Communications | Scale load-cell clock (future, not fitted)
+#define PIN_GPIO0          0  // GPIO0 | Unused | Spare, avoid. BOOT button. Strapping: LOW at reset = download mode
+#define PIN_STATUS_LED     2  // STATUS_LED | Digital | On-board LED. Strapping: LOW/float at reset
+#define PIN_GPIO15        15  // GPIO15 | Unused | Spare, avoid. Strapping (MTDO): HIGH at reset. ADC2_3
 // #define PIN_GPIO8     8  // FLASH_D1 | Communications | Board SD1. Internal SPI flash - do not use
 // #define PIN_GPIO7     7  // FLASH_D0 | Communications | Board SD0. Internal SPI flash - do not use
 // #define PIN_GPIO6     6  // FLASH_CLK | Communications | Board CLK. Internal SPI flash - do not use

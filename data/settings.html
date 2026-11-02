@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#2563eb">
+  <title>Settings · Gaggia Savant</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body data-page="settings">
+  <header class="bar">
+    <a class="back" href="/" aria-label="Back to dashboard">‹</a>
+    <h1>Settings</h1>
+    <span id="conn" class="pill off">offline</span>
+  </header>
+
+  <main>
+    <form id="setForm">
+      <section class="card">
+        <h2>Temperatures</h2>
+        <div class="row2">
+          <label class="field"><span>Coffee (°C)</span><input type="number" name="coffeeTempC" step="0.5" inputmode="decimal" required></label>
+          <label class="field"><span>Steam (°C)</span><input type="number" name="steamTempC" step="0.5" inputmode="decimal" required></label>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Brew pressure</h2>
+        <label class="field"><span>Target (bar)</span><input type="number" name="brewPressureBar" step="0.1" inputmode="decimal" required></label>
+      </section>
+
+      <section class="card">
+        <h2>Boiler PID</h2>
+        <p class="muted">Output is heater power 0–100 %.</p>
+        <div class="row3">
+          <label class="field"><span>Kp</span><input type="number" name="tempKp" step="any" inputmode="decimal" required></label>
+          <label class="field"><span>Ki</span><input type="number" name="tempKi" step="any" inputmode="decimal" required></label>
+          <label class="field"><span>Kd</span><input type="number" name="tempKd" step="any" inputmode="decimal" required></label>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Pressure PID</h2>
+        <p class="muted">Output is pump power 0–100 %.</p>
+        <div class="row3">
+          <label class="field"><span>Kp</span><input type="number" name="pressKp" step="any" inputmode="decimal" required></label>
+          <label class="field"><span>Ki</span><input type="number" name="pressKi" step="any" inputmode="decimal" required></label>
+          <label class="field"><span>Kd</span><input type="number" name="pressKd" step="any" inputmode="decimal" required></label>
+        </div>
+      </section>
+
+      <button type="submit" class="primary">Save</button>
+    </form>
+
+    <section class="card" style="margin-top:14px">
+      <h2>Factory defaults</h2>
+      <p class="muted">Restores every value on this page to its default. Takes effect immediately.</p>
+      <button id="resetBtn" class="danger">Reset to defaults</button>
+    </section>
+  </main>
+
+  <div id="toast" role="status"></div>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -9,6 +9,8 @@
 
 #include "config.h"
 #include "io_status.h"
+#include "machine.h"
+#include "settings.h"
 #include "wifi_manager.h"
 
 namespace {
@@ -18,9 +20,15 @@ AsyncWebSocket ws("/ws");
 
 uint32_t rebootAt = 0;  // millis() deadline for a deferred restart (0 = none)
 uint32_t lastPush = 0;
+uint32_t lastMachinePush = 0;
+constexpr uint32_t kMachinePushMs = 500;
 String otaError;
+bool otaReceived = false;  // an upload actually arrived for this request
 
-void scheduleReboot(uint32_t delayMs = 1000) { rebootAt = millis() + delayMs; }
+void scheduleReboot(uint32_t delayMs = 1000) {
+  Machine::inhibit("rebooting");  // loads off before the restart
+  rebootAt = millis() + delayMs;
+}
 
 bool requireAdmin(AsyncWebServerRequest *req) {
   if (req->authenticate(ADMIN_USER, ADMIN_PASSWORD)) return true;
@@ -68,6 +76,8 @@ void handleUpdateUpload(AsyncWebServerRequest *req, const String &filename, size
       return;
     }
     otaError = "";
+    otaReceived = true;
+    Machine::inhibit("firmware upload");
     bool fs = req->hasParam("target") && req->getParam("target")->value() == "fs";
     Serial.printf("[WebOTA] Receiving %s: %s\n", fs ? "filesystem" : "firmware", filename.c_str());
     if (fs) LittleFS.end();
@@ -89,14 +99,18 @@ void handleUpdateUpload(AsyncWebServerRequest *req, const String &filename, size
   if (!otaError.isEmpty()) {
     Serial.printf("[WebOTA] Error: %s\n", otaError.c_str());
     Update.abort();
+    if (otaError != "unauthorized") Machine::release();
   }
 }
 
 void handleUpdateDone(AsyncWebServerRequest *req) {
-  if (otaError == "unauthorized") {
+  if (otaError == "unauthorized" || !req->authenticate(ADMIN_USER, ADMIN_PASSWORD)) {
+    otaError = "";
     req->requestAuthentication();
     return;
   }
+  if (!otaReceived) otaError = "no file uploaded";
+  otaReceived = false;
   bool ok = otaError.isEmpty() && !Update.hasError();
   JsonDocument doc;
   doc["ok"] = ok;
@@ -172,7 +186,10 @@ class CaptivePortalHandler : public AsyncWebHandler {
 
 void onWsEvent(AsyncWebSocket *, AsyncWebSocketClient *client, AwsEventType type, void *,
                uint8_t *, size_t) {
-  if (type == WS_EVT_CONNECT) client->text(statusJson());
+  if (type == WS_EVT_CONNECT) {
+    client->text(statusJson());
+    client->text(Machine::json());
+  }
 }
 
 }  // namespace
@@ -195,6 +212,46 @@ void begin() {
 
   server.on("/api/io", HTTP_GET, [](AsyncWebServerRequest *req) {
     req->send(200, "application/json", IoStatus::json());
+  });
+
+  server.on("/api/machine", HTTP_GET, [](AsyncWebServerRequest *req) {
+    req->send(200, "application/json", Machine::json());
+  });
+
+  server.on("/api/settings", HTTP_GET, [](AsyncWebServerRequest *req) {
+    req->send(200, "application/json", Settings::json());
+  });
+
+  // Form fields named after the setting keys; only the fields sent are changed.
+  server.on("/api/settings", HTTP_POST, [](AsyncWebServerRequest *req) {
+    if (!requireAdmin(req)) return;
+    MachineSettings s = Settings::get();
+    String err;
+    size_t changed = 0;
+    for (size_t i = 0; i < Settings::fieldCount(); ++i) {
+      const char *key = Settings::fieldKey(i);
+      if (!req->hasParam(key, true)) continue;
+      if (!Settings::setField(s, key, req->getParam(key, true)->value(), err)) break;
+      ++changed;
+    }
+    if (err.isEmpty() && !changed) err = "no settings given";
+    if (err.isEmpty()) Settings::set(s, err);  // validates again and saves to NVS
+    if (!err.isEmpty()) {
+      JsonDocument doc;
+      doc["ok"] = false;
+      doc["error"] = err;
+      String out;
+      serializeJson(doc, out);
+      req->send(400, "application/json", out);
+      return;
+    }
+    req->send(200, "application/json", Settings::json());
+  });
+
+  server.on("/api/settings/reset", HTTP_POST, [](AsyncWebServerRequest *req) {
+    if (!requireAdmin(req)) return;
+    Settings::resetToDefaults();
+    req->send(200, "application/json", Settings::json());
   });
 
   server.on("/api/wifi/scan", HTTP_GET, [](AsyncWebServerRequest *req) {
@@ -284,6 +341,10 @@ void loop() {
     lastPush = millis();
     ws.cleanupClients();
     if (ws.count()) ws.textAll(statusJson());
+  }
+  if (millis() - lastMachinePush >= kMachinePushMs) {
+    lastMachinePush = millis();
+    if (ws.count()) ws.textAll(Machine::json());
   }
 }
 

@@ -1,5 +1,5 @@
 'use strict';
-// Shared script for index.html, wifi.html and update.html (selected by <body data-page>).
+// Shared script for all dashboard pages (selected by <body data-page>).
 const $ = (s) => document.querySelector(s);
 const page = document.body.dataset.page;
 
@@ -88,15 +88,59 @@ const renderPage = {
   },
 };
 
+// ---------- machine (live, pushed every 0.5 s) ----------
+const STATE_LABEL = { IDLE: 'Idle', BREWING: 'Brewing', STEAM: 'Steam', HOT_WATER: 'Hot water',
+                      FAULT: 'Fault', INHIBITED: 'Paused' };
+function renderMachine(m) {
+  if (page !== 'home') return;
+  const st = $('#mState');
+  st.textContent = STATE_LABEL[m.state] || m.state;
+  st.className = 'state ' + m.state.toLowerCase();
+
+  let alert = '', bad = false;
+  if (m.fault) { alert = m.fault + ' — power-cycle the machine to clear.'; bad = true; }
+  else if (m.inhibit) alert = 'Heater and pump paused: ' + m.inhibit + '.';
+  else if (m.pumpTimedOut) alert = 'Pump stopped after the run-time limit. Turn the Coffee switch off to reset.';
+  else if (m.waitSwitchCycle) alert = 'Coffee switch was already on. Turn it off and on again to start the pump.';
+  const a = $('#mAlert');
+  a.hidden = !alert; a.textContent = alert; a.classList.toggle('bad', bad);
+
+  const ready = m.coffeeLight || m.steamLight;
+  $('#mTemp').textContent = m.temp == null ? '–' : (+m.temp).toFixed(1) + '°';
+  $('#mTemp').classList.toggle('ok', ready);
+  $('#mSet').textContent = 'target ' + (+m.setpoint).toFixed(1) + '°';
+  $('#mPress').textContent = m.pressure == null ? '–' : (+m.pressure).toFixed(1);
+  $('#mPressT').textContent = m.pressureTarget ? 'target ' + (+m.pressureTarget).toFixed(1) + ' bar' : 'bar';
+  $('#mShot').textContent = m.shotMs ? (m.shotMs / 1000).toFixed(1) : '–';
+
+  const on = (b) => b ? 'On' : 'Off';
+  fillKv('#mInfo', [
+    ['Heater', `${(+m.heaterDuty).toFixed(0)} %`],
+    ['Pump', `${m.pump} %`],
+    ['Valve', m.valve ? 'Open' : 'Closed'],
+    ['Switches', `Coffee ${on(m.coffeeSw)} · Steam ${on(m.steamSw)}`],
+    ['Mains', `${(+m.mainsHz).toFixed(1)} Hz`],
+  ]);
+}
+
 let pollTimer;
+const pollOnce = () => {
+  fetch('/api/status').then((r) => r.json()).then(render).catch(() => {});
+  if (page === 'home') fetch('/api/machine').then((r) => r.json()).then(renderMachine).catch(() => {});
+};
 function connectWs() {
   const ws = new WebSocket(`ws://${location.host}/ws`);
-  ws.onmessage = (e) => { try { render(JSON.parse(e.data)); } catch (_) {} };
+  ws.onmessage = (e) => {
+    try {
+      const j = JSON.parse(e.data);
+      j.type === 'machine' ? renderMachine(j) : render(j);
+    } catch (_) {}
+  };
   ws.onopen = () => clearInterval(pollTimer);
   ws.onclose = () => {
     $('#conn').className = 'pill off'; $('#conn').textContent = 'offline';
     clearInterval(pollTimer);   // poll while the socket is retrying
-    pollTimer = setInterval(() => fetch('/api/status').then((r) => r.json()).then(render).catch(() => {}), 3000);
+    pollTimer = setInterval(pollOnce, 3000);
     setTimeout(connectWs, 3000);
   };
 }
@@ -232,7 +276,7 @@ if (page === 'io') {
     const st = el('div', 'st');
     if (p.mv != null) {
       const v = el('div', 'av', (p.mv / 1000).toFixed(2) + ' V');
-      v.append(el('small', null, 'raw ' + p.raw));
+      if (p.raw != null) v.append(el('small', null, 'raw ' + p.raw));
       st.append(v);
     } else if (p.level != null) {
       st.append(el('span', 'lv ' + (p.level ? 'hi' : 'lo'), p.level ? 'HIGH' : 'LOW'));
@@ -286,4 +330,30 @@ if (page === 'io') {
   }
   document.addEventListener('visibilitychange', () => { if (!document.hidden) poll(); });
   poll();
+}
+
+// ---------- Settings page ----------
+if (page === 'settings') {
+  const form = $('#setForm');
+  function fill(j) {
+    for (const [k, v] of Object.entries(j.values)) {
+      const inp = form.elements[k]; if (!inp) continue;
+      inp.value = +v.toFixed(3);
+      const [lo, hi] = j.limits[k] || [];
+      if (lo != null) { inp.min = lo; inp.max = hi; }
+      inp.title = `Default ${j.defaults[k]}` + (lo != null ? ` · range ${lo}–${hi}` : '');
+    }
+  }
+  fetch('/api/settings').then((r) => r.json()).then(fill).catch(() => toast('Could not load settings'));
+
+  form.onsubmit = async (e) => {
+    e.preventDefault();
+    try { fill(await post('/api/settings', new URLSearchParams(new FormData(form)))); toast('Saved'); }
+    catch (err) { toast('Error: ' + err.message); }
+  };
+  $('#resetBtn').onclick = async (e) => {
+    if (!armed(e.target)) return;
+    try { fill(await post('/api/settings/reset')); toast('Defaults restored'); }
+    catch (err) { toast('Error: ' + err.message); }
+  };
 }

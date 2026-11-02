@@ -4,6 +4,7 @@
 #include <LittleFS.h>
 
 #include "config.h"
+#include "machine.h"
 
 namespace {
 bool active = false;
@@ -20,6 +21,7 @@ void begin() {
   ArduinoOTA
       .onStart([]() {
         active = true;
+        Machine::inhibit("firmware update");
         bool fs = ArduinoOTA.getCommand() == U_SPIFFS;
         if (fs) LittleFS.end();  // must unmount before overwriting the partition
         Serial.printf("[OTA] Start updating %s\n", fs ? "filesystem" : "firmware");
@@ -33,6 +35,7 @@ void begin() {
       })
       .onError([](ota_error_t err) {
         active = false;
+        Machine::release();
         const char *msg = err == OTA_AUTH_ERROR      ? "auth failed"
                           : err == OTA_BEGIN_ERROR   ? "begin failed"
                           : err == OTA_CONNECT_ERROR ? "connect failed"
