@@ -38,6 +38,10 @@ void begin() {
         lastPct = pct;
       })
       .onError([](ota_error_t err) {
+        // Auth/begin errors arrive before onStart (e.g. Update.begin refused
+        // because a browser upload is running): nothing was inhibited or
+        // unmounted by us then, so don't touch the machine or the filesystem.
+        const bool started = active;
         active = false;
         if (fsUnmounted) {
           // Mount again so the dashboard keeps working (no format; if the
@@ -47,7 +51,7 @@ void begin() {
           Serial.println(LittleFS.begin(false) ? "[FS] LittleFS remounted"
                                                : "[FS] LittleFS remount failed - upload a filesystem image");
         }
-        Machine::release();
+        if (started) Machine::release();
         const char *msg = err == OTA_AUTH_ERROR      ? "auth failed"
                           : err == OTA_BEGIN_ERROR   ? "begin failed"
                           : err == OTA_CONNECT_ERROR ? "connect failed"

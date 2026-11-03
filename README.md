@@ -111,7 +111,7 @@ Bump `-DFW_VERSION` in `platformio.ini` to see the new version on the dashboard.
 | POST   | `/api/wifi` (`ssid`, `pass`)   | admin† | Save credentials and reboot          |
 | POST   | `/api/wifi/forget`             | admin  | Clear credentials and reboot         |
 | POST   | `/api/reboot`                  | admin  | Reboot                               |
-| POST   | `/api/update?target=firmware\|fs` | admin | Multipart `.bin` upload, reboots on success |
+| POST   | `/api/update?target=firmware\|fs` | admin | Multipart `.bin` upload (one file), reboots on success; `409` while another update (browser or ArduinoOTA) is running |
 | GET    | `/update`                      | admin  | Minimal fallback upload page         |
 
 \* HTTP Basic auth. † Open while in setup-AP mode so first-time provisioning works.

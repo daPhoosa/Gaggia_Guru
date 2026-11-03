@@ -10,6 +10,7 @@
 #include "config.h"
 #include "io_status.h"
 #include "machine.h"
+#include "ota.h"
 #include "settings.h"
 #include "wifi_manager.h"
 
@@ -22,8 +23,6 @@ uint32_t rebootAt = 0;  // millis() deadline for a deferred restart (0 = none)
 uint32_t lastPush = 0;
 uint32_t lastMachinePush = 0;
 constexpr uint32_t kMachinePushMs = 500;
-String otaError;
-bool otaReceived = false;  // an upload actually arrived for this request
 bool fsUnmounted = false;  // LittleFS was unmounted for a filesystem upload
 
 // After a failed/aborted filesystem upload, mount LittleFS again so the
@@ -138,74 +137,130 @@ String statusJson() {
 
 // ---- Browser OTA upload -----------------------------------------------------
 // POST /api/update?target=firmware|fs   (multipart, field name "file")
+//
+// Only one update at a time: the flash writer (Update) is a single global, and
+// ArduinoOTA uses it too. While an upload runs, a second one gets 409 Busy
+// before it touches anything (no inhibit, no unmount, no Update calls).
+//
+// Per-request results live in req->_tempObject (freed by the library when the
+// request ends). The global state only tracks which request owns the update.
+
+enum class UploadState : uint8_t { Idle, Running, Done };  // Done = success, reboot pending
+UploadState uploadState = UploadState::Idle;
+AsyncWebServerRequest *uploadOwner = nullptr;  // valid while Running
+
+struct UploadCtx {
+  uint16_t status;   // 0 = proceeding/ok, else HTTP status to answer (401/403/409/500)
+  bool received;     // a file part arrived in this request
+  char error[72];
+};
+
+UploadCtx *uploadCtx(AsyncWebServerRequest *req) {
+  if (!req->_tempObject) req->_tempObject = calloc(1, sizeof(UploadCtx));
+  return static_cast<UploadCtx *>(req->_tempObject);
+}
+
+void setUploadError(UploadCtx *c, uint16_t status, const char *msg) {
+  c->status = status;
+  strlcpy(c->error, msg, sizeof(c->error));
+}
+
+// End a running upload that did not succeed: discard the partial image, mount
+// the filesystem again, resume machine control and free the slot.
+void failUpload(const char *why) {
+  Serial.printf("[WebOTA] Error: %s\n", why);
+  Update.abort();
+  remountFs();
+  uploadState = UploadState::Idle;
+  uploadOwner = nullptr;
+  Machine::release();
+}
+
 void handleUpdateUpload(AsyncWebServerRequest *req, const String &filename, size_t index,
                         uint8_t *data, size_t len, bool final) {
+  UploadCtx *c = uploadCtx(req);
+  if (!c) return;  // out of memory; handleUpdateDone reports it
+
   if (index == 0) {
-    if (!sameSite(req)) {  // handleUpdateDone sends the 403
-      otaError = "forbidden";
+    if (c->received) {  // a second file in the same multipart request
+      if (uploadOwner == req && uploadState == UploadState::Running) failUpload("more than one file");
+      if (!c->status) setUploadError(c, 400, "send one file per upload");
       return;
     }
-    if (!req->authenticate(ADMIN_USER, ADMIN_PASSWORD)) {
-      otaError = "unauthorized";
-      return;
+    c->received = true;
+    if (!sameSite(req)) return setUploadError(c, 403, "cross-site request refused");
+    if (!req->authenticate(ADMIN_USER, ADMIN_PASSWORD)) return setUploadError(c, 401, "unauthorized");
+    if (uploadState != UploadState::Idle || Ota::inProgress()) {
+      Serial.println("[WebOTA] Refused: another update is in progress");
+      return setUploadError(c, 409, "another update is in progress");
     }
-    otaError = "";
-    otaReceived = true;
+
+    uploadState = UploadState::Running;
+    uploadOwner = req;
+    // Connection dropped mid-upload (browser closed, Wi-Fi lost): clean up so
+    // the machine doesn't stay inhibited and the next upload isn't refused.
+    req->onDisconnect([req]() {
+      if (uploadState == UploadState::Running && uploadOwner == req) failUpload("connection lost");
+    });
+
     Machine::inhibit("firmware upload");
-    bool fs = req->hasParam("target") && req->getParam("target")->value() == "fs";
+    const bool fs = req->hasParam("target") && req->getParam("target")->value() == "fs";
     Serial.printf("[WebOTA] Receiving %s: %s\n", fs ? "filesystem" : "firmware", filename.c_str());
     if (fs) {
       LittleFS.end();  // must unmount before overwriting the partition
       fsUnmounted = true;
     }
     if (!Update.begin(UPDATE_SIZE_UNKNOWN, fs ? U_SPIFFS : U_FLASH)) {
-      otaError = Update.errorString();
+      setUploadError(c, 500, Update.errorString());
+      failUpload(c->error);
+      return;
     }
   }
-  if (!otaError.isEmpty()) return;
+  if (c->status || uploadOwner != req || uploadState != UploadState::Running) return;
 
-  if (len && Update.write(data, len) != len) otaError = Update.errorString();
-
-  if (final && otaError.isEmpty()) {
+  if (len && Update.write(data, len) != len) {
+    setUploadError(c, 500, Update.errorString());
+    failUpload(c->error);
+    return;
+  }
+  if (final) {
     if (Update.end(true)) {
       Serial.printf("[WebOTA] Success, %u bytes\n", index + len);
+      uploadState = UploadState::Done;  // stays busy until the reboot
+      uploadOwner = nullptr;
+      scheduleReboot(1500);             // even if the browser never reads the reply
     } else {
-      otaError = Update.errorString();
-    }
-  }
-  if (!otaError.isEmpty()) {
-    Serial.printf("[WebOTA] Error: %s\n", otaError.c_str());
-    Update.abort();
-    if (otaError != "unauthorized" && otaError != "forbidden") {
-      remountFs();
-      Machine::release();
+      setUploadError(c, 500, Update.errorString());
+      failUpload(c->error);
     }
   }
 }
 
+void sendUploadResult(AsyncWebServerRequest *req, uint16_t code, const char *error) {
+  JsonDocument doc;
+  doc["ok"] = code == 200;
+  if (error) doc["error"] = error;
+  String out;
+  serializeJson(doc, out);
+  AsyncWebServerResponse *res = req->beginResponse(code, "application/json", out);
+  res->addHeader("Connection", "close");
+  req->send(res);
+}
+
 void handleUpdateDone(AsyncWebServerRequest *req) {
-  if (!requireSameSite(req)) {
-    otaError = "";
-    otaReceived = false;
-    return;
-  }
-  if (otaError == "unauthorized" || !req->authenticate(ADMIN_USER, ADMIN_PASSWORD)) {
-    otaError = "";
+  UploadCtx *c = static_cast<UploadCtx *>(req->_tempObject);
+  // Body ended without the final chunk being written (shouldn't happen): don't leave it running.
+  if (uploadState == UploadState::Running && uploadOwner == req) failUpload("upload incomplete");
+
+  if (!requireSameSite(req)) return;
+  if ((c && c->status == 401) || !req->authenticate(ADMIN_USER, ADMIN_PASSWORD)) {
     req->requestAuthentication();
     return;
   }
-  if (!otaReceived) otaError = "no file uploaded";
-  otaReceived = false;
-  bool ok = otaError.isEmpty() && !Update.hasError();
-  JsonDocument doc;
-  doc["ok"] = ok;
-  if (!ok) doc["error"] = otaError.isEmpty() ? String(Update.errorString()) : otaError;
-  String out;
-  serializeJson(doc, out);
-  AsyncWebServerResponse *res = req->beginResponse(ok ? 200 : 500, "application/json", out);
-  res->addHeader("Connection", "close");
-  req->send(res);
-  if (ok) scheduleReboot(1500);
+  if (!c) return sendUploadResult(req, 400, "no file uploaded");
+  if (c->status) return sendUploadResult(req, c->status, c->error);
+  if (!c->received) return sendUploadResult(req, 400, "no file uploaded");
+  sendUploadResult(req, 200, nullptr);  // reboot already scheduled
 }
 
 // ---- Captive portal ---------------------------------------------------------
