@@ -22,7 +22,7 @@ AsyncWebSocket ws("/ws");
 uint32_t rebootAt = 0;  // millis() deadline for a deferred restart (0 = none)
 uint32_t lastPush = 0;
 uint32_t lastMachinePush = 0;
-constexpr uint32_t kMachinePushMs = 500;
+constexpr uint32_t kMachinePushMs = 250;
 bool fsUnmounted = false;  // LittleFS was unmounted for a filesystem upload
 
 // After a failed/aborted filesystem upload, mount LittleFS again so the
