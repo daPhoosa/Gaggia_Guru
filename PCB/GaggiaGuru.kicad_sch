@@ -1863,7 +1863,7 @@
 			)
 			(embedded_fonts no)
 		)
-		(symbol "GaggiaGuru:ESP32-DevKitC-32U"
+		(symbol "GaggiaGuru:ESP32-WROOM-32U"
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
@@ -1879,7 +1879,7 @@
 					)
 				)
 			)
-			(property "Value" "ESP32-DevKitC-32U"
+			(property "Value" "ESP32-WROOM-32U"
 				(at 0 -26.67 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -1889,7 +1889,7 @@
 					)
 				)
 			)
-			(property "Footprint" "GaggiaGuru:ESP32-DevKitC-38_P25.4mm"
+			(property "Footprint" "GaggiaGuru:ESP32U-38_P25.4mm"
 				(at 0 0 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -1911,7 +1911,7 @@
 					)
 				)
 			)
-			(property "Description" "ESP32-DevKitC, 38 pins, ESP32-WROOM-32U (external antenna). Pins 1-19 left header, 20-38 right header, top to bottom"
+			(property "Description" "ESP32U, 38 pins, ESP32-WROOM-32U (external antenna). Pins 1-19 left header, 20-38 right header, top to bottom"
 				(at 0 0 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -1922,7 +1922,7 @@
 					)
 				)
 			)
-			(property "ki_keywords" "esp32 devkit wroom"
+			(property "ki_keywords" "esp32 esp32u wroom"
 				(at 0 0 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -1933,7 +1933,7 @@
 					)
 				)
 			)
-			(symbol "ESP32-DevKitC-32U_0_1"
+			(symbol "ESP32-WROOM-32U_0_1"
 				(rectangle
 					(start -15.24 25.4)
 					(end 15.24 -25.4)
@@ -1946,7 +1946,7 @@
 					)
 				)
 			)
-			(symbol "ESP32-DevKitC-32U_1_1"
+			(symbol "ESP32-WROOM-32U_1_1"
 				(pin power_out line
 					(at -20.32 22.86 0)
 					(length 5.08)
@@ -3999,7 +3999,7 @@
 		)
 		(uuid "195c901f-b5b8-5a60-b170-9147b2eef5a2")
 	)
-	(text "Pressure ADC option: ADS1115 (I2C 0x48)"
+	(text "Pressure ADC: ADS1115 (I2C 0x48)"
 		(exclude_from_sim no)
 		(at 123.19 217.17 0)
 		(effects
@@ -4114,7 +4114,7 @@
 		)
 		(uuid "718280eb-e805-5cdb-bbaf-e16240d6692a")
 	)
-	(text "Controller: ESP32-DevKitC-32U (2 x 1x19 sockets, 1.0 in rows)"
+	(text "Controller: ESP32-WROOM-32U (2 x 1x19 sockets, 1.0 in rows)"
 		(exclude_from_sim no)
 		(at 123.19 24.13 0)
 		(effects
@@ -4207,7 +4207,7 @@
 		)
 		(uuid "a2bfd897-d961-5a4f-a065-803ee0e7c207")
 	)
-	(text "5 V power LED: 1k + red LED (~3 mA). D1 stops the DevKit's USB 5 V from\nback-feeding the 5 V rail (and the rail from feeding the USB host). With USB\nonly, the SSRs and pressure sensor are unpowered. DevKit 5V pin = +5V_ESP."
+	(text "5 V power LED: 1k + red LED (~3 mA). D1 stops the ESP32U's USB 5 V from\nback-feeding the 5 V rail (and the rail from feeding the USB host). With USB\nonly, the SSRs and pressure sensor are unpowered. ESP32U 5V pin = +5V_ESP."
 		(exclude_from_sim no)
 		(at 22.86 66.04 0)
 		(effects
@@ -4251,7 +4251,7 @@
 		)
 		(uuid "e238d02d-c159-5a2a-8d7b-305be8999e90")
 	)
-	(text "J pins: 1 = 5 V, 2 = GND, 3 = OUT. C at the connector decouples the sensor supply.\nDivider 10k/10k (ratio 0.5): 4.5 V -> 2.25 V. Firmware assumes exactly 0.5: use 1 %.\nPRESSURE goes to GPIO36 and ADS1115 AIN0; the PRESSURE_ADC build option picks one.\nBAT54S clamp (DNP): fit only if the sensor could ever see more than 5 V."
+	(text "J pins: 1 = 5 V, 2 = GND, 3 = OUT. C at the connector decouples the sensor supply.\nDivider 10k/10k (ratio 0.5): 4.5 V -> 2.25 V. Firmware assumes exactly 0.5: use 1 %.\nPRESSURE goes to ADS1115 AIN0 only (GPIO36 is not connected).\nBAT54S clamp (DNP): fit only if the sensor could ever see more than 5 V."
 		(exclude_from_sim no)
 		(at 22.86 193.04 0)
 		(effects
@@ -4262,7 +4262,7 @@
 		)
 		(uuid "e78bb26b-b157-5012-8caa-014a6b500a81")
 	)
-	(text "ADDR = GND -> address 0x48. AIN0 = PRESSURE (same node as GPIO36).\nAIN1 = 5 V rail / 2 (same 10k/10k ratio): firmware divides AIN0 by AIN1,\nso 5 V supply drift cancels (the XDB401 output is ratiometric).\nBuild option PRESSURE_ADC selects ADS1115 or the ESP32 ADC."
+	(text "ADDR = GND -> address 0x48. AIN0 = PRESSURE.\nAIN1 = 5 V rail / 2 (same 10k/10k ratio): firmware divides AIN0 by AIN1,\nso 5 V supply drift cancels (the XDB401 output is ratiometric)."
 		(exclude_from_sim no)
 		(at 124.46 264.16 0)
 		(effects
@@ -4409,6 +4409,10 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "f5f0f061-4753-5235-ae14-288675a4faf9")
+	)
+	(no_connect
+		(at 152.4 40.64)
+		(uuid "c4000514-dac3-46ae-ba54-f3f42974c788")
 	)
 	(no_connect
 		(at 193.04 81.28)
@@ -4857,16 +4861,6 @@
 			(type default)
 		)
 		(uuid "3d13424d-b4cf-5d89-9271-a6d2de98b759")
-	)
-	(wire
-		(pts
-			(xy 152.4 40.64) (xy 149.86 40.64)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "3dee2cc7-558a-5915-8637-e6191b2ff728")
 	)
 	(wire
 		(pts
@@ -6358,16 +6352,6 @@
 		)
 		(uuid "09575217-5908-5d35-8ba2-68f83917af2d")
 	)
-	(label "PRESSURE"
-		(at 149.86 40.64 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "09a55fbf-e461-5446-8662-15397a965c02")
-	)
 	(label "I2C_SCL"
 		(at 208.28 170.18 270)
 		(effects
@@ -7360,7 +7344,7 @@
 		)
 	)
 	(symbol
-		(lib_id "GaggiaGuru:ESP32-DevKitC-32U")
+		(lib_id "GaggiaGuru:ESP32-WROOM-32U")
 		(at 172.72 58.42 0)
 		(unit 1)
 		(body_style 1)
@@ -7380,7 +7364,7 @@
 				)
 			)
 		)
-		(property "Value" "ESP32-DevKitC-32U"
+		(property "Value" "ESP32-WROOM-32U"
 			(at 172.72 85.09 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7390,7 +7374,7 @@
 				)
 			)
 		)
-		(property "Footprint" "GaggiaGuru:ESP32-DevKitC-38_P25.4mm"
+		(property "Footprint" "GaggiaGuru:ESP32U-38_P25.4mm"
 			(at 172.72 58.42 0)
 			(hide yes)
 			(show_name no)
@@ -7412,7 +7396,7 @@
 				)
 			)
 		)
-		(property "Description" "ESP32-DevKitC, 38 pins, ESP32-WROOM-32U (external antenna). Pins 1-19 left header, 20-38 right header, top to bottom"
+		(property "Description" "ESP32U, 38 pins, ESP32-WROOM-32U (external antenna). Pins 1-19 left header, 20-38 right header, top to bottom"
 			(at 172.72 58.42 0)
 			(hide yes)
 			(show_name no)

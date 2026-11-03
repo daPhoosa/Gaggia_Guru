@@ -28,13 +28,12 @@ The carrier board that implements this is the KiCad 10 project in [`PCB/`](PCB/)
 | Thermocouple SCK | 18 | Out | `PIN_TC_SCK` | MAX31855K `SCK` | `OUTPUT` (bit-banged) |
 | Thermocouple SO | 19 | In | `PIN_TC_SO` | MAX31855K `SO` / `DO` | `INPUT` |
 | Thermocouple CS | 5 | Out | `PIN_TC_CS` | MAX31855K `CS` | `OUTPUT`, idles HIGH |
-| Brew pressure | 36 (VP) | Analog in | `PIN_PRESSURE` | XDB401 output via divider (§3.6) | ADC1_CH0, 11 dB attenuation |
 | Status LED | 2 | Out | `PIN_STATUS_LED` | On-board LED | `OUTPUT` |
 | USB serial TX / RX | 1 / 3 | — | `PIN_UART0_TX/RX` | USB-UART bridge | UART0 |
 | *Reserved:* HX711 DOUT | 35 | In | `PIN_HX711_DOUT` | HX711 `DOUT` (future scale) | not used yet |
 | *Reserved:* HX711 SCK | 4 | Out | `PIN_HX711_SCK` | HX711 `PD_SCK` (future scale) | not used yet |
-| I²C SDA | 21 | I/O | `PIN_I2C_SDA` | ADS1115 (PCB U3), future I²C devices | I²C, 400 kHz, when `PRESSURE_ADC_ADS1115` |
-| I²C SCL | 22 | Out | `PIN_I2C_SCL` | ADS1115 (PCB U3), future I²C devices | I²C, 400 kHz, when `PRESSURE_ADC_ADS1115` |
+| I²C SDA | 21 | I/O | `PIN_I2C_SDA` | ADS1115 brew-pressure ADC (PCB U3, §3.6), future I²C devices | I²C, 400 kHz |
+| I²C SCL | 22 | Out | `PIN_I2C_SCL` | ADS1115 brew-pressure ADC (PCB U3, §3.6), future I²C devices | I²C, 400 kHz |
 
 ### Spare pins
 
@@ -42,7 +41,7 @@ The carrier board that implements this is the KiCad 10 project in [`PCB/`](PCB/)
 |---|---|---|
 | 32, 33 | ADC1, interrupt-capable, internal pull-up/down | Best spares: flow meter, tank level, extra analog input |
 | 23 | Plain GPIO (VSPI MOSI) | Any digital in/out |
-| 39 (VN) | Input only, no pulls, false-interrupt errata | Analog input only; no interrupts |
+| 36 (VP), 39 (VN) | Input only, no pulls, false-interrupt errata | Analog input only; no interrupts |
 | 0, 12, 15 | Strapping pins (§4) | Avoid; last resort, and never for loads |
 
 ---
@@ -52,7 +51,7 @@ The carrier board that implements this is the KiCad 10 project in [`PCB/`](PCB/)
 | Rail | Source | Feeds | Notes |
 |---|---|---|---|
 | 5 V | Isolated mains-to-5 V supply, ≥ 1 A | ESP32 board (5V/VIN), XDB401 sensor, SSR drivers | Must be an isolated module (e.g. HLK-PM05 class) |
-| 3.3 V | Regulator, ≥ 600 mA (the DevKit's on-board regulator is fine) | ESP32, MAX31855K, RobotDyn dimmer VCC, switch supply, HX711 / I²C (future) | Wi-Fi draws ~500 mA spikes |
+| 3.3 V | Regulator, ≥ 600 mA (the ESP32U's on-board regulator is fine) | ESP32, MAX31855K, RobotDyn dimmer VCC, switch supply, HX711 / I²C (future) | Wi-Fi draws ~500 mA spikes |
 | GND | Common | Everything low-voltage | Join the 5 V, 3.3 V and sensor grounds at one point near the ESP32 |
 
 - **Only SSRs and the dimmer cross the mains boundary.** Each provides isolation, so no
@@ -75,9 +74,9 @@ The carrier board that implements this is the KiCad 10 project in [`PCB/`](PCB/)
 A 1 A supply leaves a comfortable margin.
 
 **3.3 V rail: no separate regulator needed.** Everything on 3.3 V that isn't the ESP32 is
-drawn from the DevKit's 3V3 pin (its AMS1117-class regulator, about 1 A max):
+drawn from the ESP32U's 3V3 pin (its AMS1117-class regulator, about 1 A max):
 
-| 3.3 V load (non-DevKit) | Current |
+| 3.3 V load (non-ESP32U) | Current |
 |---|---|
 | MAX31855K | ~1.5 mA |
 | ADS1115 | ~0.2 mA |
@@ -208,13 +207,14 @@ L ── SSR (GPIO 26) ── 165 °C manual-reset high-limit thermostat ── 
   - If the heater runs at ≥ 90 % for 120 s with less than 2 °C of rise and the pump off,
     the firmware latches a "not heating" fault.
 
-### 3.6 Brew pressure — XDB401 (GPIO 36)
+### 3.6 Brew pressure — XDB401 via ADS1115 (I²C)
 
 - **Sensor:** XDB401, 0–1.2 MPa (0–12 bar gauge), **5 V supply**, output 0.5–4.5 V.
-- **Divider (mandatory):** the sensor's 4.5 V would exceed the ESP32's 3.3 V limit.
+- **Divider (mandatory):** the sensor's 4.5 V would exceed the ADS1115's input limit
+  (VDD + 0.3 V at a 3.3 V supply).
 
   ```
-  XDB401 OUT ── 10 kΩ ──┬── GPIO 36 and ADS1115 AIN0
+  XDB401 OUT ── 10 kΩ ──┬── ADS1115 AIN0
                         │
                       10 kΩ   100 nF
                         │       │
@@ -230,33 +230,27 @@ L ── SSR (GPIO 26) ── 165 °C manual-reset high-limit thermostat ── 
   - Use 1 % resistors (every 10 kΩ on the board is 1 %, so this is one part). The firmware
     assumes a ratio of exactly 0.5 (`PRESSURE_DIVIDER_RATIO`); tolerance shows up directly
     as pressure error.
-  - The **100 nF** capacitor at the pin gives the converters a low-impedance source and
+  - The **100 nF** capacitor at the AIN0 node gives the converter a low-impedance source and
     filters pump pulsation.
-  - The 2.25 V maximum (2.375 V at the 4.75 V validity limit) keeps readings inside the ESP32
-    ADC's linear range at 11 dB attenuation (about 0.15–2.45 V).
-- **Converter: build option `PRESSURE_ADC`** (set in `platformio.ini` `build_flags`). Both
-  converters see the same node, so the choice needs no hardware change:
+  - The divider node is **not** connected to any ESP32 pin (GPIO 36 is a spare).
+- **Converter: ADS1115** (PCB U3) on I²C, address 0x48. 16-bit, ±4.096 V range, 475 SPS
+  single-shot. AIN1 measures the 5 V rail through an identical 10k/10k divider about once a
+  second; the reading is scaled by 5 V ÷ measured supply, because the XDB401's output is
+  ratiometric. No correction if the measured supply is outside 4.5–5.5 V. The machine JSON
+  reports the measured supply as `supplyV`.
 
-  | Option | Converter | Notes |
-  |---|---|---|
-  | `PRESSURE_ADC_NATIVE` (default) | ESP32 ADC1, GPIO 36 | 8-sample average per tick; ESP32 ADC accuracy (a few %) |
-  | `PRESSURE_ADC_ADS1115` | ADS1115 (PCB U3) on I²C, address 0x48 | 16-bit, ±4.096 V range, 475 SPS single-shot. AIN1 measures the 5 V rail through an identical 10k/10k divider about once a second; the reading is scaled by 5 V ÷ measured supply, because the XDB401's output is ratiometric. No correction if the measured supply is outside 4.5–5.5 V. |
-
-  With the ADS1115 option, an I²C failure makes the reading invalid: shown as such on the
-  dashboard, and a fault ("Pressure sensor: ADS1115 not responding") if it lasts 500 ms
-  while brewing. The machine JSON then also reports `supplyV`.
-- **Optional protection:** a BAT54S Schottky clamp from the pin to 3.3 V and GND. This is
+  An I²C failure makes the reading invalid: shown as such on the dashboard, and a fault
+  ("Pressure sensor: ADS1115 not responding") if it lasts 500 ms while brewing.
+- **Optional protection:** a BAT54S Schottky clamp from the AIN0 node to 3.3 V and GND. This is
   only needed if the sensor could ever be powered above 5 V: at 12 V the divider alone would
   pass about 6 V.
 - **Valid range:** the firmware treats a sensor output below 0.35 V (disconnected or
   unpowered) or above 4.75 V as invalid. Invalid for 500 ms while brewing latches a fault;
   in other states the reading is shown but not used.
-- **Sampling:** only the control task reads the converter. Every 50 ms it takes a reading
-  (native: 8 averaged samples; ADS1115: one conversion), smooths the pin voltage (EMA,
-  α = 0.3) and converts it to bar. The pressure PID, the
-  dashboard and the IO Status page (pin voltage + bar) all use that one smoothed value.
-  While the sensor is out of range, the IO Status page shows the live, unsmoothed voltage
-  with a warning instead.
+- **Sampling:** only the control task uses the I²C bus. Every 50 ms it takes one ADS1115
+  conversion, smooths the divider voltage (EMA, α = 0.3) and converts it to bar. The
+  pressure PID and the dashboard both use that one smoothed value. The pressure is not an
+  ESP32 pin, so it does not appear on the IO Status page.
 
 ### 3.7 Future: scale — HX711 (DOUT = 35, SCK = 4)
 
@@ -269,7 +263,7 @@ L ── SSR (GPIO 26) ── 165 °C manual-reset high-limit thermostat ── 
 ### 3.8 I²C bus (SDA = 21, SCL = 22)
 
 - **4.7 kΩ pull-ups to 3.3 V** on SDA and SCL (only once, even with several devices).
-- On the PCB: the ADS1115 pressure ADC (U3, address 0x48, used with `PRESSURE_ADC_ADS1115`),
+- On the PCB: the ADS1115 pressure ADC (U3, address 0x48),
   plus a 4-pin header (GND, 3V3, SCL, SDA) for a status OLED or tank-level sensor. Every
   device must run at 3.3 V logic and have a different address.
 
@@ -298,8 +292,8 @@ them LOW as the very first thing in `setup()`, before Serial or Wi-Fi start.
 Do this with the **heater disconnected** or the boiler empty until step 6.
 
 1. Power the low-voltage side only. Check 5 V and 3.3 V, and confirm no GPIO sits above
-   3.3 V: in particular Z-C (34), the switches (16, 17) and the pressure pin (36, which
-   should read 0.27 V at 0 bar).
+   3.3 V: in particular Z-C (34) and the switches (16, 17). The pressure divider node
+   (ADS1115 AIN0) should read about 0.25 V at 0 bar.
 2. Flash the firmware and the web files. Open **IO Status** and confirm each pin's
    name and mode.
 3. Flip Coffee and Steam. The dashboard state should go IDLE → BREWING / STEAM /

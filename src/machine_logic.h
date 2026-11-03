@@ -29,7 +29,7 @@ struct Status {
   float pressureBar;
   float pressureTargetBar;  // 0 unless brewing
   uint16_t pressurePinMv;   // pin voltage: smoothed when valid, live sample when out of range
-  float pressureSupplyV;    // measured sensor supply (ADS1115 option), 0 if not measured
+  float pressureSupplyV;    // measured sensor supply (ADS1115 AIN1), 0 if not measured
   float heaterDuty;         // 0-100 %
   uint8_t pumpPower;        // 0-100 %
   bool heaterOn, valveOn, coffeeLight, steamLight;

@@ -21,9 +21,8 @@ PlatformIO / Arduino firmware with:
 
 ```
 IO_design.md          pin assignments, wiring and signal conditioning (hardware reference)
-PCB/                  KiCad 10 carrier-board schematic, project symbols and DevKit footprint
-platformio.ini        build envs: esp32-serial (USB), esp32-ota (Wi-Fi), native (tests);
-                      PRESSURE_ADC build flag picks the ESP32 ADC or the ADS1115
+PCB/                  KiCad 10 carrier-board schematic, project symbols and ESP32U footprint
+platformio.ini        build envs: esp32-serial (USB), esp32-ota (Wi-Fi), native (tests)
 partitions.csv        4MB: 2 × 1.5MB OTA app slots, 896KB LittleFS, coredump
 include/secrets.h     passwords, optional Wi-Fi creds (git-ignored; copy from secrets.example.h)  ← edit first
 include/config.h      hostname, AP name, ports, timings
@@ -34,7 +33,7 @@ scripts/ota_auth.py   esp32-ota upload: takes the OTA password from secrets.h
 src/main.cpp          setup/loop; loads forced OFF first, machine control started before Wi-Fi
 src/machine.*         control task (own FreeRTOS task + watchdog): pin I/O, logging, status publishing
 src/machine_logic.*   state machine, heater/pump PID, safety faults (hardware-free, unit-tested)
-src/sensors.*         MAX31855K thermocouple, XDB401 pressure sensor (pin I/O)
+src/sensors.*         MAX31855K thermocouple, XDB401 pressure sensor via ADS1115 (pin / I2C I/O)
 src/sensor_math.*     MAX31855 frame decoding, voltage -> bar (hardware-free, unit-tested)
 src/pump.*            RobotDyn dimmer: zero-cross ISR, full-cycle pulse-skip modulation
 src/settings.*        user settings (setpoints, PID gains) in NVS
@@ -148,7 +147,8 @@ Each active line must be:
   clear message on a bad type, duplicate GPIO, flash pin or missing comment.
 - The dashboard's **IO Status** page shows each pin's name, type, mode (IN/OUT/PERIPH/ANALOG),
   pull-up/down and level (HIGH/LOW), refreshed every second. Reading is non-invasive and the
-  page never touches the ADC: the pressure pin shows the control task's latest sample.
+  page never touches the ADC. Brew pressure is read by the ADS1115 over I²C, so it is shown
+  on the dashboard, not here.
   ADC2 pins can't be read while Wi-Fi is on — use ADC1 (GPIO32–39) for analog inputs.
 
 ## Machine operation

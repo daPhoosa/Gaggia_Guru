@@ -25,7 +25,7 @@ struct PressureReading {
   bool ok = false;           // false if the sensor voltage is outside its valid range, or on error
   float bar = 0;             // gauge pressure, clamped to >= 0
   float sensorV = 0;         // reconstructed sensor output voltage (uncorrected)
-  uint16_t pinMv = 0;        // voltage at the divider node (ESP32 pin / ADS1115 AIN0)
+  uint16_t pinMv = 0;        // voltage at the divider node (ADS1115 AIN0)
   float supplyScale = 1.0f;  // ratiometric correction: nominal / measured supply (1 = none)
   float supplyV = 0;         // measured sensor supply, 0 if not measured
   const char *error = nullptr;  // converter failure (e.g. ADS1115 not responding)
@@ -34,10 +34,10 @@ struct PressureReading {
 // Divider + sensor scaling, clamped to >= 0. supplyScale from a PressureReading.
 float pressureBarFromPinMv(float pinMv, float supplyScale = 1.0f);
 
-// Native ADC: divider node voltage only.
+// Divider node voltage only (no supply measurement, no correction).
 PressureReading pressureFromPinMv(float pinMv);
 
-// ADS1115: divider node voltage plus the 5 V rail through an identical divider
+// Divider node voltage plus the 5 V rail through an identical divider
 // (supplyPinMv <= 0: not measured yet -> no correction).
 PressureReading pressureFromPinMv(float pinMv, float supplyPinMv);
 

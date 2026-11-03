@@ -1,6 +1,6 @@
 #pragma once
 // ===========================================================================
-// Gaggia Guru - ESP32-WROOM-32U hardware IO pin map (38-pin DevKit board)
+// Gaggia Guru - ESP32-WROOM-32U hardware IO pin map (38-pin ESP32U board)
 // ===========================================================================
 //
 // EVERY ACTIVE PIN LINE MUST FOLLOW THIS FORMAT (parsed at build time by
@@ -27,8 +27,8 @@
 //   - MAX31855K board VCC = 3.3 V (chip max 3.6 V). Conversion ~100 ms (<= 10 Hz).
 //     Thermocouple MUST be ungrounded/insulated junction: a probe touching the
 //     earthed boiler makes the MAX31855 report a short-to-GND fault.
-//   - XDB401 pressure sensor: 5 V supply, 0.5-4.5 V out through a divider
-//     (10k top / 12k bottom -> 0.27-2.45 V at the pin). Never feed 4.5 V direct.
+//   - XDB401 pressure sensor: 5 V supply, 0.5-4.5 V out through a 10k/10k
+//     divider into the ADS1115 (I2C), not an ESP32 pin. GPIO36 is not connected.
 //
 // Quick reference
 //   Input only, no internal pull-ups/downs : GPIO34, 35, 36 (VP), 39 (VN)
@@ -39,7 +39,7 @@
 // ===========================================================================
 
 // ---- Left header (top to bottom, antenna end up): 3V3, EN, then ------------
-#define PIN_PRESSURE      36  // PRESSURE | Analog | Board VP. XDB401 0-1.2 MPa via 10k/10k divider (also ADS1115 AIN0). ADC1_0, input only
+#define PIN_GPIO36        36  // GPIO36 | Unused | Spare. Board VP. Input only, no pull-ups. ADC1_0. No interrupts (errata)
 #define PIN_GPIO39        39  // GPIO39 | Unused | Spare. Board VN. Input only, no pull-ups. ADC1_3. No interrupts (errata)
 #define PIN_PUMP_ZC       34  // PUMP_ZC | Digital | RobotDyn dimmer Z-C input (interrupt). 120 zero-crosses/s at 60 Hz. Input only
 #define PIN_HX711_DOUT    35  // HX711_DOUT | Communications | Scale load-cell data (future, not fitted). Input only
@@ -58,10 +58,10 @@
 
 // ---- Right header (top to bottom): GND, then -------------------------------
 #define PIN_GPIO23        23  // GPIO23 | Unused | Spare. VSPI MOSI
-#define PIN_I2C_SCL       22  // I2C_SCL | Communications | I2C bus: ADS1115 pressure ADC (PRESSURE_ADC option), OLED, tank sensor
+#define PIN_I2C_SCL       22  // I2C_SCL | Communications | I2C bus: ADS1115 pressure ADC, OLED, tank sensor
 #define PIN_UART0_TX       1  // UART0_TX | Communications | Board TX0. USB serial / programming
 #define PIN_UART0_RX       3  // UART0_RX | Communications | Board RX0. USB serial / programming
-#define PIN_I2C_SDA       21  // I2C_SDA | Communications | I2C bus: ADS1115 pressure ADC (PRESSURE_ADC option), OLED, tank sensor
+#define PIN_I2C_SDA       21  // I2C_SDA | Communications | I2C bus: ADS1115 pressure ADC, OLED, tank sensor
 #define PIN_TC_SO         19  // TC_SO | Communications | MAX31855 SO, boiler thermocouple (VSPI MISO)
 #define PIN_TC_SCK        18  // TC_SCK | Communications | MAX31855 SCK, boiler thermocouple (VSPI CLK)
 #define PIN_TC_CS          5  // TC_CS | Communications | MAX31855 chip select, boiler thermocouple. Strapping: HIGH at reset (CS idles high)

@@ -10,7 +10,7 @@ namespace Sensors {
 void beginThermocouple();
 TcReading readThermocouple();
 
-// XDB401 pressure sensor via divider on an ADC1 pin
+// XDB401 pressure sensor via divider, read by the ADS1115 (I2C)
 void beginPressure();
 PressureReading readPressure();
 

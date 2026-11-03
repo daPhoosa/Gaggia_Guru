@@ -3,9 +3,7 @@
 #include "io_pins.h"
 #include "machine_config.h"
 
-#if PRESSURE_ADC == PRESSURE_ADC_ADS1115
 #include <Wire.h>
-#endif
 
 namespace Sensors {
 
@@ -41,11 +39,10 @@ static uint32_t readFrame() {
 TcReading readThermocouple() { return decodeMax31855(readFrame()); }
 
 // ---------------------------------------------------------------------------
-// Pressure: read the divider node (pump pulsation is filtered further by the
-// caller), then sensor_math.cpp undoes the divider and maps 0.5-4.5 V to bar.
-// PRESSURE_ADC (machine_config.h / platformio.ini) picks the converter.
+// Pressure: the ADS1115 reads the divider node (pump pulsation is filtered
+// further by the caller), then sensor_math.cpp undoes the divider and maps
+// 0.5-4.5 V to bar.
 // ---------------------------------------------------------------------------
-#if PRESSURE_ADC == PRESSURE_ADC_ADS1115
 
 // ADS1115 on the I2C bus, single-shot conversions. Only the control task uses
 // the bus, so no locking is needed.
@@ -116,21 +113,5 @@ PressureReading readPressure() {
   if (!adsConvert(0, mv)) return pressureError("ADS1115 not responding (check I2C wiring / 3.3 V)");
   return pressureFromPinMv(mv, supplyPinMv);
 }
-
-#else  // PRESSURE_ADC_NATIVE
-
-void beginPressure() {
-  analogReadResolution(12);
-  analogSetPinAttenuation(PIN_PRESSURE, ADC_11db);  // ~0.15-2.45 V usable, linear
-}
-
-PressureReading readPressure() {
-  constexpr int kSamples = 8;
-  uint32_t mv = 0;
-  for (int i = 0; i < kSamples; ++i) mv += analogReadMilliVolts(PIN_PRESSURE);
-  return pressureFromPinMv(mv / static_cast<float>(kSamples));
-}
-
-#endif
 
 }  // namespace Sensors

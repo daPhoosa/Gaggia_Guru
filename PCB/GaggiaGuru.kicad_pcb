@@ -7425,12 +7425,12 @@
 			)
 		)
 	)
-	(footprint "GaggiaGuru:ESP32-DevKitC-38_P25.4mm"
+	(footprint "GaggiaGuru:ESP32U-38_P25.4mm"
 		(layer "F.Cu")
 		(uuid "7930981f-1496-4d9e-a928-d440d723d281")
 		(at 118.76 75.545)
-		(descr "Sockets for a 38-pin ESP32-DevKitC (WROOM-32/32U): 2 x 1x19, 2.54 mm pitch, 25.4 mm (1.0 in) row spacing. Pads 1-19 left row, 20-38 right row, top to bottom, USB end at the bottom. Body outline: board edge 1.27 mm beyond the outer pin centres.")
-		(tags "ESP32 DevKitC socket 38 pin 1.0in")
+		(descr "Sockets for a 38-pin ESP32U (WROOM-32/32U): 2 x 1x19, 2.54 mm pitch, 25.4 mm (1.0 in) row spacing. Pads 1-19 left row, 20-38 right row, top to bottom, USB end at the bottom. Body outline: board edge 1.27 mm beyond the outer pin centres.")
+		(tags "ESP32U socket 38 pin 1.0in")
 		(property "Reference" "U1"
 			(at 12.7 -4.87 0)
 			(layer "F.SilkS")
@@ -7442,7 +7442,7 @@
 				)
 			)
 		)
-		(property "Value" "ESP32-DevKitC-32U"
+		(property "Value" "ESP32-WROOM-32U"
 			(at 12.7 50.59 0)
 			(layer "F.Fab")
 			(uuid "75f71a0b-7b55-40da-856b-303743e564b5")
@@ -7465,7 +7465,7 @@
 				)
 			)
 		)
-		(property "Description" "ESP32-DevKitC, 38 pins, ESP32-WROOM-32U (external antenna). Pins 1-19 left header, 20-38 right header, top to bottom"
+		(property "Description" "ESP32U, 38 pins, ESP32-WROOM-32U (external antenna). Pins 1-19 left header, 20-38 right header, top to bottom"
 			(at 0 0 0)
 			(layer "F.Fab")
 			(hide yes)

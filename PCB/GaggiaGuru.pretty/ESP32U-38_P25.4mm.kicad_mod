@@ -1,10 +1,10 @@
-(footprint "ESP32-DevKitC-38_P25.4mm"
+(footprint "ESP32U-38_P25.4mm"
 	(version 20260206)
 	(generator "pcbnew")
 	(generator_version "10.0")
 	(layer "F.Cu")
-	(descr "Sockets for a 38-pin ESP32-DevKitC (WROOM-32/32U): 2 x 1x19, 2.54 mm pitch, 25.4 mm (1.0 in) row spacing. Pads 1-19 left row, 20-38 right row, top to bottom, USB end at the bottom. Body outline: board edge 1.27 mm beyond the outer pin centres.")
-	(tags "ESP32 DevKitC socket 38 pin 1.0in")
+	(descr "Sockets for a 38-pin ESP32U (WROOM-32/32U): 2 x 1x19, 2.54 mm pitch, 25.4 mm (1.0 in) row spacing. Pads 1-19 left row, 20-38 right row, top to bottom, USB end at the bottom. Body outline: board edge 1.27 mm beyond the outer pin centres.")
+	(tags "ESP32U socket 38 pin 1.0in")
 	(property "Reference" "REF**"
 		(at 12.7 -4.87 0)
 		(layer "F.SilkS")
@@ -16,7 +16,7 @@
 			)
 		)
 	)
-	(property "Value" "ESP32-DevKitC-38_P25.4mm"
+	(property "Value" "ESP32U-38_P25.4mm"
 		(at 12.7 50.59 0)
 		(layer "F.Fab")
 		(uuid "9d862542-f666-5156-ab7c-97b900fde3b0")
@@ -39,7 +39,7 @@
 			)
 		)
 	)
-	(property "Description" "ESP32-DevKitC 38-pin sockets, 25.4 mm row spacing"
+	(property "Description" "ESP32U 38-pin sockets, 25.4 mm row spacing"
 		(at 0 0 0)
 		(layer "F.Fab")
 		(hide yes)

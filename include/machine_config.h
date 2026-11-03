@@ -65,25 +65,15 @@
 #define PRESSURE_V_VALID_LOW        0.35f  // below = disconnected / unpowered
 #define PRESSURE_V_VALID_HIGH       4.75f  // above = shorted / wrong supply
 
-// Which converter reads the pressure divider. Both are wired to the same node
-// (PCB: GPIO36 and ADS1115 AIN0), so this is purely a firmware choice. Set it in
-// platformio.ini build_flags, e.g. -DPRESSURE_ADC=PRESSURE_ADC_ADS1115.
-//   PRESSURE_ADC_NATIVE   ESP32 ADC1 on GPIO36 (VP), 8-sample average
-//   PRESSURE_ADC_ADS1115  ADS1115 on the I2C bus: AIN0 = pressure divider,
-//                         AIN1 = 5 V rail through an identical divider. The
-//                         sensor is ratiometric, so dividing by the measured
-//                         supply cancels 5 V drift.
-#define PRESSURE_ADC_NATIVE        0
-#define PRESSURE_ADC_ADS1115       1
-#ifndef PRESSURE_ADC
-#define PRESSURE_ADC               PRESSURE_ADC_NATIVE
-#endif
+// The pressure divider is read by the ADS1115 (PCB U3) on the I2C bus:
+// AIN0 = pressure divider, AIN1 = 5 V rail through an identical divider. The
+// sensor is ratiometric, so dividing by the measured supply cancels 5 V drift.
 #define ADS1115_I2C_ADDR          0x48     // ADDR pin to GND
 #define I2C_CLOCK_HZ           400000UL
 #define PRESSURE_SUPPLY_NOMINAL_V   5.0f   // sensor is specified at this supply
 #define PRESSURE_SUPPLY_MIN_V       4.5f   // measured supply outside this range:
 #define PRESSURE_SUPPLY_MAX_V       5.5f   // ...no correction (measurement suspect)
-#define PRESSURE_SUPPLY_PERIOD_MS  1000UL  // ADS1115: re-measure the 5 V rail this often
+#define PRESSURE_SUPPLY_PERIOD_MS  1000UL  // re-measure the 5 V rail this often
 
 // ---- Timing -----------------------------------------------------------------
 #define CONTROL_PERIOD_MS            50UL  // control task tick

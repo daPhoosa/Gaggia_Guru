@@ -76,7 +76,7 @@ void test_pressure_reading_fields() {
   TEST_ASSERT_NULL(r.error);
 }
 
-// Ratiometric (ADS1115 option): the sensor output scales with its supply.
+// Ratiometric (ADS1115 AIN1 supply measurement): the sensor output scales with its supply.
 static float ratioOut(float supplyV, float bar) {  // XDB401 output at a given supply
   return supplyV * (PRESSURE_V_MIN + bar / PRESSURE_FULL_SCALE_BAR * (PRESSURE_V_MAX - PRESSURE_V_MIN)) /
          PRESSURE_SUPPLY_NOMINAL_V;
