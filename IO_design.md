@@ -39,10 +39,10 @@ The carrier board that implements this is the KiCad 10 project in [`PCB/`](PCB/)
 
 | GPIO | Notes | Suitable for |
 |---|---|---|
-| 32, 33 | ADC1, interrupt-capable, internal pull-up/down | Best spares: flow meter, tank level, extra analog input |
-| 23 | Plain GPIO (VSPI MOSI) | Any digital in/out |
-| 36 (VP), 39 (VN) | Input only, no pulls, false-interrupt errata | Analog input only; no interrupts |
-| 0, 12, 15 | Strapping pins (§4) | Avoid; last resort, and never for loads |
+| 32, 33 | ADC1, interrupt-capable, internal pull-up/down (J12) | Best spares: flow meter, tank level, extra analog input, display DC / RST |
+| 36 (VP), 39 (VN) | Input only, no pulls, false-interrupt errata (J12) | Analog input only; no interrupts |
+| 0, 12 | Strapping pins (§4) | Avoid; last resort, and never for loads |
+| 23, 15 | Spare SPI port J13 (MOSI, CS), §3.9 | SPI devices (display, SD card) |
 
 ---
 
@@ -84,6 +84,7 @@ drawn from the ESP32U's 3V3 pin (its AMS1117-class regulator, about 1 A max):
 | Switch LEDs (2 × 330 Ω) and pull-downs | ~9 mA with both switches on |
 | I²C pull-ups (when low) | ~1.4 mA |
 | HX711, small OLED (future) | ~1.5 mA, ~20 mA |
+| SPI device on J13 (future) | depends: a TFT's backlight can take 20–100 mA, power it from J13's 5 V pin if its module allows |
 | **Total** | **< 40 mA** |
 
 With the ESP32's own ~250 mA average (500 mA peaks) that is well inside the regulator's
@@ -95,6 +96,9 @@ references, and each has its own 100 nF.
 ---
 
 ## 3. Signal conditioning per connection
+
+Every off-board connector (J1–J13) is a **JST XH** (2.50 mm pitch, vertical, rated 3 A per
+pin).
 
 ### 3.1 SSR outputs — heater, valve, coffee light, steam light (GPIO 26, 27, 13, 14)
 
@@ -151,6 +155,8 @@ references, and each has its own 100 nF.
 - The switches are fully rewired to low voltage: 3.3 V when on, open when off. **3.3 V
   only — never 5 V**, and no mains on any switch terminal.
 - Use the ESP32's own 3.3 V rail as the switch supply.
+- **Connector J7 (4-pin JST XH):** 1 = 3.3 V, 2 = Coffee, 3 = Steam, 4 = 3.3 V. Each switch
+  gets its own 3.3 V + signal pair (Coffee on pins 1–2, Steam on pins 3–4).
 - **Conditioning at the ESP32 end:**
 
   ```
@@ -264,8 +270,37 @@ L ── SSR (GPIO 26) ── 165 °C manual-reset high-limit thermostat ── 
 
 - **4.7 kΩ pull-ups to 3.3 V** on SDA and SCL (only once, even with several devices).
 - On the PCB: the ADS1115 pressure ADC (U3, address 0x48),
-  plus a 4-pin header (GND, 3V3, SCL, SDA) for a status OLED or tank-level sensor. Every
+  plus a 4-pin JST XH connector (GND, 3V3, SCL, SDA) for a status OLED or tank-level sensor. Every
   device must run at 3.3 V logic and have a different address.
+
+### 3.9 Spare SPI port — J13 (VSPI: SCK = 18, MOSI = 23, MISO = 19, CS = 15)
+
+Not used by the firmware yet; for a future display, SD card or other SPI device.
+
+| J13 pin | Signal | ESP32 |
+|---|---|---|
+| 1 | GND | |
+| 2 | 3.3 V | |
+| 3 | 5 V (supply only, e.g. a display backlight) | |
+| 4 | SCK, via 33 Ω | GPIO 18 (shared with the MAX31855) |
+| 5 | MOSI, via 33 Ω | GPIO 23 |
+| 6 | MISO | GPIO 19 (shared with the MAX31855) |
+| 7 | CS, 10 kΩ pull-up to 3.3 V | GPIO 15 |
+
+- **Logic is 3.3 V only.** The 5 V pin is a supply; no signal may be driven to 5 V.
+- **Speed:** SCK, MOSI and MISO are the VSPI IO_MUX pins, so the hardware SPI can run up to
+  80 MHz (40 MHz is the usual practical limit for a display on a cable). The CS pin can be
+  any GPIO without affecting speed.
+- **Shared with the thermocouple:** the MAX31855 sits on SCK/MISO with its own CS (GPIO 5). Its
+  SO output is high-impedance while its CS is high, so it doesn't load the bus. It's limited to
+  5 MHz, so each device needs its own SPI clock setting (Arduino `SPI.beginTransaction`).
+- **Firmware needed before use:** the MAX31855 is currently bit-banged on GPIO 18/19. A device
+  on J13 needs the hardware VSPI peripheral on those pins, so the thermocouple read must
+  move to the same `SPIClass` (at ≤ 5 MHz), with a mutex shared by the control task and
+  whoever drives the J13 device.
+- **Cable:** the 33 Ω series resistors damp ringing on SCK and MOSI. Keep the cable short
+  (< 15 cm) at display speeds.
+- **Display extras:** most SPI TFT/OLED displays also need DC (and RST): use J12's GPIO 32 / 33.
 
 ---
 
@@ -277,7 +312,7 @@ L ── SSR (GPIO 26) ── 165 °C manual-reset high-limit thermostat ── 
 | 2 | LOW or floating | Status LED | LED doesn't pull it high |
 | 5 | HIGH | Thermocouple CS | CS idles high; the boot pulses are harmless |
 | 12 | LOW (sets flash voltage) | Spare | Unused; never pull it high |
-| 15 | HIGH | Spare | Unused |
+| 15 | HIGH | SPI port CS (J13) | 10 kΩ pull-up holds it HIGH (and devices deselected) |
 | 14 | — (pulses at boot) | Steam light | Only a lamp flicker |
 
 The heater, valve and pump sit on pins (26, 27, 25) with no strapping role and no boot

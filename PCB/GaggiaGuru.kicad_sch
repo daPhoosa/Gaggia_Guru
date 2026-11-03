@@ -1111,7 +1111,7 @@
 					)
 				)
 			)
-			(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical"
+			(property "Footprint" "Connector_JST:JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical"
 				(at 0 0 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -1237,7 +1237,7 @@
 					)
 				)
 			)
-			(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical"
+			(property "Footprint" "Connector_JST:JST_XH_B3B-XH-A_1x03_P2.50mm_Vertical"
 				(at 0 0 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -1381,7 +1381,7 @@
 					)
 				)
 			)
-			(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical"
+			(property "Footprint" "Connector_JST:JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical"
 				(at 0 0 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -1543,7 +1543,7 @@
 					)
 				)
 			)
-			(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x06_P2.54mm_Vertical"
+			(property "Footprint" "Connector_JST:JST_XH_B6B-XH-A_1x06_P2.50mm_Vertical"
 				(at 0 0 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -1702,6 +1702,221 @@
 						)
 					)
 					(number "6"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)		(symbol "GaggiaGuru:Conn_01x07"
+			(pin_names
+				(hide yes)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(in_pos_files yes)
+			(duplicate_pin_numbers_are_jumpers no)
+			(property "Reference" "J"
+				(at -0.635 3.048 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "Conn_01x07"
+				(at -0.635 -18.542 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" "Connector_JST:JST_XH_B7B-XH-A_1x07_P2.50mm_Vertical"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Description" "Connector, single row, 7 pins"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_keywords" "connector header"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(symbol "Conn_01x07_0_1"
+				(rectangle
+					(start -2.54 1.27)
+					(end 1.27 -16.51)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+			)
+			(symbol "Conn_01x07_1_1"
+				(pin passive line
+					(at 5.08 0 180)
+					(length 3.81)
+					(name "Pin_1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 5.08 -2.54 180)
+					(length 3.81)
+					(name "Pin_2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 5.08 -5.08 180)
+					(length 3.81)
+					(name "Pin_3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 5.08 -7.62 180)
+					(length 3.81)
+					(name "Pin_4"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "4"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 5.08 -10.16 180)
+					(length 3.81)
+					(name "Pin_5"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "5"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 5.08 -12.7 180)
+					(length 3.81)
+					(name "Pin_6"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "6"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 5.08 -15.24 180)
+					(length 3.81)
+					(name "Pin_7"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "7"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -3954,7 +4169,7 @@
 		)
 		(uuid "fc002ab0-e769-5693-a6f9-691120c64421")
 	)
-	(text "J pins: 1 = switch common (3.3 V only - never 5 V or mains),\n2 = Coffee, 3 = Steam. 10k sets a firm OFF level; 1k + 100 nF\nfilter noise. LED (330R, ~4 mA from the switch) = switch ON."
+	(text "J pins: 1 = 3.3 V, 2 = Coffee, 3 = Steam, 4 = 3.3 V (3.3 V only -\nnever 5 V or mains). 10k sets a firm OFF level; 1k + 100 nF\nfilter noise. LED (330R, ~4 mA from the switch) = switch ON."
 		(exclude_from_sim no)
 		(at 317.5 236.22 0)
 		(effects
@@ -3977,7 +4192,7 @@
 		)
 		(uuid "176385ca-4724-5786-b128-bc4aa558e4ec")
 	)
-	(text "J pins: 1 VCC, 2 GND, 3 Z-C, 4 PSM (module header order).\nZ-C is pulled up to VCC on the module, so VCC must be 3.3 V.\nZ-C filter cap: fit only if edges are noisy."
+	(text "J pins: 1 VCC, 2 GND, 3 Z-C, 4 PSM (module pin order).\nZ-C is pulled up to VCC on the module, so VCC must be 3.3 V.\nZ-C filter cap: fit only if edges are noisy."
 		(exclude_from_sim no)
 		(at 231.14 180.34 0)
 		(effects
@@ -4103,7 +4318,7 @@
 		)
 		(uuid "70b1ce47-12c3-507f-bad7-84fbcb4091ec")
 	)
-	(text "SSR header: pin 1 = SSR(+) at +5 V, pin 2 = SSR(-) to the MOSFET drain. LED (1k, ~3 mA) lights while the SSR input is driven. 10k pull-downs keep every load OFF during\nreset, boot and flashing. Mains side is off-board, e.g. heater: L - SSR - 165 C manual-reset high-limit - thermal fuse - element - N."
+	(text "SSR connector: pin 1 = SSR(+) at +5 V, pin 2 = SSR(-) to the MOSFET drain. LED (1k, ~3 mA) lights while the SSR input is driven. 10k pull-downs keep every load OFF during\nreset, boot and flashing. Mains side is off-board, e.g. heater: L - SSR - 165 C manual-reset high-limit - thermal fuse - element - N."
 		(exclude_from_sim no)
 		(at 231.14 121.92 0)
 		(effects
@@ -4273,7 +4488,7 @@
 		)
 		(uuid "f121daa6-cde7-594f-a5b2-829c9cc750f3")
 	)
-	(text "IO32 / IO33: ADC1, interrupts, internal pulls (flow meter, tank level).\nIO23: digital (VSPI MOSI).\nIO39: input only, no pulls, no interrupts (errata)."
+	(text "IO32 / IO33: ADC1, interrupts, internal pulls (flow meter, tank level).\nIO36 / IO39: input only, no pulls, no interrupts (errata)."
 		(exclude_from_sim no)
 		(at 162.56 195.58 0)
 		(effects
@@ -4411,10 +4626,6 @@
 		(uuid "f5f0f061-4753-5235-ae14-288675a4faf9")
 	)
 	(no_connect
-		(at 152.4 40.64)
-		(uuid "c4000514-dac3-46ae-ba54-f3f42974c788")
-	)
-	(no_connect
 		(at 193.04 81.28)
 		(uuid "07bffbbd-99d5-58aa-a5ec-fb7ebb3e7398")
 	)
@@ -4467,10 +4678,6 @@
 		(uuid "c6d6298a-0b02-52d4-a8a1-7ba4e315d73a")
 	)
 	(no_connect
-		(at 193.04 73.66)
-		(uuid "c706b8ff-2259-5b19-add6-819dd0aea673")
-	)
-	(no_connect
 		(at 193.04 71.12)
 		(uuid "ccc5fd4e-c464-5201-baf6-1ab8d6b53da2")
 	)
@@ -4481,6 +4688,237 @@
 	(no_connect
 		(at 152.4 73.66)
 		(uuid "ed872d0f-9302-5e5a-93e9-642df686fc2e")
+	)
+	(rectangle
+		(start 228.6 190.5)
+		(end 309.88 251.46)
+		(stroke
+			(width 0)
+			(type dash)
+		)
+		(fill
+			(type none)
+		)
+		(uuid "c8f046ea-2288-4e54-8717-95fd592ae95a")
+	)
+	(wire
+		(pts
+			(xy 152.4 40.64) (xy 149.86 40.64)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e8168b11-09b3-43f5-911c-a39847e27429")
+	)
+	(label "SPARE_IO36"
+		(at 149.86 40.64 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "d77d9240-a24b-47d4-87f6-4979029e94f4")
+	)
+	(wire
+		(pts
+			(xy 193.04 73.66) (xy 195.58 73.66)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e2960a8b-d49c-4f74-86b0-016c5e07b7e2")
+	)
+	(label "SPI_CS"
+		(at 195.58 73.66 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "c48aebb3-48b6-497e-8536-27f6afa331b1")
+	)
+	(wire
+		(pts
+			(xy 243.84 203.2) (xy 246.38 203.2)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c8e8c4ba-c7b4-4163-b611-f3e099674ff4")
+	)
+	(wire
+		(pts
+			(xy 243.84 205.74) (xy 246.38 205.74)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "55e49b43-ffa1-4621-9434-49dfe2a985f7")
+	)
+	(wire
+		(pts
+			(xy 243.84 208.28) (xy 246.38 208.28)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "bf97f8a3-920f-4fca-b87e-2a92f7df78e1")
+	)
+	(wire
+		(pts
+			(xy 243.84 210.82) (xy 251.46 210.82)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "84624ca9-c1ce-4840-bf81-48ea3f9bd83f")
+	)
+	(wire
+		(pts
+			(xy 261.62 210.82) (xy 279.4 210.82)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "36279073-f638-4776-b47c-a335731204c3")
+	)
+	(label "TC_SCK"
+		(at 279.4 210.82 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "09d535e4-c7a7-47fb-86af-998a132be45f")
+	)
+	(wire
+		(pts
+			(xy 243.84 213.36) (xy 264.16 213.36)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "05470be2-d8dd-4162-8f52-e826329d32ab")
+	)
+	(wire
+		(pts
+			(xy 274.32 213.36) (xy 279.4 213.36)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ff828934-afc3-4156-b678-e048fbd15a31")
+	)
+	(label "SPI_MOSI"
+		(at 279.4 213.36 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "35c6f977-aa39-46f8-8964-5ab761b5ce7f")
+	)
+	(wire
+		(pts
+			(xy 243.84 215.9) (xy 248.92 215.9)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0ad9fea4-2313-4601-900a-eda3e675a5af")
+	)
+	(label "TC_SO"
+		(at 248.92 215.9 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "606f1b1d-bf08-4d3e-89e7-ef6a14982193")
+	)
+	(wire
+		(pts
+			(xy 243.84 218.44) (xy 246.38 218.44)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c2f44224-6e93-44b3-9b84-98c4056eb024")
+	)
+	(wire
+		(pts
+			(xy 246.38 218.44) (xy 248.92 218.44)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9f971245-1698-4862-8f1c-dbca1bf110f7")
+	)
+	(junction
+		(at 246.38 218.44)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "16b4d949-685b-47cc-81ce-040fd76f6877")
+	)
+	(label "SPI_CS"
+		(at 248.92 218.44 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "e0a55327-300b-4f26-903d-bff7acb1bdbc")
+	)
+	(text "Spare SPI port (VSPI) - not used by firmware"
+		(exclude_from_sim no)
+		(at 231.14 193.04 0)
+		(effects
+			(font
+				(size 1.778 1.778)
+				(bold yes)
+			)
+			(justify left top)
+		)
+		(uuid "1e8c677a-b0bb-4c67-9f9c-979f0a647be8")
+	)
+	(text "J pins: 1 GND, 2 3V3, 3 5V, 4 SCK (IO18), 5 MOSI (IO23), 6 MISO (IO19),\n7 CS (IO15). 3.3 V logic only - 5 V is for a display backlight / supply.\nSCK/MOSI/MISO are VSPI IO_MUX pins (up to 80 MHz). SCK and MISO are\nshared with the MAX31855 (TC_CS selects it). 33R series resistors damp\nringing on the cable: keep it short (< 15 cm). CS pull-up keeps devices\ndeselected and GPIO15 HIGH at boot. A display's DC / RST: use J12 IO32 / IO33."
+		(exclude_from_sim no)
+		(at 231.14 236.22 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left top)
+		)
+		(uuid "5af79f6f-e061-4b0e-9d56-32a357f7a0c0")
+	)
+	(wire
+		(pts
+			(xy 330.2 160.02) (xy 330.2 162.56)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "50d0a885-4170-48e5-a51b-add5d605b95c")
 	)
 	(wire
 		(pts
@@ -6662,7 +7100,7 @@
 		)
 		(uuid "7884a7cd-ddb6-5128-b0d8-06e4d3786033")
 	)
-	(label "SPARE_IO23"
+	(label "SPARE_IO36"
 		(at 137.16 203.2 0)
 		(effects
 			(font
@@ -6732,7 +7170,7 @@
 		)
 		(uuid "a22d5f70-5048-5e9b-b465-27d82e9acb8e")
 	)
-	(label "SPARE_IO23"
+	(label "SPI_MOSI"
 		(at 195.58 38.1 0)
 		(effects
 			(font
@@ -6943,6 +7381,650 @@
 		(uuid "fb373bf8-06b5-5f34-8416-2b6bbf091e7f")
 	)
 	(symbol
+		(lib_id "GaggiaGuru:Conn_01x07")
+		(at 238.76 203.2 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "235c77ae-3f6a-4ca9-b9bb-443a7c9e5b4a")
+		(property "Reference" "J13"
+			(at 238.125 200.152 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "SPI"
+			(at 238.125 221.742 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Connector_JST:JST_XH_B7B-XH-A_1x07_P2.50mm_Vertical"
+			(at 238.76 203.2 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 238.76 203.2 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Connector, single row, 7 pins"
+			(at 238.76 203.2 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "e5bde74e-57b9-48fe-8168-4c392343816b")
+		)
+		(pin "2"
+			(uuid "2939693c-95b1-4a18-9659-3cf48bb20157")
+		)
+		(pin "3"
+			(uuid "ce890e00-f2f4-42c9-8411-b34efa768387")
+		)
+		(pin "4"
+			(uuid "64f208b7-8da7-4b65-9c95-774555c98ab2")
+		)
+		(pin "5"
+			(uuid "b4505f6f-1676-4da1-a3ae-a08194243e0b")
+		)
+		(pin "6"
+			(uuid "7316d519-4274-407c-b1d3-704020841600")
+		)
+		(pin "7"
+			(uuid "d1747fbb-d12f-4248-a665-b4fc9898ab08")
+		)
+		(instances
+			(project "GaggiaGuru"
+				(path "/ac1b1dcc-a738-54e1-99c3-3de31f83a9e2"
+					(reference "J13")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "GaggiaGuru:GND")
+		(at 246.38 203.2 90)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board no)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "3ae1f59e-ec90-4f4c-811d-591031f4a22f")
+		(property "Reference" "#PWR073"
+			(at 246.38 203.2 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "GND"
+			(at 249.682 203.2 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" ""
+			(at 246.38 203.2 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 246.38 203.2 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\", ground"
+			(at 246.38 203.2 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "118d730e-c372-44c3-a106-141b5596e800")
+		)
+		(instances
+			(project "GaggiaGuru"
+				(path "/ac1b1dcc-a738-54e1-99c3-3de31f83a9e2"
+					(reference "#PWR073")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "GaggiaGuru:+3V3")
+		(at 246.38 205.74 270)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board no)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "8dde4ccf-0ca6-42c0-9622-a15bbe488ce8")
+		(property "Reference" "#PWR074"
+			(at 246.38 205.74 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "+3V3"
+			(at 249.682 205.74 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 246.38 205.74 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 246.38 205.74 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"+3V3\""
+			(at 246.38 205.74 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "c4ccbf19-5f4f-42da-bd2c-989060849e4f")
+		)
+		(instances
+			(project "GaggiaGuru"
+				(path "/ac1b1dcc-a738-54e1-99c3-3de31f83a9e2"
+					(reference "#PWR074")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "GaggiaGuru:+5V")
+		(at 246.38 208.28 270)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board no)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "b114620a-f79e-40df-8033-4a98a8def163")
+		(property "Reference" "#PWR075"
+			(at 246.38 208.28 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "+5V"
+			(at 249.682 208.28 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 246.38 208.28 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 246.38 208.28 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"+5V\""
+			(at 246.38 208.28 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "6a537c9c-8c1b-4d5d-8db1-7dd969d66e19")
+		)
+		(instances
+			(project "GaggiaGuru"
+				(path "/ac1b1dcc-a738-54e1-99c3-3de31f83a9e2"
+					(reference "#PWR075")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "GaggiaGuru:R")
+		(at 256.54 210.82 90)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "c80c2dc5-a4ab-4f6c-b635-fc568268eac2")
+		(property "Reference" "R28"
+			(at 256.54 206.502 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "33"
+			(at 256.54 208.28 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder"
+			(at 256.54 210.82 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 256.54 210.82 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Resistor"
+			(at 256.54 210.82 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "cfbbf990-5558-4f12-9b68-569b76de9eb7")
+		)
+		(pin "2"
+			(uuid "07342112-e796-413a-bb01-c0ab190e004b")
+		)
+		(instances
+			(project "GaggiaGuru"
+				(path "/ac1b1dcc-a738-54e1-99c3-3de31f83a9e2"
+					(reference "R28")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "GaggiaGuru:R")
+		(at 269.24 213.36 90)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "383aee0c-b6a4-4f6e-bddd-b2e87e64682e")
+		(property "Reference" "R29"
+			(at 269.24 215.646 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "33"
+			(at 269.24 217.424 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder"
+			(at 269.24 213.36 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 269.24 213.36 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Resistor"
+			(at 269.24 213.36 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "7cdcafcc-417b-4d53-86d1-4464375b9c16")
+		)
+		(pin "2"
+			(uuid "3b087031-5e80-454c-bbfb-6c953ef4f6d8")
+		)
+		(instances
+			(project "GaggiaGuru"
+				(path "/ac1b1dcc-a738-54e1-99c3-3de31f83a9e2"
+					(reference "R29")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "GaggiaGuru:R")
+		(at 246.38 223.52 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "a50ffb03-e2e8-42b2-96ab-79e7659bacb0")
+		(property "Reference" "R30"
+			(at 248.92 222.25 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "10k 1%"
+			(at 248.92 224.79 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder"
+			(at 246.38 223.52 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 246.38 223.52 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Resistor"
+			(at 246.38 223.52 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "39b71739-206b-4be9-a157-1953de1f02ac")
+		)
+		(pin "2"
+			(uuid "2f712d74-c23b-4548-b247-28a370834c75")
+		)
+		(instances
+			(project "GaggiaGuru"
+				(path "/ac1b1dcc-a738-54e1-99c3-3de31f83a9e2"
+					(reference "R30")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "GaggiaGuru:+3V3")
+		(at 246.38 228.6 180)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board no)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "65975b8b-1bde-4676-a2dc-82ada30798ed")
+		(property "Reference" "#PWR076"
+			(at 246.38 228.6 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "+3V3"
+			(at 246.38 232.156 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 246.38 228.6 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 246.38 228.6 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"+3V3\""
+			(at 246.38 228.6 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "3a96af0c-b0a0-4048-94b7-c501137911b4")
+		)
+		(instances
+			(project "GaggiaGuru"
+				(path "/ac1b1dcc-a738-54e1-99c3-3de31f83a9e2"
+					(reference "#PWR076")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "GaggiaGuru:LED")
 		(at 393.7 53.34 0)
 		(unit 1)
@@ -7054,7 +8136,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical"
+		(property "Footprint" "Connector_JST:JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical"
 			(at 27.94 96.52 0)
 			(hide yes)
 			(show_name no)
@@ -7133,7 +8215,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical"
+		(property "Footprint" "Connector_JST:JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical"
 			(at 238.76 152.4 0)
 			(hide yes)
 			(show_name no)
@@ -7889,7 +8971,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical"
+		(property "Footprint" "Connector_JST:JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical"
 			(at 292.1 35.56 0)
 			(hide yes)
 			(show_name no)
@@ -8679,7 +9761,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical"
+		(property "Footprint" "Connector_JST:JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical"
 			(at 129.54 157.48 0)
 			(hide yes)
 			(show_name no)
@@ -9868,7 +10950,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical"
+		(property "Footprint" "Connector_JST:JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical"
 			(at 292.1 81.28 0)
 			(hide yes)
 			(show_name no)
@@ -14050,7 +15132,7 @@
 		)
 	)
 	(symbol
-		(lib_id "GaggiaGuru:Conn_01x03")
+		(lib_id "GaggiaGuru:Conn_01x04")
 		(at 325.12 152.4 0)
 		(unit 1)
 		(body_style 1)
@@ -14071,7 +15153,7 @@
 			)
 		)
 		(property "Value" "SWITCHES"
-			(at 324.485 160.782 0)
+			(at 324.485 163.322 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -14080,7 +15162,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical"
+		(property "Footprint" "Connector_JST:JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical"
 			(at 325.12 152.4 0)
 			(hide yes)
 			(show_name no)
@@ -14102,7 +15184,7 @@
 				)
 			)
 		)
-		(property "Description" "Connector, single row, 3 pins"
+		(property "Description" "Connector, single row, 4 pins"
 			(at 325.12 152.4 0)
 			(hide yes)
 			(show_name no)
@@ -14122,10 +15204,90 @@
 		(pin "3"
 			(uuid "feb41733-c5a5-5eb0-8d7a-c13616f8e0da")
 		)
+		(pin "4"
+			(uuid "4675d4ec-d296-4659-a1ec-e305c16c7d10")
+		)
 		(instances
 			(project "GaggiaGuru"
 				(path "/ac1b1dcc-a738-54e1-99c3-3de31f83a9e2"
 					(reference "J7")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "GaggiaGuru:+3V3")
+		(at 330.2 162.56 180)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board no)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "fa74ebfc-a86a-4393-8073-37338134523d")
+		(property "Reference" "#PWR072"
+			(at 330.2 162.56 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "+3V3"
+			(at 330.2 166.116 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 330.2 162.56 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 330.2 162.56 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"+3V3\""
+			(at 330.2 162.56 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "8a75489b-c873-4874-887c-44043fd230b7")
+		)
+		(instances
+			(project "GaggiaGuru"
+				(path "/ac1b1dcc-a738-54e1-99c3-3de31f83a9e2"
+					(reference "#PWR072")
 					(unit 1)
 				)
 			)
@@ -14790,7 +15952,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical"
+		(property "Footprint" "Connector_JST:JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical"
 			(at 381 35.56 0)
 			(hide yes)
 			(show_name no)
@@ -14872,7 +16034,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical"
+		(property "Footprint" "Connector_JST:JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical"
 			(at 381 81.28 0)
 			(hide yes)
 			(show_name no)
@@ -15267,7 +16429,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x06_P2.54mm_Vertical"
+		(property "Footprint" "Connector_JST:JST_XH_B6B-XH-A_1x06_P2.50mm_Vertical"
 			(at 129.54 193.04 0)
 			(hide yes)
 			(show_name no)
@@ -16729,7 +17891,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical"
+		(property "Footprint" "Connector_JST:JST_XH_B3B-XH-A_1x03_P2.50mm_Vertical"
 			(at 27.94 157.48 0)
 			(hide yes)
 			(show_name no)
@@ -17438,7 +18600,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical"
+		(property "Footprint" "Connector_JST:JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical"
 			(at 25.4 35.56 0)
 			(hide yes)
 			(show_name no)
@@ -18071,7 +19233,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical"
+		(property "Footprint" "Connector_JST:JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical"
 			(at 182.88 157.48 0)
 			(hide yes)
 			(show_name no)
