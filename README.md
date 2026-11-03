@@ -30,15 +30,19 @@ include/io_pins.h     every GPIO: '#define PIN_X n // Name | Type | notes'
 scripts/gen_io_pins.py  pre-build: io_pins.h comments → include/io_pins_table.gen.h
 scripts/ota_auth.py   esp32-ota upload: takes the OTA password from secrets.h
 src/main.cpp          setup/loop; loads forced OFF first, machine control started before Wi-Fi
-src/machine.*         state machine, heater/pump PID, safety faults (own FreeRTOS task + watchdog)
-src/sensors.*         MAX31855K thermocouple, XDB401 pressure sensor
+src/machine.*         control task (own FreeRTOS task + watchdog): pin I/O, logging, status publishing
+src/machine_logic.*   state machine, heater/pump PID, safety faults (hardware-free, unit-tested)
+src/sensors.*         MAX31855K thermocouple, XDB401 pressure sensor (pin I/O)
+src/sensor_math.*     MAX31855 frame decoding, voltage -> bar (hardware-free, unit-tested)
 src/pump.*            RobotDyn dimmer: zero-cross ISR, full-cycle pulse-skip modulation
 src/settings.*        user settings (setpoints, PID gains) in NVS
+src/settings_schema.* settings field table, defaults, range checks (hardware-free, unit-tested)
 src/pid.h             PID controller
 src/wifi_manager.*    STA connect, fallback AP, captive DNS, scan, NVS creds
 src/ota.*             ArduinoOTA
 src/web_server.*      HTTP routes, JSON API, WebSocket, browser OTA
 src/io_status.*       read-only pin sampling for /api/io
+test/                 PC unit tests (pio test -e native), see test/README.md
 data/                 web UI → LittleFS: index.html (dashboard), settings.html, wifi.html,
                       update.html, io.html, shared style.css + app.js
 ```
@@ -61,6 +65,16 @@ data/                 web UI → LittleFS: index.html (dashboard), settings.html
 3. If no Wi-Fi is configured, join `GaggiaSavant-Setup-XXXXXX` (password `AP_PASSWORD`),
    browse to `http://192.168.4.1`, open **Wi-Fi**, pick a network, Save. The device reboots
    onto your network.
+
+## Unit tests (PC, no hardware)
+
+```sh
+pio test -e native
+```
+Runs on the PC with the host compiler (g++ or clang). Covers the control logic and every
+software safety fault, sensor decoding, settings validation and the PID. See
+[test/README.md](test/README.md). Run it after changing anything in `machine_logic`,
+`sensor_math`, `settings_schema` or `pid.h`.
 
 ## Updating over Wi-Fi
 

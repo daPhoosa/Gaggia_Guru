@@ -7,10 +7,7 @@ namespace Sensors {
 
 // ---------------------------------------------------------------------------
 // MAX31855K: 32-bit frame, MSB first, data valid while SCK is low.
-//   D31..D18  thermocouple temp, signed 14-bit, 0.25 C/LSB
-//   D16       fault (any)
-//   D15..D4   cold-junction temp, signed 12-bit, 0.0625 C/LSB
-//   D2 SCV (short to VCC), D1 SCG (short to GND), D0 OC (open circuit)
+// Frame layout and decoding: sensor_math.cpp.
 // ---------------------------------------------------------------------------
 void beginThermocouple() {
   pinMode(PIN_TC_CS, OUTPUT);
@@ -37,34 +34,7 @@ static uint32_t readFrame() {
   return v;
 }
 
-TcReading readThermocouple() {
-  TcReading r{false, NAN, NAN, nullptr};
-  const uint32_t v = readFrame();
-
-  if (v == 0 || v == 0xFFFFFFFFu) {  // SO stuck low/high: chip missing or unpowered
-    r.error = "thermocouple chip not responding";
-    return r;
-  }
-  if (v & (1u << 16)) {
-    r.error = (v & 0x1) ? "thermocouple open circuit"
-              : (v & 0x2) ? "thermocouple shorted to GND"
-              : (v & 0x4) ? "thermocouple shorted to VCC"
-                          : "thermocouple fault";
-    return r;
-  }
-
-  int16_t tc = static_cast<int16_t>((v >> 16) & 0xFFFC) >> 2;  // sign-extend 14-bit
-  int16_t cj = static_cast<int16_t>(v & 0xFFF0) >> 4;          // sign-extend 12-bit
-  r.tempC = tc * 0.25f;
-  r.coldJunctionC = cj * 0.0625f;
-
-  if (r.tempC < SAFETY_MIN_VALID_TEMP_C || r.tempC > SAFETY_MAX_VALID_TEMP_C) {
-    r.error = "thermocouple reading implausible";
-    return r;
-  }
-  r.ok = true;
-  return r;
-}
+TcReading readThermocouple() { return decodeMax31855(readFrame()); }
 
 // ---------------------------------------------------------------------------
 // Pressure: average a few ADC samples (pump pulsation is filtered further by
@@ -79,20 +49,7 @@ PressureReading readPressure() {
   constexpr int kSamples = 8;
   uint32_t mv = 0;
   for (int i = 0; i < kSamples; ++i) mv += analogReadMilliVolts(PIN_PRESSURE);
-  const float pinV = (mv / static_cast<float>(kSamples)) / 1000.0f;
-
-  PressureReading r;
-  r.pinMv = static_cast<uint16_t>(mv / kSamples);
-  r.sensorV = pinV / PRESSURE_DIVIDER_RATIO;
-  r.ok = r.sensorV >= PRESSURE_V_VALID_LOW && r.sensorV <= PRESSURE_V_VALID_HIGH;
-  r.bar = pressureBarFromPinMv(mv / static_cast<float>(kSamples));
-  return r;
-}
-
-float pressureBarFromPinMv(float pinMv) {
-  const float sensorV = pinMv / 1000.0f / PRESSURE_DIVIDER_RATIO;
-  const float bar = (sensorV - PRESSURE_V_MIN) / (PRESSURE_V_MAX - PRESSURE_V_MIN) * PRESSURE_FULL_SCALE_BAR;
-  return bar < 0 ? 0 : bar;
+  return pressureFromPinMv(mv / static_cast<float>(kSamples));
 }
 
 }  // namespace Sensors

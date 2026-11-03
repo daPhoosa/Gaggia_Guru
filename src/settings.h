@@ -1,18 +1,11 @@
 #pragma once
 #include <Arduino.h>
 
-// User-adjustable machine settings, persisted in NVS (namespace "savant").
-// Thread-safe: the web server writes, the control task reads a copy.
-struct MachineSettings {
-  float coffeeTempC;
-  float steamTempC;
-  float brewPressureBar;
-  float tempKp, tempKi, tempKd;
-  float pressKp, pressKi, pressKd;
-  float graphWindowS;  // dashboard graph history (display only)
-  // New fields go at the END (settings.cpp migrates older saved layouts).
-};
+#include "machine_settings.h"
 
+// Settings persisted in NVS (namespace "savant"). Field table and range
+// checks: settings_schema.cpp.
+// Thread-safe: the web server writes, the control task reads a copy.
 namespace Settings {
 
 void begin();                 // load from NVS (or defaults)

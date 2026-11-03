@@ -17,3 +17,15 @@ Diagnostics:
   Suppress:
     - drv_unknown_argument
     - drv_unsupported_opt
+---
+# Unit tests (test/<suite>/test_main.cpp) build for the PC with `pio test -e native`
+# and aren't in compile_commands.json. Paths are relative to the test file's folder.
+If:
+  PathMatch: test/.*\.cpp
+CompileFlags:
+  CompilationDatabase: None
+  Add:
+    - -std=gnu++17
+    - -I../../src
+    - -I../../include
+    - -I../../.pio/libdeps/native/Unity/src

@@ -4,10 +4,9 @@
 #include <Preferences.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/semphr.h>
-#include <math.h>
 #include <stddef.h>
 
-#include "machine_config.h"
+#include "settings_schema.h"
 
 namespace {
 
@@ -26,45 +25,14 @@ struct StoredV1 {
 static_assert(offsetof(MachineSettings, graphWindowS) == sizeof(StoredV1::f),
               "v1 migration assumes new fields were appended");
 
-struct Field {
-  const char *key;
-  size_t offset;
-  float min, max;
-};
-
-const Field kFields[] = {
-    {"coffeeTempC", offsetof(MachineSettings, coffeeTempC), LIMIT_COFFEE_TEMP_MIN, LIMIT_COFFEE_TEMP_MAX},
-    {"steamTempC", offsetof(MachineSettings, steamTempC), LIMIT_STEAM_TEMP_MIN, LIMIT_STEAM_TEMP_MAX},
-    {"brewPressureBar", offsetof(MachineSettings, brewPressureBar), LIMIT_PRESSURE_MIN, LIMIT_PRESSURE_MAX},
-    {"tempKp", offsetof(MachineSettings, tempKp), 0, LIMIT_GAIN_MAX},
-    {"tempKi", offsetof(MachineSettings, tempKi), 0, LIMIT_GAIN_MAX},
-    {"tempKd", offsetof(MachineSettings, tempKd), 0, LIMIT_GAIN_MAX},
-    {"pressKp", offsetof(MachineSettings, pressKp), 0, LIMIT_GAIN_MAX},
-    {"pressKi", offsetof(MachineSettings, pressKi), 0, LIMIT_GAIN_MAX},
-    {"pressKd", offsetof(MachineSettings, pressKd), 0, LIMIT_GAIN_MAX},
-    {"graphWindowS", offsetof(MachineSettings, graphWindowS), LIMIT_GRAPH_WINDOW_MIN, LIMIT_GRAPH_WINDOW_MAX},
-};
-constexpr size_t kFieldCount = sizeof(kFields) / sizeof(kFields[0]);
-
-float &ref(MachineSettings &s, const Field &f) {
-  return *reinterpret_cast<float *>(reinterpret_cast<uint8_t *>(&s) + f.offset);
-}
-float val(const MachineSettings &s, const Field &f) {
-  return *reinterpret_cast<const float *>(reinterpret_cast<const uint8_t *>(&s) + f.offset);
-}
-
 MachineSettings current;
 SemaphoreHandle_t mutex = nullptr;
 
 bool validate(const MachineSettings &s, String &error) {
-  for (const Field &f : kFields) {
-    float v = val(s, f);
-    if (!isfinite(v) || v < f.min || v > f.max) {
-      error = String(f.key) + " must be between " + String(f.min, 1) + " and " + String(f.max, 1);
-      return false;
-    }
-  }
-  return true;
+  char err[96];
+  if (SettingsSchema::validate(s, err, sizeof(err))) return true;
+  error = err;
+  return false;
 }
 
 void save(const MachineSettings &s) {
@@ -79,20 +47,7 @@ void save(const MachineSettings &s) {
 
 namespace Settings {
 
-MachineSettings defaults() {
-  MachineSettings s;
-  s.coffeeTempC = DEFAULT_COFFEE_TEMP_C;
-  s.steamTempC = DEFAULT_STEAM_TEMP_C;
-  s.brewPressureBar = DEFAULT_BREW_PRESSURE_BAR;
-  s.tempKp = DEFAULT_TEMP_KP;
-  s.tempKi = DEFAULT_TEMP_KI;
-  s.tempKd = DEFAULT_TEMP_KD;
-  s.pressKp = DEFAULT_PRESS_KP;
-  s.pressKi = DEFAULT_PRESS_KI;
-  s.pressKd = DEFAULT_PRESS_KD;
-  s.graphWindowS = DEFAULT_GRAPH_WINDOW_S;
-  return s;
-}
+MachineSettings defaults() { return SettingsSchema::defaults(); }
 
 void begin() {
   mutex = xSemaphoreCreateMutex();
@@ -149,27 +104,14 @@ void resetToDefaults() {
 }
 
 bool setField(MachineSettings &s, const String &key, const String &value, String &error) {
-  for (const Field &f : kFields) {
-    if (key != f.key) continue;
-    char *end = nullptr;
-    float v = strtof(value.c_str(), &end);
-    if (value.isEmpty() || end == value.c_str() || *end != '\0' || !isfinite(v)) {
-      error = key + " is not a number";
-      return false;
-    }
-    if (v < f.min || v > f.max) {
-      error = key + " must be between " + String(f.min, 1) + " and " + String(f.max, 1);
-      return false;
-    }
-    ref(s, f) = v;
-    return true;
-  }
-  error = "unknown setting " + key;
+  char err[96];
+  if (SettingsSchema::setField(s, key.c_str(), value.c_str(), err, sizeof(err))) return true;
+  error = err;
   return false;
 }
 
-size_t fieldCount() { return kFieldCount; }
-const char *fieldKey(size_t i) { return i < kFieldCount ? kFields[i].key : nullptr; }
+size_t fieldCount() { return SettingsSchema::count(); }
+const char *fieldKey(size_t i) { return i < SettingsSchema::count() ? SettingsSchema::field(i).key : nullptr; }
 
 String json() {
   MachineSettings s = get(), d = defaults();
@@ -177,9 +119,10 @@ String json() {
   JsonObject v = doc["values"].to<JsonObject>();
   JsonObject df = doc["defaults"].to<JsonObject>();
   JsonObject lim = doc["limits"].to<JsonObject>();
-  for (const Field &f : kFields) {
-    v[f.key] = val(s, f);
-    df[f.key] = val(d, f);
+  for (size_t i = 0; i < SettingsSchema::count(); ++i) {
+    const SettingsSchema::Field &f = SettingsSchema::field(i);
+    v[f.key] = SettingsSchema::get(s, f);
+    df[f.key] = SettingsSchema::get(d, f);
     JsonArray a = lim[f.key].to<JsonArray>();
     a.add(f.min);
     a.add(f.max);

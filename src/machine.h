@@ -17,30 +17,12 @@
 //
 // The Coffee switch must be seen OFF before it can start the pump (after boot,
 // and after the pump run-time limit stops it).
+//
+// The decisions live in machine_logic.cpp (unit-tested on the PC); this module
+// only does the pin I/O, the FreeRTOS task, logging and publishing.
+#include "machine_logic.h"  // State, Status, stateName(), Logic (hardware-free)
+
 namespace Machine {
-
-enum class State : uint8_t { Idle, Brewing, Steam, HotWater, Fault, Inhibited };
-
-struct Status {
-  State state;
-  bool tempValid;
-  float tempC;
-  float setpointC;
-  bool pressureValid;
-  float pressureBar;
-  float pressureTargetBar;  // 0 unless brewing
-  uint16_t pressurePinMv;   // pin voltage: smoothed when valid, live sample when out of range
-  float heaterDuty;         // 0-100 %
-  uint8_t pumpPower;        // 0-100 %
-  bool heaterOn, valveOn, coffeeLight, steamLight;
-  bool coffeeSwitch, steamSwitch;
-  bool waitSwitchCycle;     // Coffee switch is on but ignored until cycled off/on
-  bool pumpTimedOut;
-  uint32_t shotMs;          // current shot time, or last shot when idle
-  float mainsHz;
-  char fault[112];          // empty unless FAULT
-  char inhibitReason[32];
-};
 
 // Call first thing in setup(): drives every load output LOW.
 void safeOutputs();
@@ -54,7 +36,6 @@ void inhibit(const char *reason);
 void release();
 
 Status status();
-const char *stateName(State s);
 String json();  // status as JSON (for /api/machine and the WebSocket)
 
 }  // namespace Machine
