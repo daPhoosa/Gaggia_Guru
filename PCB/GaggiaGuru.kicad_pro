@@ -492,7 +492,7 @@
     "pinned_symbol_libs": []
   },
   "meta": {
-    "filename": "GaggiaSavant.kicad_pro",
+    "filename": "GaggiaGuru.kicad_pro",
     "version": 3
   },
   "net_settings": {
@@ -660,8 +660,8 @@
     "subpart_id_separator": 0,
     "top_level_sheets": [
       {
-        "filename": "GaggiaSavant.kicad_sch",
-        "name": "GaggiaSavant",
+        "filename": "GaggiaGuru.kicad_sch",
+        "name": "GaggiaGuru",
         "uuid": "ac1b1dcc-a738-54e1-99c3-3de31f83a9e2"
       }
     ],
@@ -671,7 +671,7 @@
   "sheets": [
     [
       "ac1b1dcc-a738-54e1-99c3-3de31f83a9e2",
-      "GaggiaSavant"
+      "GaggiaGuru"
     ]
   ],
   "text_variables": {},

@@ -1,4 +1,4 @@
 (fp_lib_table
   (version 7)
-  (lib (name "GaggiaSavant")(type "KiCad")(uri "${KIPRJMOD}/GaggiaSavant.pretty")(options "")(descr "Gaggia Savant project footprints"))
+  (lib (name "GaggiaGuru")(type "KiCad")(uri "${KIPRJMOD}/GaggiaGuru.pretty")(options "")(descr "Gaggia Guru project footprints"))
 )

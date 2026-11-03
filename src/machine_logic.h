@@ -1,5 +1,5 @@
 #pragma once
-// Gaggia Savant control logic: state machine, heater/pump PID and software
+// Gaggia Guru control logic: state machine, heater/pump PID and software
 // safety checks, with no hardware access (no Arduino headers).
 //
 // machine.cpp reads the pins and sensors into Inputs once per control tick,

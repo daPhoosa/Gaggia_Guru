@@ -1,4 +1,4 @@
-# Gaggia Savant — IO Design
+# Gaggia Guru — IO Design
 
 Hardware reference for the ESP32-WROOM-32U controller in a converted Gaggia Classic Pro
 (120 V / 60 Hz). It covers every pin assignment and the signal conditioning each
@@ -9,7 +9,7 @@ firmware uses. If you move a pin, update both. The build checks `io_pins.h` for 
 and illegal pins, but it cannot check this document.
 
 The carrier board that implements this is the KiCad 10 project in [`PCB/`](PCB/)
-(`GaggiaSavant.kicad_pro`). Its schematic follows this document; if they disagree, fix one.
+(`GaggiaGuru.kicad_pro`). Its schematic follows this document; if they disagree, fix one.
 
 ---
 

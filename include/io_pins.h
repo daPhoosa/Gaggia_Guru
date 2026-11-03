@@ -1,6 +1,6 @@
 #pragma once
 // ===========================================================================
-// Gaggia Savant - ESP32-WROOM-32U hardware IO pin map (38-pin DevKit board)
+// Gaggia Guru - ESP32-WROOM-32U hardware IO pin map (38-pin DevKit board)
 // ===========================================================================
 //
 // EVERY ACTIVE PIN LINE MUST FOLLOW THIS FORMAT (parsed at build time by

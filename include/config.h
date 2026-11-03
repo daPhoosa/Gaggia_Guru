@@ -17,12 +17,12 @@
 #define FW_VERSION "dev"
 #endif
 
-// mDNS / ArduinoOTA hostname -> http://gaggia-savant.local
-#define DEVICE_HOSTNAME      "gaggia-savant"
+// mDNS / ArduinoOTA hostname -> http://gaggia-guru.local
+#define DEVICE_HOSTNAME      "gaggia-guru"
 
 // Setup access point started when no network can be joined.
-// SSID gets the last 3 MAC bytes appended, e.g. "GaggiaSavant-Setup-A1B2C3".
-#define AP_SSID_PREFIX       "GaggiaSavant-Setup-"   // password: AP_PASSWORD in secrets.h
+// SSID gets the last 3 MAC bytes appended, e.g. "GaggiaGuru-Setup-A1B2C3".
+#define AP_SSID_PREFIX       "GaggiaGuru-Setup-"   // password: AP_PASSWORD in secrets.h
 
 #define WIFI_CONNECT_TIMEOUT_MS   15000UL
 #define WIFI_RETRY_INTERVAL_MS    30000UL     // while in AP mode, retry STA this often

@@ -1,4 +1,4 @@
-// Gaggia Savant - ESP32 control system for a converted Gaggia Classic Pro
+// Gaggia Guru - ESP32 control system for a converted Gaggia Classic Pro
 //  - Wi-Fi station with fallback setup AP + captive portal
 //  - OTA updates: ArduinoOTA (espota) and browser upload (/api/update)
 //  - Async web server serving a LittleFS dashboard with live WebSocket status

@@ -1,6 +1,6 @@
 #pragma once
 // ---------------------------------------------------------------------------
-// Gaggia Savant - espresso machine control constants.
+// Gaggia Guru - espresso machine control constants.
 //
 // "Default" values are the factory settings; the user can change them from the
 // dashboard Settings page (saved in NVS). Everything else here is a fixed

@@ -1,6 +1,6 @@
 #pragma once
 // ---------------------------------------------------------------------------
-// Gaggia Savant - passwords and credentials (TEMPLATE).
+// Gaggia Guru - passwords and credentials (TEMPLATE).
 //
 // Copy this file to include/secrets.h and set your own values:
 //     cp include/secrets.example.h include/secrets.h

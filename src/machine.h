@@ -1,7 +1,7 @@
 #pragma once
 #include <Arduino.h>
 
-// Gaggia Savant machine control: state machine, heater/pump control and safety.
+// Gaggia Guru machine control: state machine, heater/pump control and safety.
 //
 // Runs in its own FreeRTOS task (CONTROL_PERIOD_MS tick) watched by the task
 // watchdog, independent of Wi-Fi, the web server and ArduinoOTA.

@@ -38,7 +38,7 @@ bool validate(const MachineSettings &s, String &error) {
 void save(const MachineSettings &s) {
   Stored st{kVersion, s};
   Preferences p;
-  p.begin("savant", false);
+  p.begin("guru", false);
   p.putBytes("settings", &st, sizeof(st));
   p.end();
 }
@@ -56,7 +56,7 @@ void begin() {
   Stored st;
   StoredV1 v1;
   Preferences p;
-  p.begin("savant", true);
+  p.begin("guru", true);
   const size_t len = p.getBytesLength("settings");
   size_t n = 0;
   bool migrated = false;

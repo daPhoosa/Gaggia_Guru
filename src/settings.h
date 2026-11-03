@@ -3,7 +3,7 @@
 
 #include "machine_settings.h"
 
-// Settings persisted in NVS (namespace "savant"). Field table and range
+// Settings persisted in NVS (namespace "guru"). Field table and range
 // checks: settings_schema.cpp.
 // Thread-safe: the web server writes, the control task reads a copy.
 namespace Settings {

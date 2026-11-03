@@ -1,10 +1,10 @@
-# Gaggia Savant
+# Gaggia Guru
 
 ESP32-WROOM-32U control system for a converted Gaggia Classic Pro espresso machine.
 PlatformIO / Arduino firmware with:
 
 - **Wi-Fi manager** – joins a saved network; if none or it fails, starts a setup AP
-  (`GaggiaSavant-Setup-XXXXXX`) with a captive portal so you can enter credentials from a phone.
+  (`GaggiaGuru-Setup-XXXXXX`) with a captive portal so you can enter credentials from a phone.
   Credentials are kept in NVS and survive firmware updates.
 - **OTA updates, two ways**
   - **ArduinoOTA / espota** – `pio run -e esp32-ota -t upload` from your PC.
@@ -12,7 +12,7 @@ PlatformIO / Arduino firmware with:
     fallback page at `/update` (works even if the filesystem is empty).
 - **Async web server** serving a dashboard from LittleFS (`data/`) with live status
   over WebSocket (uptime, heap, RSSI, flash/FS usage, boot partition…).
-- **mDNS** – `http://gaggia-savant.local`
+- **mDNS** – `http://gaggia-guru.local`
 
 > The **-32U** has no PCB antenna — connect an external 2.4 GHz antenna to the u.FL
 > connector before powering up Wi-Fi.
@@ -64,7 +64,7 @@ data/                 web UI → LittleFS: index.html (dashboard), settings.html
    pio run -e esp32-serial -t uploadfs
    pio device monitor
    ```
-3. If no Wi-Fi is configured, join `GaggiaSavant-Setup-XXXXXX` (password `AP_PASSWORD`),
+3. If no Wi-Fi is configured, join `GaggiaGuru-Setup-XXXXXX` (password `AP_PASSWORD`),
    browse to `http://192.168.4.1`, open **Wi-Fi**, pick a network, Save. The device reboots
    onto your network.
 
@@ -84,7 +84,7 @@ software safety fault, sensor decoding, settings validation and the PID. See
 pio run -e esp32-ota -t upload      # firmware
 pio run -e esp32-ota -t uploadfs    # dashboard files
 ```
-If `gaggia-savant.local` doesn't resolve, set `upload_port` in `platformio.ini` to the IP.
+If `gaggia-guru.local` doesn't resolve, set `upload_port` in `platformio.ini` to the IP.
 The OTA password comes from `OTA_PASSWORD` in `include/secrets.h`; the environment variable
 `GAGGIA_OTA_PASS` overrides it (e.g. when the device still has an older password).
 
@@ -118,17 +118,17 @@ Bump `-DFW_VERSION` in `platformio.ini` to see the new version on the dashboard.
 
 \* HTTP Basic auth. † Open while in setup-AP mode so first-time provisioning works.
 
-Every POST must also carry the header `X-Savant: 1`, or an `Origin` header equal to the
+Every POST must also carry the header `X-Guru: 1`, or an `Origin` header equal to the
 device's own address; anything else gets `403`. This stops other web pages open in the
 same browser from changing settings (cross-site request forgery). The dashboard pages add the
 header automatically. The address used must also be one of the device's own names: its IP
-address, `gaggia-savant`, or `gaggia-savant` followed by `.local`, `.lan`, `.home`, `.home.arpa`,
+address, `gaggia-guru`, or `gaggia-guru` followed by `.local`, `.lan`, `.home`, `.home.arpa`,
 `.localdomain` or `.internal`. This blocks DNS rebinding, where another website's name is
 pointed at the machine. POSTs sent to any other name, including through a reverse proxy, get
 `403`. From a script:
 
 ```sh
-curl -u admin:PASSWORD -H 'X-Savant: 1' -d coffeeTempC=106 http://gaggia-savant.local/api/settings
+curl -u admin:PASSWORD -H 'X-Guru: 1' -d coffeeTempC=106 http://gaggia-guru.local/api/settings
 ```
 
 The server sends no CORS headers, so other sites can't read the API either.

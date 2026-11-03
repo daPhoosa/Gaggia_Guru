@@ -50,8 +50,8 @@ String hostOnly(AsyncWebServerRequest *req) {
 
 // Names this device answers to: its IP addresses, the mDNS name, the bare
 // hostname, and the hostname under the usual private home-router DNS suffixes.
-// Deliberately NOT "gaggia-savant.<anything>", since anyone can register e.g.
-// gaggia-savant.example.com and point it at this device (DNS rebinding).
+// Deliberately NOT "gaggia-guru.<anything>", since anyone can register e.g.
+// gaggia-guru.example.com and point it at this device (DNS rebinding).
 bool isOwnName(const String &host) {
   if (host == WiFi.softAPIP().toString()) return true;
   if (WifiManager::isConnected() && host == WiFi.localIP().toString()) return true;
@@ -77,7 +77,7 @@ bool requireAdmin(AsyncWebServerRequest *req) {
 // Cross-site request guard for every state-changing POST. Without it, any web
 // page open in a browser that has the admin login cached could submit a form
 // to the machine (change setpoints, wipe Wi-Fi, reboot, flash firmware).
-//  - Our own pages send the custom header "X-Savant: 1". A page on another
+//  - Our own pages send the custom header "X-Guru: 1". A page on another
 //    site can't add a custom header to a request to us without a CORS
 //    preflight, which this server never approves.
 //  - The plain-HTML /update fallback page can't add headers, so a POST whose
@@ -87,7 +87,7 @@ bool sameSite(AsyncWebServerRequest *req) {
   // foreign site's name resolves to this device so the browser treats the
   // machine as that site (same origin, custom headers allowed).
   if (!isOwnName(hostOnly(req))) return false;
-  if (req->hasHeader("X-Savant")) return true;
+  if (req->hasHeader("X-Guru")) return true;
   if (!req->hasHeader("Origin")) return false;
   return req->header("Origin").equalsIgnoreCase("http://" + req->host());
 }
@@ -267,11 +267,11 @@ void handleUpdateDone(AsyncWebServerRequest *req) {
 // Built-in Wi-Fi setup page (in firmware, so provisioning works without LittleFS).
 const char SETUP_HTML[] PROGMEM = R"HTML(<!doctype html><html><head>
 <meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1">
-<title>Wi-Fi setup · Gaggia Savant</title><style>
+<title>Wi-Fi setup · Gaggia Guru</title><style>
 body{font:16px system-ui,sans-serif;max-width:420px;margin:0 auto;padding:16px;background:#f4f5f7;color:#1d2330}
 input,select,button{width:100%;box-sizing:border-box;font:inherit;padding:10px;margin:6px 0;border:1px solid #ccc;border-radius:7px}
 button{background:#2563eb;color:#fff;border:0;font-weight:600}#msg{margin-top:10px}a{color:#2563eb}
-</style></head><body><h2>Gaggia Savant Wi-Fi setup</h2>
+</style></head><body><h2>Gaggia Guru Wi-Fi setup</h2>
 <form id=f><select id=s><option value="">Scanning…</option></select>
 <input name=ssid id=ssid placeholder="SSID" required maxlength=32>
 <input name=pass type=password placeholder="Password" maxlength=64>
@@ -286,7 +286,7 @@ async function scan(n){const l=await fetch('/api/wifi/scan').then(r=>r.json()).c
  [...m.values()].sort((a,b)=>b.rssi-a.rssi).forEach(x=>{const o=new Option((x.secure?'🔒 ':'')+x.ssid+' ('+x.rssi+' dBm)',x.ssid);s.add(o)});}
 s.onchange=()=>{if(s.value)ssid.value=s.value};scan(0);
 document.getElementById('f').onsubmit=async e=>{e.preventDefault();
- const r=await fetch('/api/wifi',{method:'POST',headers:{'X-Savant':'1'},body:new URLSearchParams(new FormData(e.target))}).catch(()=>null);
+ const r=await fetch('/api/wifi',{method:'POST',headers:{'X-Guru':'1'},body:new URLSearchParams(new FormData(e.target))}).catch(()=>null);
  document.getElementById('msg').textContent=r&&r.ok?'Saved. The device is rebooting and will join that network. Reconnect your phone to your normal Wi-Fi and browse to http://)HTML" DEVICE_HOSTNAME R"HTML(.local':'Save failed';};
 </script></body></html>)HTML";
 
