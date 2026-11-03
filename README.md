@@ -23,10 +23,12 @@ PlatformIO / Arduino firmware with:
 IO_design.md          pin assignments, wiring and signal conditioning (hardware reference)
 platformio.ini        build envs: esp32-serial (USB) and esp32-ota (Wi-Fi)
 partitions.csv        4MB: 2 × 1.5MB OTA app slots, 896KB LittleFS, coredump
-include/config.h      hostname, passwords, AP name, timings  ← edit first
+include/secrets.h     passwords, optional Wi-Fi creds (git-ignored; copy from secrets.example.h)  ← edit first
+include/config.h      hostname, AP name, ports, timings
 include/machine_config.h  setpoint/PID defaults, safety limits, control timing
 include/io_pins.h     every GPIO: '#define PIN_X n // Name | Type | notes'
 scripts/gen_io_pins.py  pre-build: io_pins.h comments → include/io_pins_table.gen.h
+scripts/ota_auth.py   esp32-ota upload: takes the OTA password from secrets.h
 src/main.cpp          setup/loop; loads forced OFF first, machine control started before Wi-Fi
 src/machine.*         state machine, heater/pump PID, safety faults (own FreeRTOS task + watchdog)
 src/sensors.*         MAX31855K thermocouple, XDB401 pressure sensor
@@ -43,9 +45,13 @@ data/                 web UI → LittleFS: index.html (dashboard), settings.html
 
 ## First flash (USB)
 
-1. Edit `include/config.h` — change `OTA_PASSWORD`, `ADMIN_PASSWORD`, `AP_PASSWORD`.
-   Keep `--auth` in `platformio.ini` in sync with `OTA_PASSWORD`.
-   Optionally set `DEFAULT_WIFI_SSID` / `DEFAULT_WIFI_PASS`.
+1. Create your secrets file and set real passwords in it (`OTA_PASSWORD`, `ADMIN_PASSWORD`,
+   `AP_PASSWORD`, optionally `DEFAULT_WIFI_SSID` / `DEFAULT_WIFI_PASS`):
+   ```sh
+   cp include/secrets.example.h include/secrets.h
+   ```
+   `include/secrets.h` is git-ignored; the build stops with an error if it is missing.
+   The Wi-Fi upload reads `OTA_PASSWORD` from it, so there is nothing to keep in sync.
 2. Flash firmware and the dashboard filesystem:
    ```sh
    pio run -e esp32-serial -t upload
@@ -63,6 +69,12 @@ pio run -e esp32-ota -t upload      # firmware
 pio run -e esp32-ota -t uploadfs    # dashboard files
 ```
 If `gaggia-savant.local` doesn't resolve, set `upload_port` in `platformio.ini` to the IP.
+The OTA password comes from `OTA_PASSWORD` in `include/secrets.h`; the environment variable
+`GAGGIA_OTA_PASS` overrides it (e.g. when the device still has an older password).
+
+If a filesystem upload fails part-way, the device mounts LittleFS again. If the partition was
+already partly overwritten, `/` serves the built-in Wi-Fi setup page instead of the dashboard;
+use its **Firmware update** link (or `uploadfs`) to upload `littlefs.bin` again.
 
 Or from the browser: **Update** tab → choose `.pio/build/esp32-serial/firmware.bin`
 (or `littlefs.bin` from `pio run -t buildfs`) → Upload. Login is `ADMIN_USER` / `ADMIN_PASSWORD`.

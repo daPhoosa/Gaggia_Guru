@@ -6,4 +6,4 @@
 compile_commands.json
 include/io_pins_table.gen.h
 .cache/
-.cache/
+include/secrets.h

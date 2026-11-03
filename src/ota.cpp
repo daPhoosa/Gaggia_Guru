@@ -8,6 +8,7 @@
 
 namespace {
 bool active = false;
+bool fsUnmounted = false;  // LittleFS unmounted for a filesystem update
 }
 
 namespace Ota {
@@ -23,7 +24,10 @@ void begin() {
         active = true;
         Machine::inhibit("firmware update");
         bool fs = ArduinoOTA.getCommand() == U_SPIFFS;
-        if (fs) LittleFS.end();  // must unmount before overwriting the partition
+        if (fs) {
+          LittleFS.end();  // must unmount before overwriting the partition
+          fsUnmounted = true;
+        }
         Serial.printf("[OTA] Start updating %s\n", fs ? "filesystem" : "firmware");
       })
       .onEnd([]() { Serial.println("\n[OTA] Done, rebooting"); })
@@ -35,6 +39,14 @@ void begin() {
       })
       .onError([](ota_error_t err) {
         active = false;
+        if (fsUnmounted) {
+          // Mount again so the dashboard keeps working (no format; if the
+          // partition was partly overwritten this fails and "/" serves the
+          // built-in setup page until a good image is uploaded).
+          fsUnmounted = false;
+          Serial.println(LittleFS.begin(false) ? "[FS] LittleFS remounted"
+                                               : "[FS] LittleFS remount failed - upload a filesystem image");
+        }
         Machine::release();
         const char *msg = err == OTA_AUTH_ERROR      ? "auth failed"
                           : err == OTA_BEGIN_ERROR   ? "begin failed"

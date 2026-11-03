@@ -71,8 +71,10 @@ namespace WifiManager {
 
 void begin() {
   WiFi.persistent(false);  // we manage credentials in our own NVS namespace
-  WiFi.mode(WIFI_STA);
+  // Hostname must be set before the STA interface starts (WiFi.mode), or the
+  // DHCP request goes out as the default "esp32-XXXXXX" and routers list that.
   WiFi.setHostname(DEVICE_HOSTNAME);
+  WiFi.mode(WIFI_STA);
   WiFi.setAutoReconnect(true);
   loadCredentials();
 

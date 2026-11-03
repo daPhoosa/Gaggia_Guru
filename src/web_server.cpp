@@ -24,6 +24,18 @@ uint32_t lastMachinePush = 0;
 constexpr uint32_t kMachinePushMs = 500;
 String otaError;
 bool otaReceived = false;  // an upload actually arrived for this request
+bool fsUnmounted = false;  // LittleFS was unmounted for a filesystem upload
+
+// After a failed/aborted filesystem upload, mount LittleFS again so the
+// dashboard keeps working. No format: if the partition was already partly
+// overwritten the mount fails, and "/" falls back to the built-in setup page
+// (with its link to /update) until a good image is uploaded.
+void remountFs() {
+  if (!fsUnmounted) return;
+  fsUnmounted = false;
+  Serial.println(LittleFS.begin(false) ? "[FS] LittleFS remounted"
+                                       : "[FS] LittleFS remount failed - upload a filesystem image");
+}
 
 void scheduleReboot(uint32_t delayMs = 1000) {
   Machine::inhibit("rebooting");  // loads off before the restart
@@ -142,7 +154,10 @@ void handleUpdateUpload(AsyncWebServerRequest *req, const String &filename, size
     Machine::inhibit("firmware upload");
     bool fs = req->hasParam("target") && req->getParam("target")->value() == "fs";
     Serial.printf("[WebOTA] Receiving %s: %s\n", fs ? "filesystem" : "firmware", filename.c_str());
-    if (fs) LittleFS.end();
+    if (fs) {
+      LittleFS.end();  // must unmount before overwriting the partition
+      fsUnmounted = true;
+    }
     if (!Update.begin(UPDATE_SIZE_UNKNOWN, fs ? U_SPIFFS : U_FLASH)) {
       otaError = Update.errorString();
     }
@@ -161,7 +176,10 @@ void handleUpdateUpload(AsyncWebServerRequest *req, const String &filename, size
   if (!otaError.isEmpty()) {
     Serial.printf("[WebOTA] Error: %s\n", otaError.c_str());
     Update.abort();
-    if (otaError != "unauthorized" && otaError != "forbidden") Machine::release();
+    if (otaError != "unauthorized" && otaError != "forbidden") {
+      remountFs();
+      Machine::release();
+    }
   }
 }
 
