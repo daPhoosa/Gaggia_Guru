@@ -14,7 +14,6 @@
 // Raw register access. (The ESP-IDF REG_* macros contain a compile-time assert
 // that warns when expanded inside an anonymous namespace.)
 static inline uint32_t regRead(uint32_t addr) { return *reinterpret_cast<volatile uint32_t *>(addr); }
-static inline void regWrite(uint32_t addr, uint32_t v) { *reinterpret_cast<volatile uint32_t *>(addr) = v; }
 
 namespace {
 
@@ -123,10 +122,14 @@ PinState sample(const IoPinInfo &p) {
   if (s.mode == Mode::Output) {
     s.level = outputLevel(g);
   } else if (s.mode != Mode::Analog) {
-    // Enabling the input buffer doesn't change direction, pulls or output level,
-    // but lets us read the pad. (Analog pads are left alone.)
-    if (!(mux & FUN_IE)) regWrite(GPIO_PIN_MUX_REG[g], mux | FUN_IE);
-    s.level = inputLevel(g);
+    // Read-only: the level is only meaningful if the pad's input buffer is
+    // already on (set by whoever configured the pin). We never switch it on
+    // ourselves, so this page can't change any pin's electrical state.
+    if (mux & FUN_IE) {
+      s.level = inputLevel(g);
+    } else if (!s.note) {
+      s.note = "Input buffer off (pin not configured)";
+    }
   }
   return s;
 }
