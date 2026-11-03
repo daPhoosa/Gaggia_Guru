@@ -71,7 +71,45 @@ void test_pressure_reading_fields() {
   TEST_ASSERT_TRUE(r.ok);
   TEST_ASSERT_FLOAT_WITHIN(0.001f, 2.5f, r.sensorV);
   TEST_ASSERT_FLOAT_WITHIN(0.01f, 6.0f, r.bar);
-  TEST_ASSERT_EQUAL_UINT16(1363, r.pinMv);  // 2.5 V * 12/22
+  TEST_ASSERT_EQUAL_UINT16(1250, r.pinMv);  // 2.5 V * 0.5
+  TEST_ASSERT_EQUAL_FLOAT(1.0f, r.supplyScale);
+  TEST_ASSERT_NULL(r.error);
+}
+
+// Ratiometric (ADS1115 option): the sensor output scales with its supply.
+static float ratioOut(float supplyV, float bar) {  // XDB401 output at a given supply
+  return supplyV * (PRESSURE_V_MIN + bar / PRESSURE_FULL_SCALE_BAR * (PRESSURE_V_MAX - PRESSURE_V_MIN)) /
+         PRESSURE_SUPPLY_NOMINAL_V;
+}
+
+void test_pressure_supply_correction() {
+  // 6 bar with the 5 V rail sagging to 4.8 V: uncorrected would read low.
+  const float out = ratioOut(4.8f, 6.0f);
+  TEST_ASSERT_TRUE(pressureFromPinMv(pinMvForSensorV(out)).bar < 5.8f);
+  PressureReading r = pressureFromPinMv(pinMvForSensorV(out), pinMvForSensorV(4.8f));
+  TEST_ASSERT_TRUE(r.ok);
+  TEST_ASSERT_FLOAT_WITHIN(0.01f, 4.8f, r.supplyV);
+  TEST_ASSERT_FLOAT_WITHIN(0.02f, 6.0f, r.bar);
+  TEST_ASSERT_FLOAT_WITHIN(0.001f, 5.0f / 4.8f, r.supplyScale);
+  // pinMv stays the real node voltage (for the IO page)
+  TEST_ASSERT_UINT16_WITHIN(1, static_cast<uint16_t>(pinMvForSensorV(out)), r.pinMv);
+}
+
+void test_pressure_supply_out_of_range_not_corrected() {
+  const float node = pinMvForSensorV(2.5f);
+  PressureReading lo = pressureFromPinMv(node, pinMvForSensorV(PRESSURE_SUPPLY_MIN_V - 0.1f));
+  PressureReading none = pressureFromPinMv(node, 0);
+  TEST_ASSERT_EQUAL_FLOAT(1.0f, lo.supplyScale);
+  TEST_ASSERT_FLOAT_WITHIN(0.01f, 6.0f, lo.bar);
+  TEST_ASSERT_TRUE(lo.supplyV > 0);  // still reported
+  TEST_ASSERT_EQUAL_FLOAT(1.0f, none.supplyScale);
+  TEST_ASSERT_EQUAL_FLOAT(0.0f, none.supplyV);
+}
+
+void test_pressure_error_reading() {
+  PressureReading r = pressureError("ADS1115 not responding");
+  TEST_ASSERT_FALSE(r.ok);
+  TEST_ASSERT_EQUAL_STRING("ADS1115 not responding", r.error);
 }
 
 void test_pressure_valid_range() {
@@ -93,5 +131,8 @@ int main() {
   RUN_TEST(test_pressure_clamped_at_zero);
   RUN_TEST(test_pressure_reading_fields);
   RUN_TEST(test_pressure_valid_range);
+  RUN_TEST(test_pressure_supply_correction);
+  RUN_TEST(test_pressure_supply_out_of_range_not_corrected);
+  RUN_TEST(test_pressure_error_reading);
   return UNITY_END();
 }

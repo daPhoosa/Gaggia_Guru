@@ -21,7 +21,9 @@ PlatformIO / Arduino firmware with:
 
 ```
 IO_design.md          pin assignments, wiring and signal conditioning (hardware reference)
-platformio.ini        build envs: esp32-serial (USB) and esp32-ota (Wi-Fi)
+PCB/                  KiCad 10 carrier-board schematic, project symbols and DevKit footprint
+platformio.ini        build envs: esp32-serial (USB), esp32-ota (Wi-Fi), native (tests);
+                      PRESSURE_ADC build flag picks the ESP32 ADC or the ADS1115
 partitions.csv        4MB: 2 × 1.5MB OTA app slots, 896KB LittleFS, coredump
 include/secrets.h     passwords, optional Wi-Fi creds (git-ignored; copy from secrets.example.h)  ← edit first
 include/config.h      hostname, AP name, ports, timings

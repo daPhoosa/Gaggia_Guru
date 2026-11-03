@@ -34,8 +34,8 @@ TcReading decodeMax31855(uint32_t v) {
   return r;
 }
 
-float pressureBarFromPinMv(float pinMv) {
-  const float sensorV = pinMv / 1000.0f / PRESSURE_DIVIDER_RATIO;
+float pressureBarFromPinMv(float pinMv, float supplyScale) {
+  const float sensorV = pinMv / 1000.0f / PRESSURE_DIVIDER_RATIO * supplyScale;
   const float bar = (sensorV - PRESSURE_V_MIN) / (PRESSURE_V_MAX - PRESSURE_V_MIN) * PRESSURE_FULL_SCALE_BAR;
   return bar < 0 ? 0 : bar;
 }
@@ -46,6 +46,24 @@ PressureReading pressureFromPinMv(float pinMv) {
   r.sensorV = pinMv / 1000.0f / PRESSURE_DIVIDER_RATIO;
   r.ok = r.sensorV >= PRESSURE_V_VALID_LOW && r.sensorV <= PRESSURE_V_VALID_HIGH;
   r.bar = pressureBarFromPinMv(pinMv);
+  return r;
+}
+
+PressureReading pressureFromPinMv(float pinMv, float supplyPinMv) {
+  PressureReading r = pressureFromPinMv(pinMv);
+  if (supplyPinMv > 0) {
+    r.supplyV = supplyPinMv / 1000.0f / PRESSURE_DIVIDER_RATIO;
+    if (r.supplyV >= PRESSURE_SUPPLY_MIN_V && r.supplyV <= PRESSURE_SUPPLY_MAX_V) {
+      r.supplyScale = PRESSURE_SUPPLY_NOMINAL_V / r.supplyV;
+      r.bar = pressureBarFromPinMv(pinMv, r.supplyScale);
+    }
+  }
+  return r;
+}
+
+PressureReading pressureError(const char *why) {
+  PressureReading r;
+  r.error = why;
   return r;
 }
 

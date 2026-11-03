@@ -39,7 +39,7 @@
 // ===========================================================================
 
 // ---- Left header (top to bottom, antenna end up): 3V3, EN, then ------------
-#define PIN_PRESSURE      36  // PRESSURE | Analog | Board VP. XDB401 0-1.2 MPa via 10k/12k divider. ADC1_0, input only
+#define PIN_PRESSURE      36  // PRESSURE | Analog | Board VP. XDB401 0-1.2 MPa via 10k/10k divider (also ADS1115 AIN0). ADC1_0, input only
 #define PIN_GPIO39        39  // GPIO39 | Unused | Spare. Board VN. Input only, no pull-ups. ADC1_3. No interrupts (errata)
 #define PIN_PUMP_ZC       34  // PUMP_ZC | Digital | RobotDyn dimmer Z-C input (interrupt). 120 zero-crosses/s at 60 Hz. Input only
 #define PIN_HX711_DOUT    35  // HX711_DOUT | Communications | Scale load-cell data (future, not fitted). Input only
@@ -58,10 +58,10 @@
 
 // ---- Right header (top to bottom): GND, then -------------------------------
 #define PIN_GPIO23        23  // GPIO23 | Unused | Spare. VSPI MOSI
-#define PIN_I2C_SCL       22  // I2C_SCL | Communications | Reserved I2C bus (ADS1115 / OLED / tank sensor)
+#define PIN_I2C_SCL       22  // I2C_SCL | Communications | I2C bus: ADS1115 pressure ADC (PRESSURE_ADC option), OLED, tank sensor
 #define PIN_UART0_TX       1  // UART0_TX | Communications | Board TX0. USB serial / programming
 #define PIN_UART0_RX       3  // UART0_RX | Communications | Board RX0. USB serial / programming
-#define PIN_I2C_SDA       21  // I2C_SDA | Communications | Reserved I2C bus (ADS1115 / OLED / tank sensor)
+#define PIN_I2C_SDA       21  // I2C_SDA | Communications | I2C bus: ADS1115 pressure ADC (PRESSURE_ADC option), OLED, tank sensor
 #define PIN_TC_SO         19  // TC_SO | Communications | MAX31855 SO, boiler thermocouple (VSPI MISO)
 #define PIN_TC_SCK        18  // TC_SCK | Communications | MAX31855 SCK, boiler thermocouple (VSPI CLK)
 #define PIN_TC_CS          5  // TC_CS | Communications | MAX31855 chip select, boiler thermocouple. Strapping: HIGH at reset (CS idles high)

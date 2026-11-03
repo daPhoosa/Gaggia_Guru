@@ -33,6 +33,8 @@ struct Sim {
   float tempC = DEFAULT_COFFEE_TEMP_C;
   const char *tcError = nullptr;  // non-null: thermocouple reads fail with this
   float pinMv = pinMvForBar(0);
+  float supplyPinMv = 0;          // > 0: ADS1115-style reading with supply measurement
+  const char *pressError = nullptr;  // non-null: converter failure
   bool zeroCross = true;          // dimmer zero-cross pulses arriving
   bool inhibited = false;
 
@@ -59,7 +61,9 @@ struct Sim {
       ++tcReads;
       in.tc = tcError ? Sensors::TcReading{false, 0, 25, tcError} : Sensors::TcReading{true, tempC, 25, nullptr};
     }
-    in.pressure = Sensors::pressureFromPinMv(pinMv);
+    in.pressure = pressError ? Sensors::pressureError(pressError)
+                  : supplyPinMv > 0 ? Sensors::pressureFromPinMv(pinMv, supplyPinMv)
+                                    : Sensors::pressureFromPinMv(pinMv);
     in.msSinceZeroCross = now - lastZcMs;
     in.zeroCrossCount = zcCount;
     in.inhibited = inhibited;
@@ -480,6 +484,30 @@ void test_pressure_pin_mv_shows_live_value_when_invalid() {
   TEST_ASSERT_EQUAL_UINT16(50, s.st().pressurePinMv);
 }
 
+void test_pressure_supply_correction_applied() {
+  // Ratiometric sensor at 4.8 V supply reading 6 bar; with the supply measured the
+  // control loop must see 6 bar, not the ~5.76 bar the raw voltage suggests.
+  Sim s;
+  const float supply = 4.8f;
+  s.pinMv = pinMvForBar(6) * supply / PRESSURE_SUPPLY_NOMINAL_V;
+  s.supplyPinMv = supply * 1000.0f * PRESSURE_DIVIDER_RATIO;
+  s.begin();
+  s.run(2000);
+  TEST_ASSERT_FLOAT_WITHIN(0.05f, 6.0f, s.st().pressureBar);
+  TEST_ASSERT_FLOAT_WITHIN(0.01f, supply, s.st().pressureSupplyV);
+}
+
+void test_pressure_converter_failure_fault_message() {
+  Sim s;
+  s.begin();
+  s.step();
+  s.setCoffee(true);
+  s.pressError = "ADS1115 not responding";
+  s.run(PRESSURE_FAULT_MS + CONTROL_PERIOD_MS);
+  assertFaultContains(s, "Pressure sensor: ADS1115 not responding");
+  assertAllLoadsOff(s);
+}
+
 void test_mains_frequency() {
   Sim s;
   s.begin();
@@ -516,6 +544,8 @@ int main() {
   RUN_TEST(test_heater_check_paused_while_pumping);
   RUN_TEST(test_pressure_smoothing);
   RUN_TEST(test_pressure_pin_mv_shows_live_value_when_invalid);
+  RUN_TEST(test_pressure_supply_correction_applied);
+  RUN_TEST(test_pressure_converter_failure_fault_message);
   RUN_TEST(test_mains_frequency);
   return UNITY_END();
 }

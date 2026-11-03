@@ -10,6 +10,7 @@
 
 #include "io_pins.h"
 #include "machine.h"
+#include "machine_config.h"
 
 // Raw register access. (The ESP-IDF REG_* macros contain a compile-time assert
 // that warns when expanded inside an anonymous namespace.)
@@ -94,6 +95,9 @@ PinState sample(const IoPinInfo &p) {
       s.mv = m.pressurePinMv;
       if (m.pressureValid) s.bar = m.pressureBar;
       else s.note = "Sensor out of range (live, unsmoothed)";
+#if PRESSURE_ADC == PRESSURE_ADC_ADS1115
+      if (m.pressureValid) s.note = "Measured by ADS1115 AIN0 (this pin unused)";
+#endif
     } else if (isAdc2(g) && WiFi.getMode() != WIFI_OFF) {
       s.note = "ADC2 pin: not readable while Wi-Fi is on";
     } else if (!isAdc1(g) && !isAdc2(g)) {

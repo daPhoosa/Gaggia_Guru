@@ -91,13 +91,15 @@ Outputs Logic::tick(const Inputs &in, const MachineSettings &cfg) {
     // feeds the PID, the dashboard and the IO Status page.
     pressPinMvFilt_ = pressPrimed_ ? pressPinMvFilt_ + 0.3f * (pr.pinMv - pressPinMvFilt_) : pr.pinMv;
     pressPrimed_ = true;
+    pressScale_ = pr.supplyScale;
     pressBad_ = false;
   } else if (!pressBad_) {
     pressBad_ = true;
     pressBadSinceMs_ = now;
   }
   st_.pressureValid = pr.ok && pressPrimed_;
-  st_.pressureBar = Sensors::pressureBarFromPinMv(pressPinMvFilt_);
+  st_.pressureBar = Sensors::pressureBarFromPinMv(pressPinMvFilt_, pressScale_);
+  if (pr.supplyV > 0) st_.pressureSupplyV = pr.supplyV;
   // Out of range: show the live sample, not a stale smoothed value.
   st_.pressurePinMv = st_.pressureValid ? static_cast<uint16_t>(lroundf(pressPinMvFilt_)) : pr.pinMv;
 
@@ -154,7 +156,8 @@ Outputs Logic::tick(const Inputs &in, const MachineSettings &cfg) {
       setFault("No zero-cross signal from the pump dimmer (check Z-C wiring / dimmer power)");
     }
     if (st_.state == State::Brewing && pressBad_ && now - pressBadSinceMs_ >= PRESSURE_FAULT_MS) {
-      setFault("Pressure sensor out of range (%.2f V at sensor) - check wiring and 5 V supply", pr.sensorV);
+      if (pr.error) setFault("Pressure sensor: %s", pr.error);
+      else setFault("Pressure sensor out of range (%.2f V at sensor) - check wiring and 5 V supply", pr.sensorV);
     }
     // Heater-circuit check: hard heating with no pump flow must raise the temperature.
     if (st_.tempValid && st_.heaterDuty >= HEAT_CHECK_MIN_DUTY && !pumpRunning_) {

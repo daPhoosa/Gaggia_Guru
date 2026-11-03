@@ -8,6 +8,9 @@ The pin numbers here must match [`include/io_pins.h`](include/io_pins.h), which 
 firmware uses. If you move a pin, update both. The build checks `io_pins.h` for duplicates
 and illegal pins, but it cannot check this document.
 
+The carrier board that implements this is the KiCad 10 project in [`PCB/`](PCB/)
+(`GaggiaSavant.kicad_pro`). Its schematic follows this document; if they disagree, fix one.
+
 ---
 
 ## 1. Pin assignments
@@ -30,8 +33,8 @@ and illegal pins, but it cannot check this document.
 | USB serial TX / RX | 1 / 3 | — | `PIN_UART0_TX/RX` | USB-UART bridge | UART0 |
 | *Reserved:* HX711 DOUT | 35 | In | `PIN_HX711_DOUT` | HX711 `DOUT` (future scale) | not used yet |
 | *Reserved:* HX711 SCK | 4 | Out | `PIN_HX711_SCK` | HX711 `PD_SCK` (future scale) | not used yet |
-| *Reserved:* I²C SDA | 21 | I/O | `PIN_I2C_SDA` | Future I²C devices | not used yet |
-| *Reserved:* I²C SCL | 22 | Out | `PIN_I2C_SCL` | Future I²C devices | not used yet |
+| I²C SDA | 21 | I/O | `PIN_I2C_SDA` | ADS1115 (PCB U3), future I²C devices | I²C, 400 kHz, when `PRESSURE_ADC_ADS1115` |
+| I²C SCL | 22 | Out | `PIN_I2C_SCL` | ADS1115 (PCB U3), future I²C devices | I²C, 400 kHz, when `PRESSURE_ADC_ADS1115` |
 
 ### Spare pins
 
@@ -65,10 +68,30 @@ and illegal pins, but it cannot check this document.
 |---|---|
 | ESP32 with Wi-Fi | ~250 mA average, 500 mA peaks |
 | 4 SSR inputs | ~10–15 mA each |
+| 5 indicator LEDs (power + 4 SSR) | ~3 mA each |
 | XDB401 | < 5 mA |
 | Dimmer logic, MAX31855K | < 15 mA |
 
 A 1 A supply leaves a comfortable margin.
+
+**3.3 V rail: no separate regulator needed.** Everything on 3.3 V that isn't the ESP32 is
+drawn from the DevKit's 3V3 pin (its AMS1117-class regulator, about 1 A max):
+
+| 3.3 V load (non-DevKit) | Current |
+|---|---|
+| MAX31855K | ~1.5 mA |
+| ADS1115 | ~0.2 mA |
+| Dimmer Z-C pull-up | < 1 mA |
+| Switch LEDs (2 × 330 Ω) and pull-downs | ~9 mA with both switches on |
+| I²C pull-ups (when low) | ~1.4 mA |
+| HX711, small OLED (future) | ~1.5 mA, ~20 mA |
+| **Total** | **< 40 mA** |
+
+With the ESP32's own ~250 mA average (500 mA peaks) that is well inside the regulator's
+rating. Its dissipation is about (4.7 V − 3.3 V) × 0.3 A ≈ 0.4 W: warm, not hot. Revisit
+only if a 3.3 V load of more than ~150 mA is added; give that its own regulator from 5 V.
+The analog parts tolerate Wi-Fi ripple on 3V3: the ADS1115 and MAX31855K use internal
+references, and each has its own 100 nF.
 
 ---
 
@@ -79,19 +102,23 @@ A 1 A supply leaves a comfortable margin.
 - **Pull-down:** a 10 kΩ resistor from each GPIO to GND (mandatory). It keeps the load
   OFF while the ESP32 is in reset, booting or being flashed, before firmware drives the
   pin.
-- **Driver (recommended):** a 3.3 V GPIO sits at the bottom of the input range of typical
-  "3–32 V DC" SSRs. Drive each SSR through a low-side switch powered from 5 V:
+- **Driver:** a 3.3 V GPIO sits at the bottom of the input range of typical "3–32 V DC"
+  SSRs, so each SSR is switched from 5 V by a low-side logic-level N-MOSFET (AO3400A,
+  SOT-23, fully on at 2.5 V gate drive):
 
   ```
-  GPIO ──1 kΩ──┬── B   NPN (2N2222 / BC337)     5V ── SSR(+)
-               │       or logic-level N-MOSFET          SSR(−) ── C
-              10 kΩ                                        E ── GND
-               │
-              GND
+  GPIO ──┬── 1 kΩ ── G   AO3400A        5V ──┬────────── SSR(+)
+         │                                   1 kΩ
+       10 kΩ                                 LED (red)
+         │                                   │
+        GND                     D ───────────┴────────── SSR(−)
+                                S ── GND
   ```
 
-  With a MOSFET (e.g. AO3400), use a 100 Ω gate resistor and keep the 10 kΩ pull-down.
-  Logic is unchanged: GPIO HIGH turns the load on.
+  The 1 kΩ gate resistor is the same value as the switch filters (fewer unique parts);
+  switching speed is irrelevant for SSRs. Logic is unchanged: GPIO HIGH turns the load on.
+- **Indicator LED:** 1 kΩ + red LED (about 3 mA) across the SSR input, so it lights exactly
+  when the SSR input is energised.
 - **Direct drive** is acceptable only if the SSR datasheet guarantees turn-on at ≤ 3.0 V
   and draws ≤ 12 mA. Measure the input current first.
 - **Heater SSR:** a zero-cross DC-input SSR rated **40 A** (the heater draws about 9–12 A
@@ -139,6 +166,8 @@ A 1 A supply leaves a comfortable margin.
     enabled, but it is weak (~45 kΩ) for wires running next to mains.
   - The **1 kΩ series resistor + 100 nF capacitor** filter induced noise and protect the
     pin from ESD.
+  - **Indicator LED:** 330 Ω + red LED (about 4 mA) from the switch side of the 1 kΩ to
+    GND, lit while the switch is on. Its current comes from the 3.3 V rail through the switch.
 - **Debounce:** the firmware needs 2 consecutive equal samples 50 ms apart (about 100 ms).
 - **Behaviour:** if Coffee is on at power-up, the pump won't start until the switch is
   turned off and on again.
@@ -185,33 +214,46 @@ L ── SSR (GPIO 26) ── 165 °C manual-reset high-limit thermostat ── 
 - **Divider (mandatory):** the sensor's 4.5 V would exceed the ESP32's 3.3 V limit.
 
   ```
-  XDB401 OUT ── 10 kΩ ──┬── GPIO 36
+  XDB401 OUT ── 10 kΩ ──┬── GPIO 36 and ADS1115 AIN0
                         │
-                      12 kΩ   100 nF
+                      10 kΩ   100 nF
                         │       │
                        GND     GND
   ```
 
   | Sensor output | Pressure | Pin voltage |
   |---|---|---|
-  | 0.5 V | 0 bar | 0.27 V |
-  | 2.5 V | 6 bar | 1.36 V |
-  | 4.5 V | 12 bar | 2.45 V |
+  | 0.5 V | 0 bar | 0.25 V |
+  | 2.5 V | 6 bar | 1.25 V |
+  | 4.5 V | 12 bar | 2.25 V |
 
-  - Use 1 % resistors. The firmware assumes a ratio of exactly 12/22; tolerance shows up
-    directly as pressure error.
-  - The **100 nF** capacitor at the pin gives the ADC a low-impedance source and filters
-    pump pulsation.
-  - The 2.45 V maximum keeps readings inside the ESP32 ADC's linear range at 11 dB
-    attenuation (about 0.15–2.45 V).
+  - Use 1 % resistors (every 10 kΩ on the board is 1 %, so this is one part). The firmware
+    assumes a ratio of exactly 0.5 (`PRESSURE_DIVIDER_RATIO`); tolerance shows up directly
+    as pressure error.
+  - The **100 nF** capacitor at the pin gives the converters a low-impedance source and
+    filters pump pulsation.
+  - The 2.25 V maximum (2.375 V at the 4.75 V validity limit) keeps readings inside the ESP32
+    ADC's linear range at 11 dB attenuation (about 0.15–2.45 V).
+- **Converter: build option `PRESSURE_ADC`** (set in `platformio.ini` `build_flags`). Both
+  converters see the same node, so the choice needs no hardware change:
+
+  | Option | Converter | Notes |
+  |---|---|---|
+  | `PRESSURE_ADC_NATIVE` (default) | ESP32 ADC1, GPIO 36 | 8-sample average per tick; ESP32 ADC accuracy (a few %) |
+  | `PRESSURE_ADC_ADS1115` | ADS1115 (PCB U3) on I²C, address 0x48 | 16-bit, ±4.096 V range, 475 SPS single-shot. AIN1 measures the 5 V rail through an identical 10k/10k divider about once a second; the reading is scaled by 5 V ÷ measured supply, because the XDB401's output is ratiometric. No correction if the measured supply is outside 4.5–5.5 V. |
+
+  With the ADS1115 option, an I²C failure makes the reading invalid: shown as such on the
+  dashboard, and a fault ("Pressure sensor: ADS1115 not responding") if it lasts 500 ms
+  while brewing. The machine JSON then also reports `supplyV`.
 - **Optional protection:** a BAT54S Schottky clamp from the pin to 3.3 V and GND. This is
   only needed if the sensor could ever be powered above 5 V: at 12 V the divider alone would
-  pass about 6.5 V.
+  pass about 6 V.
 - **Valid range:** the firmware treats a sensor output below 0.35 V (disconnected or
   unpowered) or above 4.75 V as invalid. Invalid for 500 ms while brewing latches a fault;
   in other states the reading is shown but not used.
-- **Sampling:** only the control task reads the ADC. Every 50 ms it averages 8 samples,
-  smooths the pin voltage (EMA, α = 0.3) and converts it to bar. The pressure PID, the
+- **Sampling:** only the control task reads the converter. Every 50 ms it takes a reading
+  (native: 8 averaged samples; ADS1115: one conversion), smooths the pin voltage (EMA,
+  α = 0.3) and converts it to bar. The pressure PID, the
   dashboard and the IO Status page (pin voltage + bar) all use that one smoothed value.
   While the sensor is out of range, the IO Status page shows the live, unsmoothed voltage
   with a warning instead.
@@ -224,11 +266,12 @@ L ── SSR (GPIO 26) ── 165 °C manual-reset high-limit thermostat ── 
   a 10 kΩ pull-down on it.
 - Keep the load-cell wiring short and shielded, away from the pump.
 
-### 3.8 Future: I²C bus (SDA = 21, SCL = 22)
+### 3.8 I²C bus (SDA = 21, SCL = 22)
 
-- Fit **4.7 kΩ pull-ups to 3.3 V** on SDA and SCL (only once, even with several devices).
-- Planned uses: an ADS1115 for higher-resolution pressure, a status OLED, a tank-level
-  distance sensor. Every device must run at 3.3 V logic.
+- **4.7 kΩ pull-ups to 3.3 V** on SDA and SCL (only once, even with several devices).
+- On the PCB: the ADS1115 pressure ADC (U3, address 0x48, used with `PRESSURE_ADC_ADS1115`),
+  plus a 4-pin header (GND, 3V3, SCL, SDA) for a status OLED or tank-level sensor. Every
+  device must run at 3.3 V logic and have a different address.
 
 ---
 

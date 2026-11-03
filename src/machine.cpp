@@ -143,6 +143,7 @@ String json() {
   if (s.pressureValid) doc["pressure"] = serialized(String(s.pressureBar, 2));
   else doc["pressure"] = nullptr;
   doc["pressureTarget"] = s.pressureTargetBar;
+  if (s.pressureSupplyV > 0) doc["supplyV"] = serialized(String(s.pressureSupplyV, 2));  // ADS1115 option
   doc["heaterDuty"] = serialized(String(s.heaterDuty, 1));
   doc["pump"] = s.pumpPower;
   doc["heater"] = s.heaterOn;
