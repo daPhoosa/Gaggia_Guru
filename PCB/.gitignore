@@ -5,3 +5,8 @@ fp-info-cache
 \#auto_saved_files\#
 _autosave-*
 *.lck
+
+# KiCad backups / local history
+.history/
+_restore_backup_*/
+*.bak
