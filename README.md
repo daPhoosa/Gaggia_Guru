@@ -90,6 +90,21 @@ Bump `-DFW_VERSION` in `platformio.ini` to see the new version on the dashboard.
 
 \* HTTP Basic auth. † Open while in setup-AP mode so first-time provisioning works.
 
+Every POST must also carry the header `X-Savant: 1`, or an `Origin` header equal to the
+device's own address; anything else gets `403`. This stops other web pages open in the
+same browser from changing settings (cross-site request forgery). The dashboard pages add the
+header automatically. The address used must also be one of the device's own names: its IP
+address, `gaggia-savant`, or `gaggia-savant` followed by `.local`, `.lan`, `.home`, `.home.arpa`,
+`.localdomain` or `.internal`. This blocks DNS rebinding, where another website's name is
+pointed at the machine. POSTs sent to any other name, including through a reverse proxy, get
+`403`. From a script:
+
+```sh
+curl -u admin:PASSWORD -H 'X-Savant: 1' -d coffeeTempC=106 http://gaggia-savant.local/api/settings
+```
+
+The server sends no CORS headers, so other sites can't read the API either.
+
 ## IO pin map
 
 `include/io_pins.h` lists every usable GPIO of the ESP32-WROOM-32U in 38-pin board order.

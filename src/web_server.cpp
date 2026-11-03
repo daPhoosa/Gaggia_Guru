@@ -30,9 +30,67 @@ void scheduleReboot(uint32_t delayMs = 1000) {
   rebootAt = millis() + delayMs;
 }
 
+// Host header without any ":port" suffix
+String hostOnly(AsyncWebServerRequest *req) {
+  String h = req->host();
+  int colon = h.indexOf(':');
+  return colon < 0 ? h : h.substring(0, colon);
+}
+
+// Names this device answers to: its IP addresses, the mDNS name, the bare
+// hostname, and the hostname under the usual private home-router DNS suffixes.
+// Deliberately NOT "gaggia-savant.<anything>", since anyone can register e.g.
+// gaggia-savant.example.com and point it at this device (DNS rebinding).
+bool isOwnName(const String &host) {
+  if (host == WiFi.softAPIP().toString()) return true;
+  if (WifiManager::isConnected() && host == WiFi.localIP().toString()) return true;
+  static const char *const kNames[] = {
+      DEVICE_HOSTNAME,           DEVICE_HOSTNAME ".local", DEVICE_HOSTNAME ".lan",
+      DEVICE_HOSTNAME ".home",   DEVICE_HOSTNAME ".home.arpa",
+      DEVICE_HOSTNAME ".localdomain", DEVICE_HOSTNAME ".internal",
+  };
+  for (const char *n : kNames)
+    if (host.equalsIgnoreCase(n)) return true;
+  return false;
+}
+
+// Captive portal: a request with no Host header is also treated as ours.
+bool isOwnHost(const String &host) { return host.isEmpty() || isOwnName(host); }
+
 bool requireAdmin(AsyncWebServerRequest *req) {
   if (req->authenticate(ADMIN_USER, ADMIN_PASSWORD)) return true;
   req->requestAuthentication();
+  return false;
+}
+
+// Cross-site request guard for every state-changing POST. Without it, any web
+// page open in a browser that has the admin login cached could submit a form
+// to the machine (change setpoints, wipe Wi-Fi, reboot, flash firmware).
+//  - Our own pages send the custom header "X-Savant: 1". A page on another
+//    site can't add a custom header to a request to us without a CORS
+//    preflight, which this server never approves.
+//  - The plain-HTML /update fallback page can't add headers, so a POST whose
+//    Origin is exactly this host is accepted too (browsers set Origin on POST).
+bool sameSite(AsyncWebServerRequest *req) {
+  // The requested name must be one of ours. This blocks DNS rebinding, where a
+  // foreign site's name resolves to this device so the browser treats the
+  // machine as that site (same origin, custom headers allowed).
+  if (!isOwnName(hostOnly(req))) return false;
+  if (req->hasHeader("X-Savant")) return true;
+  if (!req->hasHeader("Origin")) return false;
+  return req->header("Origin").equalsIgnoreCase("http://" + req->host());
+}
+
+void sendForbidden(AsyncWebServerRequest *req) {
+  req->send(403, "application/json", "{\"ok\":false,\"error\":\"cross-site request refused\"}");
+}
+
+// true = request may proceed; otherwise a 403 has already been sent.
+bool requireSameSite(AsyncWebServerRequest *req) {
+  if (sameSite(req)) return true;
+  Serial.printf("[HTTP] Refused cross-site POST %s (Host: %s, Origin: %s)\n", req->url().c_str(),
+                req->host().c_str(), req->hasHeader("Origin") ? req->header("Origin").c_str() : "none");
+  sendForbidden(req);
   return false;
 }
 
@@ -71,6 +129,10 @@ String statusJson() {
 void handleUpdateUpload(AsyncWebServerRequest *req, const String &filename, size_t index,
                         uint8_t *data, size_t len, bool final) {
   if (index == 0) {
+    if (!sameSite(req)) {  // handleUpdateDone sends the 403
+      otaError = "forbidden";
+      return;
+    }
     if (!req->authenticate(ADMIN_USER, ADMIN_PASSWORD)) {
       otaError = "unauthorized";
       return;
@@ -99,11 +161,16 @@ void handleUpdateUpload(AsyncWebServerRequest *req, const String &filename, size
   if (!otaError.isEmpty()) {
     Serial.printf("[WebOTA] Error: %s\n", otaError.c_str());
     Update.abort();
-    if (otaError != "unauthorized") Machine::release();
+    if (otaError != "unauthorized" && otaError != "forbidden") Machine::release();
   }
 }
 
 void handleUpdateDone(AsyncWebServerRequest *req) {
+  if (!requireSameSite(req)) {
+    otaError = "";
+    otaReceived = false;
+    return;
+  }
   if (otaError == "unauthorized" || !req->authenticate(ADMIN_USER, ADMIN_PASSWORD)) {
     otaError = "";
     req->requestAuthentication();
@@ -146,7 +213,7 @@ async function scan(n){const l=await fetch('/api/wifi/scan').then(r=>r.json()).c
  [...m.values()].sort((a,b)=>b.rssi-a.rssi).forEach(x=>{const o=new Option((x.secure?'🔒 ':'')+x.ssid+' ('+x.rssi+' dBm)',x.ssid);s.add(o)});}
 s.onchange=()=>{if(s.value)ssid.value=s.value};scan(0);
 document.getElementById('f').onsubmit=async e=>{e.preventDefault();
- const r=await fetch('/api/wifi',{method:'POST',body:new URLSearchParams(new FormData(e.target))}).catch(()=>null);
+ const r=await fetch('/api/wifi',{method:'POST',headers:{'X-Savant':'1'},body:new URLSearchParams(new FormData(e.target))}).catch(()=>null);
  document.getElementById('msg').textContent=r&&r.ok?'Saved. The device is rebooting and will join that network. Reconnect your phone to your normal Wi-Fi and browse to http://)HTML" DEVICE_HOSTNAME R"HTML(.local':'Save failed';};
 </script></body></html>)HTML";
 
@@ -154,18 +221,6 @@ void sendSetupPage(AsyncWebServerRequest *req) {
   AsyncWebServerResponse *res = req->beginResponse(200, "text/html", SETUP_HTML);
   res->addHeader("Cache-Control", "no-store");
   req->send(res);
-}
-
-// Host header without any ":port" suffix
-String hostOnly(AsyncWebServerRequest *req) {
-  String h = req->host();
-  int colon = h.indexOf(':');
-  return colon < 0 ? h : h.substring(0, colon);
-}
-
-bool isOwnHost(const String &host) {
-  return host.isEmpty() || host == WiFi.softAPIP().toString() ||
-         host == WiFi.localIP().toString() || host.equalsIgnoreCase(DEVICE_HOSTNAME ".local");
 }
 
 // While the setup AP is up, any request for a foreign host (connectivitycheck.gstatic.com,
@@ -224,7 +279,7 @@ void begin() {
 
   // Form fields named after the setting keys; only the fields sent are changed.
   server.on("/api/settings", HTTP_POST, [](AsyncWebServerRequest *req) {
-    if (!requireAdmin(req)) return;
+    if (!requireSameSite(req) || !requireAdmin(req)) return;
     MachineSettings s = Settings::get();
     String err;
     size_t changed = 0;
@@ -249,7 +304,7 @@ void begin() {
   });
 
   server.on("/api/settings/reset", HTTP_POST, [](AsyncWebServerRequest *req) {
-    if (!requireAdmin(req)) return;
+    if (!requireSameSite(req) || !requireAdmin(req)) return;
     Settings::resetToDefaults();
     req->send(200, "application/json", Settings::json());
   });
@@ -260,6 +315,7 @@ void begin() {
 
   server.on("/api/wifi", HTTP_POST, [](AsyncWebServerRequest *req) {
     // Open while in setup-AP mode so first-time provisioning works; otherwise admin only.
+    if (!requireSameSite(req)) return;
     if (!WifiManager::isApMode() && !requireAdmin(req)) return;
     if (!req->hasParam("ssid", true)) {
       req->send(400, "application/json", "{\"ok\":false,\"error\":\"ssid required\"}");
@@ -276,14 +332,14 @@ void begin() {
   });
 
   server.on("/api/wifi/forget", HTTP_POST, [](AsyncWebServerRequest *req) {
-    if (!requireAdmin(req)) return;
+    if (!requireSameSite(req) || !requireAdmin(req)) return;
     WifiManager::clearCredentials();
     req->send(200, "application/json", "{\"ok\":true}");
     scheduleReboot(1500);
   });
 
   server.on("/api/reboot", HTTP_POST, [](AsyncWebServerRequest *req) {
-    if (!requireAdmin(req)) return;
+    if (!requireSameSite(req) || !requireAdmin(req)) return;
     req->send(200, "application/json", "{\"ok\":true}");
     scheduleReboot(1000);
   });
@@ -326,7 +382,8 @@ void begin() {
     }
   });
 
-  DefaultHeaders::Instance().addHeader("Access-Control-Allow-Origin", "*");
+  // No Access-Control-Allow-Origin header: the dashboard is served from this
+  // device, and other sites must not be able to read the API or pass a preflight.
   server.begin();
   Serial.println("[HTTP] Dashboard on port 80");
 }

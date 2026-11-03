@@ -17,7 +17,8 @@ function toast(msg) {
   clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('show'), 3500);
 }
 async function post(url, body) {
-  const r = await fetch(url, { method: 'POST', body });
+  // X-Savant marks the request as coming from our own pages (see web_server.cpp).
+  const r = await fetch(url, { method: 'POST', headers: { 'X-Savant': '1' }, body });
   const j = await r.json().catch(() => ({}));
   if (!r.ok || j.ok === false) throw new Error(j.error || r.status + ' ' + r.statusText);
   return j;
@@ -350,6 +351,7 @@ if (page === 'update') {
     const fd = new FormData(); fd.append('file', file, file.name);
     const xhr = new XMLHttpRequest();
     xhr.open('POST', '/api/update?target=' + form.elements.target.value);
+    xhr.setRequestHeader('X-Savant', '1');
     xhr.upload.onprogress = (ev) => {
       if (!ev.lengthComputable) return;
       const p = Math.round(100 * ev.loaded / ev.total);
