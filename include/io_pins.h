@@ -19,7 +19,9 @@
 // Heater chain: SSR -> 165 C manual-reset high-limit thermostat -> thermal fuse -> element.
 //
 // Hardware rules for this build
-//   - Every SSR / dimmer drive pin has an external 10k pull-down so loads stay
+//   - Heater/valve drive SSRs; the coffee/steam lamps drive external 5 V
+//     electromechanical relays (~30 mA coil) - lamps draw too little for an SSR.
+//   - Every SSR / relay / dimmer drive pin has an external 10k pull-down so loads stay
 //     OFF while the ESP32 is in reset, booting or being flashed.
 //   - Coffee/Steam switches feed 3.3 V (never 5 V). Internal pull-down is
 //     enabled in firmware; add external 10k pull-down + 100 nF for noise.
@@ -48,9 +50,9 @@
 #define PIN_PUMP_PSM      25  // PUMP_PSM | Digital | RobotDyn dimmer PSM/gate output. Pulse-skip control. 10k pull-down
 #define PIN_HEATER_SSR    26  // HEATER_SSR | Digital | Boiler heater SSR (via thermal fuses). 10k pull-down
 #define PIN_VALVE_SSR     27  // VALVE_SSR | Digital | 3-way solenoid valve SSR. 10k pull-down
-#define PIN_STEAM_LIGHT   14  // STEAM_LIGHT | Digital | Steam temperature light SSR. Pulses at boot (harmless flicker)
+#define PIN_STEAM_LIGHT   14  // STEAM_LIGHT | Digital | Steam temperature light relay. Pulses at boot (harmless click/flicker)
 #define PIN_GPIO12        12  // GPIO12 | Unused | Spare, avoid. Strapping (MTDI): must be LOW at reset. ADC2_5
-#define PIN_COFFEE_LIGHT  13  // COFFEE_LIGHT | Digital | Coffee temperature light SSR
+#define PIN_COFFEE_LIGHT  13  // COFFEE_LIGHT | Digital | Coffee temperature light relay
 // #define PIN_GPIO9     9  // FLASH_D2 | Communications | Board SD2. Internal SPI flash - do not use
 // #define PIN_GPIO10   10  // FLASH_D3 | Communications | Board SD3. Internal SPI flash - do not use
 // #define PIN_GPIO11   11  // FLASH_CMD | Communications | Board CMD. Internal SPI flash - do not use

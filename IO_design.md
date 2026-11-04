@@ -21,8 +21,8 @@ The carrier board that implements this is the KiCad 10 project in [`PCB/`](PCB/)
 | Solenoid valve SSR | 27 | Out | `PIN_VALVE_SSR` | Valve SSR input (via driver, §3.1) | `OUTPUT`, LOW at boot |
 | Pump dimmer PSM | 25 | Out | `PIN_PUMP_PSM` | RobotDyn dimmer `PSM` | `OUTPUT`, LOW at boot |
 | Pump dimmer Z-C | 34 | In | `PIN_PUMP_ZC` | RobotDyn dimmer `Z-C` | `INPUT`, RISING interrupt |
-| Coffee light SSR | 13 | Out | `PIN_COFFEE_LIGHT` | Coffee lamp SSR input | `OUTPUT`, LOW at boot |
-| Steam light SSR | 14 | Out | `PIN_STEAM_LIGHT` | Steam lamp SSR input | `OUTPUT`, LOW at boot |
+| Coffee light relay | 13 | Out | `PIN_COFFEE_LIGHT` | Coffee lamp relay coil (via driver, §3.1) | `OUTPUT`, LOW at boot |
+| Steam light relay | 14 | Out | `PIN_STEAM_LIGHT` | Steam lamp relay coil (via driver, §3.1) | `OUTPUT`, LOW at boot |
 | Coffee switch | 16 | In | `PIN_COFFEE_SW` | Coffee switch (3.3 V = on) | `INPUT_PULLDOWN` |
 | Steam switch | 17 | In | `PIN_STEAM_SW` | Steam switch (3.3 V = on) | `INPUT_PULLDOWN` |
 | Thermocouple SCK | 18 | Out | `PIN_TC_SCK` | MAX31855K `SCK` | `OUTPUT` (bit-banged) |
@@ -50,11 +50,12 @@ The carrier board that implements this is the KiCad 10 project in [`PCB/`](PCB/)
 
 | Rail | Source | Feeds | Notes |
 |---|---|---|---|
-| 5 V | Isolated mains-to-5 V supply, ≥ 1 A | ESP32 board (5V/VIN), XDB401 sensor, SSR drivers | Must be an isolated module (e.g. HLK-PM05 class) |
+| 5 V | Isolated mains-to-5 V supply, ≥ 1 A | ESP32 board (5V/VIN), XDB401 sensor, SSR and lamp-relay drivers | Must be an isolated module (e.g. HLK-PM05 class) |
 | 3.3 V | Regulator, ≥ 600 mA (the ESP32U's on-board regulator is fine) | ESP32, MAX31855K, RobotDyn dimmer VCC, switch supply, HX711 / I²C (future) | Wi-Fi draws ~500 mA spikes |
 | GND | Common | Everything low-voltage | Join the 5 V, 3.3 V and sensor grounds at one point near the ESP32 |
 
-- **Only SSRs and the dimmer cross the mains boundary.** Each provides isolation, so no
+- **Only the SSRs, the lamp relays and the dimmer cross the mains boundary.** Each provides
+  isolation, so no
   low-voltage wire may connect to a mains terminal.
 - Keep low-voltage wiring (especially the thermocouple and pressure leads) physically
   separated from mains wiring, and away from the pump and heater leads.
@@ -66,8 +67,9 @@ The carrier board that implements this is the KiCad 10 project in [`PCB/`](PCB/)
 | Load | Current |
 |---|---|
 | ESP32 with Wi-Fi | ~250 mA average, 500 mA peaks |
-| 4 SSR inputs | ~10–15 mA each |
-| 5 indicator LEDs (power + 4 SSR) | ~3 mA each |
+| 2 SSR inputs (heater, valve) | ~10–15 mA each |
+| 2 lamp relay coils (5 V) | ~30 mA each |
+| 5 indicator LEDs (power + 4 drivers) | ~3 mA each |
 | XDB401 | < 5 mA |
 | Dimmer logic, MAX31855K | < 15 mA |
 
@@ -97,42 +99,65 @@ references, and each has its own 100 nF.
 
 ## 3. Signal conditioning per connection
 
-Every off-board connector (J1–J13) is a **JST XH** (2.50 mm pitch, vertical, rated 3 A per
+Every off-board connector (J1–J14) is a **JST XH** (2.50 mm pitch, vertical, rated 3 A per
 pin).
 
-### 3.1 SSR outputs — heater, valve, coffee light, steam light (GPIO 26, 27, 13, 14)
+### 3.1 SSR and relay outputs — heater, valve, coffee light, steam light (GPIO 26, 27, 13, 14)
+
+The heater and valve drive SSRs. The coffee and steam lamps drive external
+**electromechanical relays** (5 V coil, about 30 mA), not SSRs: the lamps draw too little
+current for an SSR to switch them reliably. All four use the same on-board driver.
 
 - **Pull-down:** a 10 kΩ resistor from each GPIO to GND (mandatory). It keeps the load
   OFF while the ESP32 is in reset, booting or being flashed, before firmware drives the
   pin.
 - **Driver:** a 3.3 V GPIO sits at the bottom of the input range of typical "3–32 V DC"
-  SSRs, so each SSR is switched from 5 V by a low-side logic-level N-MOSFET (AO3400A,
-  SOT-23, fully on at 2.5 V gate drive):
+  SSRs (and cannot drive a 5 V relay coil at all), so each SSR input or relay coil is switched
+  from 5 V by a low-side logic-level N-MOSFET (AO3400A, SOT-23, fully on at 2.5 V gate drive):
 
   ```
-  GPIO ──┬── 1 kΩ ── G   AO3400A        5V ──┬────────── SSR(+)
+  GPIO ──┬── 1 kΩ ── G   AO3400A        5V ──┬────────── SSR(+) / coil(+)
          │                                   1 kΩ
        10 kΩ                                 LED (red)
          │                                   │
-        GND                     D ───────────┴────────── SSR(−)
+        GND                     D ───────────┴────────── SSR(−) / coil(−)
                                 S ── GND
   ```
 
+  The two lamp channels add a flyback diode across the coil (D10 coffee, D11 steam):
+
+  ```
+  5V ──┬──────────────── coil(+)
+       K
+     SS14 (D10 / D11)
+       A
+  D ───┴──────────────── coil(−)
+  ```
+
   The 1 kΩ gate resistor is the same value as the switch filters (fewer unique parts);
-  switching speed is irrelevant for SSRs. Logic is unchanged: GPIO HIGH turns the load on.
-- **Indicator LED:** 1 kΩ + red LED (about 3 mA) across the SSR input, so it lights exactly
-  when the SSR input is energised.
-- **Direct drive** is acceptable only if the SSR datasheet guarantees turn-on at ≤ 3.0 V
-  and draws ≤ 12 mA. Measure the input current first.
+  switching speed is irrelevant for SSRs and relays. Logic is unchanged: GPIO HIGH turns the load on.
+- **Indicator LED:** 1 kΩ + red LED (about 3 mA) across the SSR input or relay coil, so it
+  lights exactly when the output is energised.
+- **Direct drive** (heater and valve SSRs only) is acceptable only if the SSR datasheet
+  guarantees turn-on at ≤ 3.0 V and draws ≤ 12 mA. Measure the input current first. The lamp
+  relays always need the MOSFET driver.
 - **Heater SSR:** a zero-cross DC-input SSR rated **40 A** (the heater draws about 9–12 A
   at 120 V), on a heatsink. The firmware switches it in time-proportioned 1 s windows.
-- **Valve and lamp SSRs:** zero-cross DC-input SSRs. A small rating is fine, but check the
-  SSR's minimum load current: lamps and the solenoid draw little, and an SSR's off-state
-  leakage can keep a small load glowing or humming. Add a bleeder resistor or snubber across
-  the load if so.
+- **Valve SSR:** a zero-cross DC-input SSR. A small rating is fine, but check the SSR's
+  minimum load current: the solenoid draws little, and an SSR's off-state leakage can keep a
+  small load humming. Add a bleeder resistor or snubber across the load if so.
+- **Lamp relays (coffee, steam):** electromechanical relays with a 5 V, ~30 mA coil (about
+  170 Ω) and contacts rated for 120 V AC. A relay has no minimum load current and no
+  off-state leakage, so the low-current lamps switch cleanly.
+- **Flyback diodes D10 / D11:** an SS14 Schottky (SMA, the same part as D2) across each
+  lamp connector, cathode to +5 V and anode to the MOSFET drain. When the MOSFET turns off,
+  the coil's current circulates through the diode instead of producing a spike that can
+  exceed the AO3400A's 30 V rating. A relay module with its own diode is fine too, since the
+  two diodes are in parallel. The heater and valve channels have no flyback diode because SSR
+  inputs are not inductive.
 - **GPIO 14 (steam light)** puts out PWM pulses for a moment at boot. The pull-down and the
-  SSR's switching at mains zero-cross mean this shows as a brief flicker at worst, which is
-  harmless on a lamp.
+  relay's pull-in time (several ms) mean this gives a brief click or lamp flicker at worst,
+  which is harmless.
 
 ### 3.2 Pump dimmer — RobotDyn AC dimmer (PSM = GPIO 25, Z-C = GPIO 34)
 
@@ -239,7 +264,7 @@ L ── SSR (GPIO 26) ── 165 °C manual-reset high-limit thermostat ── 
   - The **100 nF** capacitor at the AIN0 node gives the converter a low-impedance source and
     filters pump pulsation.
   - The divider node is **not** connected to any ESP32 pin (GPIO 36 is a spare).
-- **Converter: ADS1115** (PCB U3) on I²C, address 0x48. 16-bit, ±4.096 V range, 475 SPS
+- **Converter: ADS1115** (PCB U3) on I²C, address 0x48. AIN2 / AIN3 are spare, on J14 (§3.10). 16-bit, ±4.096 V range, 475 SPS
   single-shot. AIN1 measures the 5 V rail through an identical 10k/10k divider about once a
   second; the reading is scaled by 5 V ÷ measured supply, because the XDB401's output is
   ratiometric. No correction if the measured supply is outside 4.5–5.5 V. The machine JSON
@@ -302,6 +327,32 @@ Not used by the firmware yet; for a future display, SD card or other SPI device.
   (< 15 cm) at display speeds.
 - **Display extras:** most SPI TFT/OLED displays also need DC (and RST): use J12's GPIO 32 / 33.
 
+### 3.10 Spare analog inputs — J14 (ADS1115 AIN2 / AIN3)
+
+Not read by the firmware yet; for a future analog sensor (e.g. a second pressure sensor,
+tank level, or a thermistor divider). The inputs go to U3, the same ADS1115 that reads brew
+pressure, so they are not ESP32 pins and don't appear on the IO Status page.
+
+| J14 pin | Signal | Via |
+|---|---|---|
+| 1 | GND | |
+| 2 | 3.3 V | |
+| 3 | 5 V (sensor supply only) | |
+| 4 | AIN2 | 1 kΩ series (R31) |
+| 5 | AIN3 | 1 kΩ series (R32) |
+
+- **Input range: 0–3.3 V.** The ADS1115 runs at VDD = 3.3 V, and no input may go above
+  VDD + 0.3 V. A sensor powered from pin 3 with a 0.5–4.5 V output needs a divider before
+  J14, like the 10k/10k on the pressure input (§3.6).
+- **Series resistors:** the 1 kΩ in each line limits the current into the ADS1115's input
+  clamp diodes to about 2 mA if 5 V reaches a pin by mistake, which the chip survives (10 mA
+  max). The error it adds is small against the ADS1115's input impedance (several MΩ),
+  under 0.1 % at the firmware's ±4.096 V range.
+- **Noise:** there is no filter capacitor on these inputs. If a sensor's lead is long or runs
+  near mains, add 100 nF from the input to GND at the sensor end, or in the divider.
+- **Firmware:** reading them is one more ADS1115 single-shot conversion on the same I²C bus,
+  done by the control task between pressure samples.
+
 ---
 
 ## 4. Boot and strapping behaviour
@@ -313,10 +364,10 @@ Not used by the firmware yet; for a future display, SD card or other SPI device.
 | 5 | HIGH | Thermocouple CS | CS idles high; the boot pulses are harmless |
 | 12 | LOW (sets flash voltage) | Spare | Unused; never pull it high |
 | 15 | HIGH | SPI port CS (J13) | 10 kΩ pull-up holds it HIGH (and devices deselected) |
-| 14 | — (pulses at boot) | Steam light | Only a lamp flicker |
+| 14 | — (pulses at boot) | Steam light relay | At worst a relay click / lamp flicker |
 
 The heater, valve and pump sit on pins (26, 27, 25) with no strapping role and no boot
-pulses. The lamps use 13 and 14, where a boot pulse only flickers a light. Every load pin
+pulses. The lamps use 13 and 14, where a boot pulse at worst clicks a lamp relay. Every load pin
 has a 10 kΩ pull-down. The firmware also drives
 them LOW as the very first thing in `setup()`, before Serial or Wi-Fi start.
 
