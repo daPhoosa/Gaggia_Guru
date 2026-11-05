@@ -100,7 +100,9 @@ references, and each has its own 100 nF.
 ## 3. Signal conditioning per connection
 
 Every off-board connector (J1–J14) is a **JST XH** (2.50 mm pitch, vertical, rated 3 A per
-pin).
+pin). Every header that carries both GND and 3.3 V (J10, J11, J12, J13, J14) has
+**pin 1 = GND, pin 2 = 3.3 V**. The exception is J6, which follows the RobotDyn dimmer
+module's own header order (§3.2).
 
 ### 3.1 SSR and relay outputs — heater, valve, coffee light, steam light (GPIO 26, 27, 13, 14)
 
@@ -161,6 +163,8 @@ current for an SSR to switch them reliably. All four use the same on-board drive
 
 ### 3.2 Pump dimmer — RobotDyn AC dimmer (PSM = GPIO 25, Z-C = GPIO 34)
 
+- **J6:** 1 = VCC (3.3 V), 2 = GND, 3 = Z-C, 4 = PSM. This is the module's own header
+  order, so the cable runs straight through.
 - **Dimmer VCC = 3.3 V.** The Z-C output is pulled up to VCC on the module, so a 5 V VCC
   would put 5 V on GPIO 34.
 - **PSM (GPIO 25):** fit a 10 kΩ pull-down at the GPIO so the triac stays off during boot.
@@ -333,21 +337,19 @@ Not read by the firmware yet; for a future analog sensor (e.g. a second pressure
 tank level, or a thermistor divider). The inputs go to U3, the same ADS1115 that reads brew
 pressure, so they are not ESP32 pins and don't appear on the IO Status page.
 
-| J14 pin | Signal | Via |
-|---|---|---|
-| 1 | GND | |
-| 2 | 3.3 V | |
-| 3 | 5 V (sensor supply only) | |
-| 4 | AIN2 | 1 kΩ series (R31) |
-| 5 | AIN3 | 1 kΩ series (R32) |
+| J14 pin | Signal |
+|---|---|
+| 1 | GND |
+| 2 | 3.3 V |
+| 3 | 5 V (sensor supply only) |
+| 4 | AIN2 (direct to U3) |
+| 5 | AIN3 (direct to U3) |
 
 - **Input range: 0–3.3 V.** The ADS1115 runs at VDD = 3.3 V, and no input may go above
   VDD + 0.3 V. A sensor powered from pin 3 with a 0.5–4.5 V output needs a divider before
   J14, like the 10k/10k on the pressure input (§3.6).
-- **Series resistors:** the 1 kΩ in each line limits the current into the ADS1115's input
-  clamp diodes to about 2 mA if 5 V reaches a pin by mistake, which the chip survives (10 mA
-  max). The error it adds is small against the ADS1115's input impedance (several MΩ),
-  under 0.1 % at the firmware's ±4.096 V range.
+- **No input protection:** AIN2 / AIN3 connect straight to the ADS1115. Never connect a
+  5 V signal (or pin 3) to them directly.
 - **Noise:** there is no filter capacitor on these inputs. If a sensor's lead is long or runs
   near mains, add 100 nF from the input to GND at the sensor end, or in the divider.
 - **Firmware:** reading them is one more ADS1115 single-shot conversion on the same I²C bus,
