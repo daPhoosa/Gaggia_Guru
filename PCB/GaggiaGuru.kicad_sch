@@ -524,210 +524,6 @@
 			)
 			(embedded_fonts no)
 		)
-		(symbol "GaggiaGuru:BAT54S"
-			(pin_names
-				(hide yes)
-			)
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(in_pos_files yes)
-			(duplicate_pin_numbers_are_jumpers no)
-			(property "Reference" "D"
-				(at 0 3.048 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Value" "BAT54S"
-				(at 0 5.08 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Datasheet" "https://www.onsemi.com/pdf/datasheet/bat54s-d.pdf"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Description" "Dual series Schottky, SOT-23 (1=A1, 2=K2, 3=K1/A2)"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "ki_keywords" "schottky clamp"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(symbol "BAT54S_0_1"
-				(polyline
-					(pts
-						(xy -5.08 0) (xy 5.08 0)
-					)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy -3.81 1.27) (xy -3.81 -1.27) (xy -1.27 0) (xy -3.81 1.27)
-					)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy -1.27 1.27) (xy -1.27 -1.27)
-					)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(circle
-					(center 0 0)
-					(radius 0.254)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type outline)
-					)
-				)
-				(polyline
-					(pts
-						(xy 1.27 1.27) (xy 1.27 -1.27) (xy 3.81 0) (xy 1.27 1.27)
-					)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 3.81 1.27) (xy 3.81 -1.27)
-					)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-			)
-			(symbol "BAT54S_1_1"
-				(pin passive line
-					(at -7.62 0 0)
-					(length 2.54)
-					(name "A1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 7.62 0 180)
-					(length 2.54)
-					(name "K2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 0 -5.08 90)
-					(length 5.08)
-					(name "K1A2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "3"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-			(embedded_fonts no)
-		)
 		(symbol "GaggiaGuru:C"
 			(pin_numbers
 				(hide yes)
@@ -4398,9 +4194,9 @@
 		)
 		(uuid "0acdb205-ddb3-454f-91b4-cd0fb945df93")
 	)
-	(text "Lamps: 5 V 30 mA relay coil (lamp current too low for an SSR), flyback\ndiodes D10 / D11 (SS14, K to +5 V). Mains side off-board, e.g. heater:\nL - SSR - 165 C high-limit (manual reset) - thermal fuse - element - N."
+	(text "Lamps: 5 V 30 mA relay coil (lamp current too low for an SSR).\nFlyback diodes D10 / D11 (SS14, K to +5 V) DNP: the relay board has its own.\nMains side off-board, e.g. heater:\nL - SSR - 165 C high-limit (manual reset) - thermal fuse - element - N."
 		(exclude_from_sim no)
-		(at 320.04 121.92 0)
+		(at 320.04 119.38 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4626,7 +4422,7 @@
 		)
 		(uuid "87b1a7e7-4149-5771-802b-b8fef9b87563")
 	)
-	(text "J9 pins: 1 = 5 V, 2 = GND, 3 = OUT. 100 nF at the connector decouples the supply.\nDivider 10k/10k (ratio 0.5): 4.5 V -> 2.25 V. Firmware assumes exactly 0.5: use 1 %.\nPRESSURE goes to ADS1115 AIN0 only (GPIO36 is not connected).\nBAT54S clamp D9 (DNP): fit only if the sensor could ever see more than 5 V."
+	(text "J9 pins: 1 = 5 V, 2 = GND, 3 = OUT. 100 nF at the connector decouples the supply.\nDivider 10k/10k (ratio 0.5): 4.5 V -> 2.25 V. Firmware assumes exactly 0.5: use 1 %.\nPRESSURE goes to ADS1115 AIN0 only (GPIO36 is not connected)."
 		(exclude_from_sim no)
 		(at 21.59 132.08 0)
 		(effects
@@ -4784,12 +4580,6 @@
 			(justify left top)
 		)
 		(uuid "fcf6af6c-57af-43cb-86da-72f6e46883e4")
-	)
-	(junction
-		(at 88.9 101.6)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "04bce965-6b67-5c29-aca9-75a4f6c9e208")
 	)
 	(junction
 		(at 246.38 218.44)
@@ -6405,16 +6195,6 @@
 	)
 	(wire
 		(pts
-			(xy 81.28 96.52) (xy 78.74 96.52)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c39da0ae-0dc3-5eed-a034-e61224feb9f1")
-	)
-	(wire
-		(pts
 			(xy 154.94 190.5) (xy 154.94 193.04)
 		)
 		(stroke
@@ -6572,16 +6352,6 @@
 			(type default)
 		)
 		(uuid "d403fabe-b09b-5673-a8dc-87adb2cd6496")
-	)
-	(wire
-		(pts
-			(xy 88.9 101.6) (xy 99.06 101.6)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "d41c7e1a-ffce-5198-bcec-896a9acea605")
 	)
 	(wire
 		(pts
@@ -6785,16 +6555,6 @@
 	)
 	(wire
 		(pts
-			(xy 96.52 96.52) (xy 99.06 96.52)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "f1760341-22a3-52f2-aa47-d844f9391ce5")
-	)
-	(wire
-		(pts
 			(xy 68.58 218.44) (xy 66.04 218.44)
 		)
 		(stroke
@@ -6835,7 +6595,7 @@
 	)
 	(wire
 		(pts
-			(xy 71.12 101.6) (xy 88.9 101.6)
+			(xy 71.12 101.6) (xy 99.06 101.6)
 		)
 		(stroke
 			(width 0)
@@ -9289,7 +9049,7 @@
 		(in_bom yes)
 		(on_board yes)
 		(in_pos_files yes)
-		(dnp no)
+		(dnp yes)
 		(uuid "11ae0433-a1a1-4056-96b6-e536db639e6d")
 		(property "Reference" "D11"
 			(at 388.62 108.712 0)
@@ -13799,88 +13559,6 @@
 		)
 	)
 	(symbol
-		(lib_id "GaggiaGuru:BAT54S")
-		(at 88.9 96.52 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp yes)
-		(uuid "7710df58-3e05-576e-b088-b772bb6e7d05")
-		(property "Reference" "D9"
-			(at 88.9 88.9 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "BAT54S"
-			(at 88.9 91.44 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
-			(at 88.9 96.52 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" "https://www.onsemi.com/pdf/datasheet/bat54s-d.pdf"
-			(at 88.9 96.52 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Dual series Schottky, SOT-23 (1=A1, 2=K2, 3=K1/A2)"
-			(at 88.9 96.52 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "dedfe06d-ed60-5cd1-969d-c64b95e6d0ab")
-		)
-		(pin "2"
-			(uuid "d2d56894-b984-59cf-8735-0ba3dbb947fc")
-		)
-		(pin "3"
-			(uuid "d191c2fa-2b5e-5a6f-96b7-507cde5faf23")
-		)
-		(instances
-			(project "GaggiaGuru"
-				(path "/ac1b1dcc-a738-54e1-99c3-3de31f83a9e2"
-					(reference "D9")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "GaggiaGuru:R")
 		(at 256.54 106.68 0)
 		(unit 1)
@@ -15052,84 +14730,6 @@
 			(project "GaggiaGuru"
 				(path "/ac1b1dcc-a738-54e1-99c3-3de31f83a9e2"
 					(reference "#PWR067")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "GaggiaGuru:GND")
-		(at 78.74 96.52 270)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "8a1ef9e9-4c87-539a-97fe-cbd6dc6d712e")
-		(property "Reference" "#PWR051"
-			(at 78.74 96.52 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "GND"
-			(at 75.438 96.52 90)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" ""
-			(at 78.74 96.52 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 78.74 96.52 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GND\", ground"
-			(at 78.74 96.52 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "51af3c51-2fc6-5071-9cca-fa86799d7f67")
-		)
-		(instances
-			(project "GaggiaGuru"
-				(path "/ac1b1dcc-a738-54e1-99c3-3de31f83a9e2"
-					(reference "#PWR051")
 					(unit 1)
 				)
 			)
@@ -19636,84 +19236,6 @@
 		)
 	)
 	(symbol
-		(lib_id "GaggiaGuru:+3V3")
-		(at 99.06 96.52 270)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "f3469a9f-7da0-5de1-ad1a-ebc0b8784d01")
-		(property "Reference" "#PWR052"
-			(at 99.06 96.52 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "+3V3"
-			(at 102.362 96.52 90)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" ""
-			(at 99.06 96.52 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 99.06 96.52 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"+3V3\""
-			(at 99.06 96.52 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "adc39247-4375-55b5-ba9c-174dba006ba2")
-		)
-		(instances
-			(project "GaggiaGuru"
-				(path "/ac1b1dcc-a738-54e1-99c3-3de31f83a9e2"
-					(reference "#PWR052")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "GaggiaGuru:LED")
 		(at 393.7 99.06 0)
 		(unit 1)
@@ -19962,7 +19484,7 @@
 		(in_bom yes)
 		(on_board yes)
 		(in_pos_files yes)
-		(dnp no)
+		(dnp yes)
 		(uuid "f849cded-a1c4-4563-ba57-da06a60ddc96")
 		(property "Reference" "D10"
 			(at 299.72 108.712 0)

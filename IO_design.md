@@ -126,7 +126,8 @@ current for an SSR to switch them reliably. All four use the same on-board drive
                                 S ── GND
   ```
 
-  The two lamp channels add a flyback diode across the coil (D10 coffee, D11 steam):
+  The two lamp channels have footprints for a flyback diode across the coil (D10 coffee,
+  D11 steam), **DNP** by default because the external relay board has its own:
 
   ```
   5V ──┬──────────────── coil(+)
@@ -151,12 +152,13 @@ current for an SSR to switch them reliably. All four use the same on-board drive
 - **Lamp relays (coffee, steam):** electromechanical relays with a 5 V, ~30 mA coil (about
   170 Ω) and contacts rated for 120 V AC. A relay has no minimum load current and no
   off-state leakage, so the low-current lamps switch cleanly.
-- **Flyback diodes D10 / D11:** an SS14 Schottky (SMA, the same part as D2) across each
-  lamp connector, cathode to +5 V and anode to the MOSFET drain. When the MOSFET turns off,
-  the coil's current circulates through the diode instead of producing a spike that can
-  exceed the AO3400A's 30 V rating. A relay module with its own diode is fine too, since the
-  two diodes are in parallel. The heater and valve channels have no flyback diode because SSR
-  inputs are not inductive.
+- **Flyback diodes D10 / D11 (DNP):** the external relay board has a flyback diode across
+  each coil, right at the coil, which keeps the switching loop short and cuts EMI. Without
+  any diode, turning the MOSFET off would produce a spike that can exceed the AO3400A's
+  30 V rating. The on-board footprints take an SS14 Schottky (SMA, the same part as D2),
+  cathode to +5 V and anode to the MOSFET drain. Fit them only if a relay without its own
+  diode is used. The heater and valve channels have no flyback diode because SSR inputs
+  are not inductive.
 - **GPIO 14 (steam light)** puts out PWM pulses for a moment at boot. The pull-down and the
   relay's pull-in time (several ms) mean this gives a brief click or lamp flicker at worst,
   which is harmless.
@@ -276,9 +278,10 @@ L ── SSR (GPIO 26) ── 165 °C manual-reset high-limit thermostat ── 
 
   An I²C failure makes the reading invalid: shown as such on the dashboard, and a fault
   ("Pressure sensor: ADS1115 not responding") if it lasts 500 ms while brewing.
-- **Optional protection:** a BAT54S Schottky clamp from the AIN0 node to 3.3 V and GND. This is
-  only needed if the sensor could ever be powered above 5 V: at 12 V the divider alone would
-  pass about 6 V.
+- **No clamp diode:** the sensor is powered from the board's own 5 V, so its output cannot
+  exceed about 5 V, and the 10k/10k divider halves that to about 2.5 V, well inside the
+  ADS1115's 0–3.6 V input range. The divider's 5 kΩ source impedance also limits any fault
+  current into the ADC's internal protection diodes.
 - **Valid range:** the firmware treats a sensor output below 0.35 V (disconnected or
   unpowered) or above 4.75 V as invalid. Invalid for 500 ms while brewing latches a fault;
   in other states the reading is shown but not used.
