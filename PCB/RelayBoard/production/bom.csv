@@ -1,0 +1,9 @@
+﻿Designator,Footprint,Quantity,Value,LCSC Part #
+"D1, D2",D_SMA,2,SS14,
+J1,JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical,1,VALVE (main J3),
+J2,JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical,1,COFFEE LAMP (main J4),
+J3,JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical,1,STEAM LAMP (main J5),
+J4,"TerminalBlock_Phoenix_MKDS-1,5-4_1x04_P5.00mm_Horizontal",1,MAINS 5mm,
+"K1, K2",Relay_SPDT_CIT_J103,2,J1031C5VDC.15S,
+RV1,RV_Disc_D7mm_W3.4mm_P5mm,1,7D241K,
+U1,SSR_Omron_G3MB-202P,1,G3MB-202P DC5,

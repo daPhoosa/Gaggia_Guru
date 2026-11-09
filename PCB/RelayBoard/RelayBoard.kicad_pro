@@ -217,7 +217,9 @@
         0.25,
         0.5,
         0.75,
-        1.0
+        1.0,
+        1.5,
+        2.0
       ],
       "tuning_pattern_settings": {
         "diff_pair_defaults": {
@@ -260,12 +262,13 @@
       "internal_id": "",
       "mfg": "",
       "mpn": "",
-      "sch_revision": "0.2"
+      "sch_revision": "0.1"
     },
     "layer_pairs": [],
     "layer_presets": [],
     "viewports": []
   },
+  "boards": [],
   "component_class_settings": {
     "assignments": [],
     "meta": {
@@ -706,8 +709,8 @@
     "subpart_id_separator": 0,
     "top_level_sheets": [
       {
-        "filename": "GaggiaGuru.kicad_sch",
-        "name": "GaggiaGuru",
+        "filename": "RelayBoard.kicad_sch",
+        "name": "RelayBoard",
         "uuid": "ac1b1dcc-a738-54e1-99c3-3de31f83a9e2"
       }
     ],
@@ -716,8 +719,8 @@
   },
   "sheets": [
     [
-      "12e1fa65-d25b-50c8-8c23-b3c79f11d0f1",
-      "Root"
+      "ac1b1dcc-a738-54e1-99c3-3de31f83a9e2",
+      "RelayBoard"
     ]
   ],
   "text_variables": {},

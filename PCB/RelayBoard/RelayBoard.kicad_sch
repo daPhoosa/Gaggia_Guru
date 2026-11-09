@@ -1622,10 +1622,22 @@
 		(uuid "1c21e734-6893-54c8-97c7-e58b3dffcc57")
 	)
 	(junction
+		(at 45.72 71.12)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "50393c7e-9add-403d-8785-c8ba484b7232")
+	)
+	(junction
 		(at 172.72 60.96)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "5eb39f6a-ff8b-5d5f-95d6-4834242f7120")
+	)
+	(junction
+		(at 45.72 91.44)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "7e7847f2-a4b1-4b1a-bc09-211ab22944bc")
 	)
 	(junction
 		(at 119.38 81.28)
@@ -1927,6 +1939,16 @@
 	)
 	(wire
 		(pts
+			(xy 45.72 91.44) (xy 53.34 91.44)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b1e33913-b1f5-450a-bbc9-4b11a37c17e0")
+	)
+	(wire
+		(pts
 			(xy 172.72 63.5) (xy 172.72 60.96)
 		)
 		(stroke
@@ -1994,6 +2016,16 @@
 			(type default)
 		)
 		(uuid "d3c81716-5434-5b2a-8a51-c57b4e6b4967")
+	)
+	(wire
+		(pts
+			(xy 45.72 71.12) (xy 53.34 71.12)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "da5e8d80-add4-425f-b0f1-3ccc9f65ab4a")
 	)
 	(wire
 		(pts
@@ -2273,7 +2305,7 @@
 		)
 		(instances
 			(project "RelayBoard"
-				(path "/12e1fa65-d25b-50c8-8c23-b3c79f11d0f1"
+				(path "/ac1b1dcc-a738-54e1-99c3-3de31f83a9e2"
 					(reference "U1")
 					(unit 1)
 				)
@@ -2359,7 +2391,7 @@
 		)
 		(instances
 			(project "RelayBoard"
-				(path "/12e1fa65-d25b-50c8-8c23-b3c79f11d0f1"
+				(path "/ac1b1dcc-a738-54e1-99c3-3de31f83a9e2"
 					(reference "J4")
 					(unit 1)
 				)
@@ -2438,7 +2470,7 @@
 		)
 		(instances
 			(project "RelayBoard"
-				(path "/12e1fa65-d25b-50c8-8c23-b3c79f11d0f1"
+				(path "/ac1b1dcc-a738-54e1-99c3-3de31f83a9e2"
 					(reference "J1")
 					(unit 1)
 				)
@@ -2517,7 +2549,7 @@
 		)
 		(instances
 			(project "RelayBoard"
-				(path "/12e1fa65-d25b-50c8-8c23-b3c79f11d0f1"
+				(path "/ac1b1dcc-a738-54e1-99c3-3de31f83a9e2"
 					(reference "D1")
 					(unit 1)
 				)
@@ -2594,7 +2626,7 @@
 		)
 		(instances
 			(project "RelayBoard"
-				(path "/12e1fa65-d25b-50c8-8c23-b3c79f11d0f1"
+				(path "/ac1b1dcc-a738-54e1-99c3-3de31f83a9e2"
 					(reference "#FLG01")
 					(unit 1)
 				)
@@ -2673,7 +2705,7 @@
 		)
 		(instances
 			(project "RelayBoard"
-				(path "/12e1fa65-d25b-50c8-8c23-b3c79f11d0f1"
+				(path "/ac1b1dcc-a738-54e1-99c3-3de31f83a9e2"
 					(reference "J2")
 					(unit 1)
 				)
@@ -2752,7 +2784,7 @@
 		)
 		(instances
 			(project "RelayBoard"
-				(path "/12e1fa65-d25b-50c8-8c23-b3c79f11d0f1"
+				(path "/ac1b1dcc-a738-54e1-99c3-3de31f83a9e2"
 					(reference "D2")
 					(unit 1)
 				)
@@ -2833,7 +2865,7 @@
 		)
 		(instances
 			(project "RelayBoard"
-				(path "/12e1fa65-d25b-50c8-8c23-b3c79f11d0f1"
+				(path "/ac1b1dcc-a738-54e1-99c3-3de31f83a9e2"
 					(reference "RV1")
 					(unit 1)
 				)
@@ -2862,7 +2894,7 @@
 				)
 			)
 		)
-		(property "Value" "+5V"
+		(property "Value" "+5V_COFFEE"
 			(at 45.72 67.564 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2910,7 +2942,7 @@
 		)
 		(instances
 			(project "RelayBoard"
-				(path "/12e1fa65-d25b-50c8-8c23-b3c79f11d0f1"
+				(path "/ac1b1dcc-a738-54e1-99c3-3de31f83a9e2"
 					(reference "#PWR02")
 					(unit 1)
 				)
@@ -2939,7 +2971,7 @@
 				)
 			)
 		)
-		(property "Value" "+5V"
+		(property "Value" "+5V_COFFEE"
 			(at 119.38 54.864 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2987,7 +3019,7 @@
 		)
 		(instances
 			(project "RelayBoard"
-				(path "/12e1fa65-d25b-50c8-8c23-b3c79f11d0f1"
+				(path "/ac1b1dcc-a738-54e1-99c3-3de31f83a9e2"
 					(reference "#PWR04")
 					(unit 1)
 				)
@@ -3077,7 +3109,7 @@
 		)
 		(instances
 			(project "RelayBoard"
-				(path "/12e1fa65-d25b-50c8-8c23-b3c79f11d0f1"
+				(path "/ac1b1dcc-a738-54e1-99c3-3de31f83a9e2"
 					(reference "K2")
 					(unit 1)
 				)
@@ -3106,7 +3138,7 @@
 				)
 			)
 		)
-		(property "Value" "+5V"
+		(property "Value" "+5V_STEAM"
 			(at 172.72 54.864 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3154,7 +3186,7 @@
 		)
 		(instances
 			(project "RelayBoard"
-				(path "/12e1fa65-d25b-50c8-8c23-b3c79f11d0f1"
+				(path "/ac1b1dcc-a738-54e1-99c3-3de31f83a9e2"
 					(reference "#PWR05")
 					(unit 1)
 				)
@@ -3233,7 +3265,7 @@
 		)
 		(instances
 			(project "RelayBoard"
-				(path "/12e1fa65-d25b-50c8-8c23-b3c79f11d0f1"
+				(path "/ac1b1dcc-a738-54e1-99c3-3de31f83a9e2"
 					(reference "J3")
 					(unit 1)
 				)
@@ -3323,8 +3355,85 @@
 		)
 		(instances
 			(project "RelayBoard"
-				(path "/12e1fa65-d25b-50c8-8c23-b3c79f11d0f1"
+				(path "/ac1b1dcc-a738-54e1-99c3-3de31f83a9e2"
 					(reference "K1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "GaggiaGuru:PWR_FLAG")
+		(at 53.34 91.44 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board no)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "b2ed898a-e6b0-4be6-bb76-192a6ee57aba")
+		(property "Reference" "#FLG03"
+			(at 53.34 91.44 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "PWR_FLAG"
+			(at 53.34 87.63 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 53.34 91.44 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 53.34 91.44 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Special symbol for telling ERC where power comes from"
+			(at 53.34 91.44 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "793e3200-e40e-4609-9f22-c8722448e33d")
+		)
+		(instances
+			(project "RelayBoard"
+				(path "/ac1b1dcc-a738-54e1-99c3-3de31f83a9e2"
+					(reference "#FLG03")
 					(unit 1)
 				)
 			)
@@ -3352,7 +3461,7 @@
 				)
 			)
 		)
-		(property "Value" "+5V"
+		(property "Value" "+5V_STEAM"
 			(at 45.72 87.884 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3400,7 +3509,7 @@
 		)
 		(instances
 			(project "RelayBoard"
-				(path "/12e1fa65-d25b-50c8-8c23-b3c79f11d0f1"
+				(path "/ac1b1dcc-a738-54e1-99c3-3de31f83a9e2"
 					(reference "#PWR03")
 					(unit 1)
 				)
@@ -3429,7 +3538,7 @@
 				)
 			)
 		)
-		(property "Value" "+5V"
+		(property "Value" "+5V_VALVE"
 			(at 45.72 47.244 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3477,7 +3586,7 @@
 		)
 		(instances
 			(project "RelayBoard"
-				(path "/12e1fa65-d25b-50c8-8c23-b3c79f11d0f1"
+				(path "/ac1b1dcc-a738-54e1-99c3-3de31f83a9e2"
 					(reference "#PWR01")
 					(unit 1)
 				)
@@ -3506,7 +3615,7 @@
 				)
 			)
 		)
-		(property "Value" "+5V"
+		(property "Value" "+5V_VALVE"
 			(at 116.84 133.604 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3554,8 +3663,85 @@
 		)
 		(instances
 			(project "RelayBoard"
-				(path "/12e1fa65-d25b-50c8-8c23-b3c79f11d0f1"
+				(path "/ac1b1dcc-a738-54e1-99c3-3de31f83a9e2"
 					(reference "#PWR06")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "GaggiaGuru:PWR_FLAG")
+		(at 53.34 71.12 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board no)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "d33d33e3-262a-4faf-b7b0-37a0b542c839")
+		(property "Reference" "#FLG02"
+			(at 53.34 71.12 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "PWR_FLAG"
+			(at 53.34 67.31 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 53.34 71.12 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 53.34 71.12 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Special symbol for telling ERC where power comes from"
+			(at 53.34 71.12 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "2915ba12-fc6d-4534-b618-a7cc8e7f952c")
+		)
+		(instances
+			(project "RelayBoard"
+				(path "/ac1b1dcc-a738-54e1-99c3-3de31f83a9e2"
+					(reference "#FLG02")
 					(unit 1)
 				)
 			)
@@ -3566,4 +3752,5 @@
 			(page "1")
 		)
 	)
+	(embedded_fonts no)
 )
