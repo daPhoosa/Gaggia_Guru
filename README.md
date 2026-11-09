@@ -21,6 +21,7 @@ PlatformIO / Arduino firmware with:
 
 ```
 IO_design.md          pin assignments, wiring and signal conditioning (hardware reference)
+docs/design_guide.md  dashboard color & design guide (live: follow it for every UI change, keep it updated)
 PCB/                  KiCad 10 carrier-board schematic, project symbols and ESP32U footprint
 platformio.ini        build envs: esp32-serial (USB), esp32-ota (Wi-Fi), native (tests)
 partitions.csv        4MB: 2 × 1.5MB OTA app slots, 896KB LittleFS, coredump
@@ -45,7 +46,8 @@ src/web_server.*      HTTP routes, JSON API, WebSocket, browser OTA
 src/io_status.*       read-only pin sampling for /api/io
 test/                 PC unit tests (pio test -e native), see test/README.md
 data/                 web UI → LittleFS: index.html (dashboard), settings.html, wifi.html,
-                      update.html, io.html, shared style.css + app.js
+                      update.html, io.html, shared style.css + app.js, fonts/Inter.woff2
+                      (styled per docs/design_guide.md)
 ```
 
 ## First flash (USB)

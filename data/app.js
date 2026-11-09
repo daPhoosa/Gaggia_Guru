@@ -38,12 +38,32 @@ function armed(btn, label) {
   setTimeout(() => { btn.classList.remove('armed'); btn.textContent = orig; }, 4000);
   return false;
 }
+function icon(cls) { const i = document.createElement('span'); i.className = 'ico ' + cls; i.setAttribute('aria-hidden', 'true'); return i; }
 const bars = (rssi) => rssi >= -55 ? 4 : rssi >= -65 ? 3 : rssi >= -75 ? 2 : 1;
 function sigEl(rssi) {
   const s = document.createElement('span'); s.className = 'sig';
   for (let i = 1; i <= 4; i++) { const b = document.createElement('i'); if (i <= bars(rssi)) b.className = 'on'; s.append(b); }
   return s;
 }
+
+// ---------- theme (Light / Dark / System, stored per device) ----------
+// The stored choice is applied before first paint by the inline script in each page's <head>.
+const darkMq = matchMedia('(prefers-color-scheme: dark)');
+const getTheme = () => { try { return localStorage.getItem('theme') || 'system'; } catch (_) { return 'system'; } };
+function syncThemeColor() {
+  // Browser bar matches the page background (design guide: theme-color = bg).
+  const bg = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim();
+  document.querySelectorAll('meta[name=theme-color]').forEach((m) => { m.removeAttribute('media'); m.content = bg; });
+}
+function applyTheme(t) {
+  try { t === 'system' ? localStorage.removeItem('theme') : localStorage.setItem('theme', t); } catch (_) {}
+  if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+  else delete document.documentElement.dataset.theme;
+  syncThemeColor();
+  dispatchEvent(new Event('themechange'));
+}
+syncThemeColor();
+darkMq.addEventListener('change', () => { syncThemeColor(); dispatchEvent(new Event('themechange')); });
 
 // ---------- live status (all pages) ----------
 let last = null;
@@ -99,18 +119,26 @@ function renderMachine(m) {
   st.textContent = STATE_LABEL[m.state] || m.state;
   st.className = 'state ' + m.state.toLowerCase();
 
-  let alert = '', bad = false;
-  if (m.fault) { alert = m.fault + ' — power-cycle the machine to clear.'; bad = true; }
-  else if (m.inhibit) alert = 'Heater and pump paused: ' + m.inhibit + '.';
-  else if (m.pumpTimedOut) alert = 'Pump stopped after the run-time limit. Turn the Coffee switch off to reset.';
-  else if (m.waitSwitchCycle) alert = 'Coffee switch was already on. Turn it off and on again to start the pump.';
+  // Banner under the header: error for a fault, warning otherwise; always icon + title + text.
+  let title = '', body = '', bad = false;
+  if (m.fault) { title = 'Machine fault'; body = m.fault + ' — power-cycle the machine to clear.'; bad = true; }
+  else if (m.inhibit) { title = 'Paused'; body = 'Heater and pump paused: ' + m.inhibit + '.'; }
+  else if (m.pumpTimedOut) { title = 'Pump stopped'; body = 'Run-time limit reached. Turn the Coffee switch off to reset.'; }
+  else if (m.waitSwitchCycle) { title = 'Coffee switch already on'; body = 'Turn it off and on again to start the pump.'; }
   const a = $('#mAlert');
-  a.hidden = !alert; a.textContent = alert; a.classList.toggle('bad', bad);
+  a.hidden = !title;
+  a.classList.toggle('bad', bad);
+  a.querySelector('.ico').className = 'ico ' + (bad ? 'ico-error' : 'ico-warn');
+  $('#mAlertT').textContent = title; $('#mAlertB').textContent = body;
+  st.prepend(...(m.state === 'FAULT' ? [icon('ico-error sm')] : m.state === 'INHIBITED' ? [icon('ico-warn sm')] : []));
 
+  // "Ready" (boiler at temperature) is a real machine state: success color + icon + label.
   const ready = m.coffeeLight || m.steamLight;
   $('#mTemp').textContent = m.temp == null ? '–' : (+m.temp).toFixed(1) + '°';
-  $('#mTemp').classList.toggle('ok', ready);
-  $('#mSet').textContent = 'target ' + (+m.setpoint).toFixed(1) + '°';
+  const set = $('#mSet');
+  set.classList.toggle('ok', !!ready);
+  set.replaceChildren(...(ready ? [icon('ico-ok sm'), 'Ready · ' + (+m.setpoint).toFixed(1) + '°']
+                                : ['target ' + (+m.setpoint).toFixed(1) + '°']));
   $('#mPress').textContent = m.pressure == null ? '–' : (+m.pressure).toFixed(1);
   $('#mPressT').textContent = m.pressureTarget ? 'target ' + (+m.pressureTarget).toFixed(1) + ' bar' : 'bar';
   $('#mShot').textContent = m.shotMs ? (m.shotMs / 1000).toFixed(1) : '–';
@@ -136,10 +164,10 @@ const graph = (() => {
 
   const css = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
   const readColors = () => {
-    colors = { temp: css('--g-temp'), press: css('--g-press'), grid: css('--line'), text: css('--muted') };
+    colors = { temp: css('--chart-temp'), press: css('--chart-pressure'), grid: css('--border'), text: css('--text-secondary') };
   };
   readColors();
-  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', readColors);
+  addEventListener('themechange', readColors);
 
   // Setting canvas.width/height clears it, so only do it on a real size change, then redraw.
   const resize = () => {
@@ -195,7 +223,7 @@ const graph = (() => {
     const YP = (v) => T + ph - v / P_MAX * ph;
 
     // horizontal grid + axis labels (°C left, bar right)
-    ctx.font = '11px system-ui, sans-serif';
+    ctx.font = '500 12px Inter, system-ui, sans-serif';
     ctx.lineWidth = 1;
     ctx.textBaseline = 'middle';
     for (let i = 0; i <= DIVS; i++) {
@@ -208,7 +236,8 @@ const graph = (() => {
       ctx.fillText(i * P_MAX / DIVS, L + pw + 5, y);
     }
     // vertical time grid, labelled in seconds ago
-    const step = [5, 10, 15, 30, 60, 120].find((s) => windowS / s <= 6) || 120;
+    // at most 6 divisions, and labels at least 44 px apart so they never collide on narrow phones
+    const step = [5, 10, 15, 20, 30, 60, 120].find((s) => windowS / s <= 6 && pw * s / windowS >= 44) || 120;
     ctx.fillStyle = colors.text; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
     for (let s = 0; s <= windowS; s += step) {
       const x = Math.round(L + pw - s / windowS * pw) + 0.5;
@@ -432,7 +461,7 @@ if (page === 'io') {
       meta.append(el('span', 'ty ' + p.type, p.type === 'Communications' ? 'Comms' : p.type));
       meta.append(el('span', null, p.mode));
       if (p.pull) meta.append(el('span', null, 'pull-' + p.pull));
-      if (p.note) meta.append(el('span', 'warn', p.note));
+      if (p.note) { const n = el('span', 'pnote'); n.append(icon('ico-warn sm'), p.note); meta.append(n); }
       pn.append(meta);
       row.append(gp, pn, stateEl(p));
       const notes = el('div', 'pnotes');
@@ -486,4 +515,8 @@ if (page === 'settings') {
     try { fill(await post('/api/settings/reset')); toast('Defaults restored'); }
     catch (err) { toast('Error: ' + err.message); }
   };
+
+  const seg = $('#themeSeg');
+  seg.querySelector(`[value=${getTheme()}]`).checked = true;
+  seg.onchange = (e) => applyTheme(e.target.value);
 }

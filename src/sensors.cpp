@@ -14,24 +14,24 @@ namespace Sensors {
 void beginThermocouple() {
   pinMode(PIN_TC_CS, OUTPUT);
   digitalWrite(PIN_TC_CS, HIGH);
-  pinMode(PIN_TC_SCK, OUTPUT);
-  digitalWrite(PIN_TC_SCK, LOW);
-  pinMode(PIN_TC_SO, INPUT);
+  pinMode(PIN_SPI_SCK, OUTPUT);
+  digitalWrite(PIN_SPI_SCK, LOW);
+  pinMode(PIN_SPI_MISO, INPUT);
 }
 
 static uint32_t readFrame() {
   uint32_t v = 0;
-  digitalWrite(PIN_TC_SCK, LOW);
+  digitalWrite(PIN_SPI_SCK, LOW);
   digitalWrite(PIN_TC_CS, LOW);
   delayMicroseconds(2);
   for (int i = 0; i < 32; ++i) {
-    digitalWrite(PIN_TC_SCK, LOW);
+    digitalWrite(PIN_SPI_SCK, LOW);
     delayMicroseconds(2);
-    v = (v << 1) | (digitalRead(PIN_TC_SO) ? 1u : 0u);
-    digitalWrite(PIN_TC_SCK, HIGH);
+    v = (v << 1) | (digitalRead(PIN_SPI_MISO) ? 1u : 0u);
+    digitalWrite(PIN_SPI_SCK, HIGH);
     delayMicroseconds(2);
   }
-  digitalWrite(PIN_TC_SCK, LOW);
+  digitalWrite(PIN_SPI_SCK, LOW);
   digitalWrite(PIN_TC_CS, HIGH);
   return v;
 }

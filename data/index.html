@@ -3,7 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#2563eb">
+  <meta name="theme-color" content="#FAF6F0" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#121110" media="(prefers-color-scheme: dark)">
+  <script>try{var t=localStorage.getItem("theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}</script>
   <title>Gaggia Guru</title>
   <link rel="stylesheet" href="style.css">
 </head>
@@ -14,6 +16,11 @@
   </header>
 
   <main>
+    <div id="mAlert" class="banner" role="alert" hidden>
+      <span class="ico"></span>
+      <div><b id="mAlertT"></b><p id="mAlertB"></p></div>
+    </div>
+
     <p class="sub"><span id="hostname">gaggia-guru</span> · <span id="ipaddr">–</span></p>
 
     <section class="card machine">
@@ -21,7 +28,6 @@
         <h2>Machine</h2>
         <span id="mState" class="state">–</span>
       </div>
-      <p id="mAlert" class="alert" hidden></p>
       <div class="gauges">
         <div class="gauge"><small>Boiler</small><b id="mTemp">–</b><span id="mSet">&nbsp;</span></div>
         <div class="gauge"><small>Pressure</small><b id="mPress">–</b><span id="mPressT">&nbsp;</span></div>

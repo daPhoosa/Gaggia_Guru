@@ -25,8 +25,8 @@ The carrier board that implements this is the KiCad 10 project in [`PCB/`](PCB/)
 | Steam light relay | 14 | Out | `PIN_STEAM_LIGHT` | Steam lamp relay coil (via driver, §3.1) | `OUTPUT`, LOW at boot |
 | Coffee switch | 16 | In | `PIN_COFFEE_SW` | Coffee switch (3.3 V = on) | `INPUT_PULLDOWN` |
 | Steam switch | 17 | In | `PIN_STEAM_SW` | Steam switch (3.3 V = on) | `INPUT_PULLDOWN` |
-| Thermocouple SCK | 18 | Out | `PIN_TC_SCK` | MAX31855K `SCK` | `OUTPUT` (bit-banged) |
-| Thermocouple SO | 19 | In | `PIN_TC_SO` | MAX31855K `SO` / `DO` | `INPUT` |
+| Thermocouple SCK | 18 | Out | `PIN_SPI_SCK` | MAX31855K `SCK` | `OUTPUT` (bit-banged) |
+| Thermocouple SO | 19 | In | `PIN_SPI_MISO` | MAX31855K `SO` / `DO` | `INPUT` |
 | Thermocouple CS | 5 | Out | `PIN_TC_CS` | MAX31855K `CS` | `OUTPUT`, idles HIGH |
 | Status LED | 2 | Out | `PIN_STATUS_LED` | On-board LED | `OUTPUT` |
 | USB serial TX / RX | 1 / 3 | — | `PIN_UART0_TX/RX` | USB-UART bridge | UART0 |
@@ -126,17 +126,6 @@ current for an SSR to switch them reliably. All four use the same on-board drive
                                 S ── GND
   ```
 
-  The two lamp channels have footprints for a flyback diode across the coil (D10 coffee,
-  D11 steam), **DNP** by default because the external relay board has its own:
-
-  ```
-  5V ──┬──────────────── coil(+)
-       K
-     SS14 (D10 / D11)
-       A
-  D ───┴──────────────── coil(−)
-  ```
-
   The 1 kΩ gate resistor is the same value as the switch filters (fewer unique parts);
   switching speed is irrelevant for SSRs and relays. Logic is unchanged: GPIO HIGH turns the load on.
 - **Indicator LED:** 1 kΩ + red LED (about 3 mA) across the SSR input or relay coil, so it
@@ -152,13 +141,11 @@ current for an SSR to switch them reliably. All four use the same on-board drive
 - **Lamp relays (coffee, steam):** electromechanical relays with a 5 V, ~30 mA coil (about
   170 Ω) and contacts rated for 120 V AC. A relay has no minimum load current and no
   off-state leakage, so the low-current lamps switch cleanly.
-- **Flyback diodes D10 / D11 (DNP):** the external relay board has a flyback diode across
-  each coil, right at the coil, which keeps the switching loop short and cuts EMI. Without
-  any diode, turning the MOSFET off would produce a spike that can exceed the AO3400A's
-  30 V rating. The on-board footprints take an SS14 Schottky (SMA, the same part as D2),
-  cathode to +5 V and anode to the MOSFET drain. Fit them only if a relay without its own
-  diode is used. The heater and valve channels have no flyback diode because SSR inputs
-  are not inductive.
+- **Flyback diodes (off-board):** the board has none. The external relay board must have a
+  flyback diode across each coil, right at the coil, which keeps the switching loop short
+  and cuts EMI. Without one, turning the MOSFET off would produce a spike that can exceed
+  the AO3400A's 30 V rating. Never connect a bare relay coil to J4 / J5. The heater and
+  valve channels need no diode because SSR inputs are not inductive.
 - **GPIO 14 (steam light)** puts out PWM pulses for a moment at boot. The pull-down and the
   relay's pull-in time (several ms) mean this gives a brief click or lamp flicker at worst,
   which is harmless.

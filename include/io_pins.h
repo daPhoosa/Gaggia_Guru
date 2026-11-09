@@ -64,8 +64,8 @@
 #define PIN_UART0_TX       1  // UART0_TX | Communications | Board TX0. USB serial / programming
 #define PIN_UART0_RX       3  // UART0_RX | Communications | Board RX0. USB serial / programming
 #define PIN_I2C_SDA       21  // I2C_SDA | Communications | I2C bus: ADS1115 pressure ADC, OLED, tank sensor
-#define PIN_TC_SO         19  // TC_SO | Communications | MAX31855 SO, boiler thermocouple (VSPI MISO). Also SPI port J13 MISO
-#define PIN_TC_SCK        18  // TC_SCK | Communications | MAX31855 SCK, boiler thermocouple (VSPI CLK). Also SPI port J13 SCK (via 33R)
+#define PIN_SPI_MISO      19  // SPI_MISO | Communications | MAX31855 SO, boiler thermocouple (VSPI MISO). Also SPI port J13 MISO
+#define PIN_SPI_SCK       18  // SPI_SCK | Communications | MAX31855 SCK, boiler thermocouple (VSPI CLK). Also SPI port J13 SCK (via 33R)
 #define PIN_TC_CS          5  // TC_CS | Communications | MAX31855 chip select, boiler thermocouple. Strapping: HIGH at reset (CS idles high)
 #define PIN_STEAM_SW      17  // STEAM_SW | Digital | Steam switch, 3.3 V = on. Internal pull-down
 #define PIN_COFFEE_SW     16  // COFFEE_SW | Digital | Coffee switch, 3.3 V = on. Internal pull-down

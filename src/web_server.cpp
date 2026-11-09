@@ -268,9 +268,11 @@ void handleUpdateDone(AsyncWebServerRequest *req) {
 const char SETUP_HTML[] PROGMEM = R"HTML(<!doctype html><html><head>
 <meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1">
 <title>Wi-Fi setup · Gaggia Guru</title><style>
-body{font:16px system-ui,sans-serif;max-width:420px;margin:0 auto;padding:16px;background:#f4f5f7;color:#1d2330}
-input,select,button{width:100%;box-sizing:border-box;font:inherit;padding:10px;margin:6px 0;border:1px solid #ccc;border-radius:7px}
-button{background:#2563eb;color:#fff;border:0;font-weight:600}#msg{margin-top:10px}a{color:#2563eb}
+:root{--bg:#FAF6F0;--text:#2C2B20;--text-secondary:#6B5546;--accent:#6F4E37;--on-accent:#FFFFFF;color-scheme:light}
+@media(prefers-color-scheme:dark){:root{--bg:#121110;--text:#F3E7D6;--text-secondary:#BFAE9F;--accent:#D79C2B;--on-accent:#121110;color-scheme:dark}}
+body{font:15px system-ui,sans-serif;max-width:420px;margin:0 auto;padding:16px;background:var(--bg);color:var(--text)}
+input,select,button{width:100%;box-sizing:border-box;font:inherit;font-size:16px;min-height:48px;padding:10px 14px;margin:6px 0;border:1px solid var(--text-secondary);border-radius:10px;background:var(--bg);color:var(--text)}
+button{background:var(--accent);color:var(--on-accent);border:0;font-size:17px;font-weight:600}#msg{margin-top:10px}a{color:var(--accent)}
 </style></head><body><h2>Gaggia Guru Wi-Fi setup</h2>
 <form id=f><select id=s><option value="">Scanning…</option></select>
 <input name=ssid id=ssid placeholder="SSID" required maxlength=32>
