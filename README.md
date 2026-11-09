@@ -23,6 +23,7 @@ PlatformIO / Arduino firmware with:
 IO_design.md          pin assignments, wiring and signal conditioning (hardware reference)
 docs/design_guide.md  dashboard color & design guide (live: follow it for every UI change, keep it updated)
 PCB/                  KiCad 10 carrier-board schematic, project symbols and ESP32U footprint
+PCB/RelayBoard/       KiCad 10 relay board (lamp relays + valve SSR), shares the PCB/ libraries
 platformio.ini        build envs: esp32-serial (USB), esp32-ota (Wi-Fi), native (tests)
 partitions.csv        4MB: 2 × 1.5MB OTA app slots, 896KB LittleFS, coredump
 include/secrets.h     passwords, optional Wi-Fi creds (git-ignored; copy from secrets.example.h)  ← edit first

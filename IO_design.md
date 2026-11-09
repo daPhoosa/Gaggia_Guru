@@ -146,6 +146,17 @@ current for an SSR to switch them reliably. All four use the same on-board drive
   and cuts EMI. Without one, turning the MOSFET off would produce a spike that can exceed
   the AO3400A's 30 V rating. Never connect a bare relay coil to J4 / J5. The heater and
   valve channels need no diode because SSR inputs are not inductive.
+- **Relay board (`PCB/RelayBoard/`):** a separate board that carries the lamp relays and
+  the valve SSR. It has three 2-pin JST XH inputs wired straight through from the main board
+  (J1 ← main J3 valve, J2 ← main J4 coffee lamp, J3 ← main J5 steam lamp; pin 1 = 5 V,
+  pin 2 = drive).
+  - K1 / K2: CIT J1031C5VDC.15S relays (5 V, 167 Ω coil, contacts 2 A at 120 VAC,
+    **125 VAC max**). Each coil has an SS14 flyback diode (D1 / D2) right at the coil.
+  - U1: Omron G3MB-202P SSR for the valve (zero cross, built-in snubber, 5 V input at about
+    11 mA). RV1, a 7D241K varistor across its load pins, clamps the solenoid's turn-off
+    spike. Its minimum load is 0.1 A, so check the valve's current.
+  - Mains: one 4-way 5.00 mm screw terminal J4: 1 = L in, 2 = valve, 3 = coffee lamp,
+    4 = steam lamp. The loads return to N in the machine wiring.
 - **GPIO 14 (steam light)** puts out PWM pulses for a moment at boot. The pull-down and the
   relay's pull-in time (several ms) mean this gives a brief click or lamp flicker at worst,
   which is harmless.

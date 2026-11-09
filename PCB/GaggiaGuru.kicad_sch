@@ -7559,6 +7559,17 @@
 				)
 			)
 		)
+		(property "LCSC Part #" ""
+			(at 393.7 53.34 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "16b4f62f-babd-5a7c-8a09-12bb2eb223a1")
 		)
@@ -7628,6 +7639,17 @@
 			)
 		)
 		(property "Description" "Connector, single row, 2 pins"
+			(at 27.94 210.82 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC Part #" ""
 			(at 27.94 210.82 0)
 			(hide yes)
 			(show_name no)
@@ -7717,6 +7739,17 @@
 				)
 			)
 		)
+		(property "LCSC Part #" ""
+			(at 238.76 152.4 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "558b615b-51a3-55b1-bad3-52751e74714d")
 		)
@@ -7793,6 +7826,17 @@
 		)
 		(property "Description" "Resistor"
 			(at 264.16 99.06 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC Part #" ""
+			(at 264.16 99.06 90)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7959,6 +8003,17 @@
 			)
 		)
 		(property "Notes" "Plugs into 2 x 1x19 female sockets, 2.54 mm pitch, 25.4 mm (1.0 in) row spacing"
+			(at 172.72 55.88 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC Part #" ""
 			(at 172.72 55.88 0)
 			(hide yes)
 			(show_name no)
@@ -8235,6 +8290,17 @@
 				)
 			)
 		)
+		(property "LCSC Part #" ""
+			(at 71.12 106.68 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "218127e8-c366-5fbf-8eda-88051799f566")
 		)
@@ -8305,6 +8371,17 @@
 		)
 		(property "Description" "Resistor"
 			(at 363.22 167.64 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC Part #" ""
+			(at 363.22 167.64 90)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8473,6 +8550,17 @@
 				)
 			)
 		)
+		(property "LCSC Part #" ""
+			(at 292.1 35.56 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "e1df9452-cb31-5b6c-94ab-73dc791573e6")
 		)
@@ -8554,6 +8642,17 @@
 				)
 			)
 		)
+		(property "LCSC Part #" ""
+			(at 373.38 172.72 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "60bb0afa-062d-5d89-b30e-23b6fcc0c522")
 		)
@@ -8624,6 +8723,17 @@
 		)
 		(property "Description" "Resistor"
 			(at 363.22 203.2 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC Part #" ""
+			(at 363.22 203.2 90)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8790,6 +8900,17 @@
 				)
 			)
 		)
+		(property "LCSC Part #" ""
+			(at 353.06 53.34 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "e493e3c2-719e-5ce2-86df-281c72d691ab")
 		)
@@ -8861,6 +8982,17 @@
 			)
 		)
 		(property "Description" "Light emitting diode (pin 1 = K, pin 2 = A)"
+			(at 83.82 53.34 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC Part #" ""
 			(at 83.82 53.34 0)
 			(hide yes)
 			(show_name no)
@@ -9184,6 +9316,17 @@
 				)
 			)
 		)
+		(property "LCSC Part #" ""
+			(at 129.54 137.16 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "bf3f4dac-9241-53ad-9ef1-dc79cf02d9d5")
 		)
@@ -9253,6 +9396,17 @@
 			)
 		)
 		(property "Description" "Connector, single row, 4 pins"
+			(at 182.88 180.34 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC Part #" ""
 			(at 182.88 180.34 0)
 			(hide yes)
 			(show_name no)
@@ -9504,6 +9658,17 @@
 				)
 			)
 		)
+		(property "LCSC Part #" ""
+			(at 274.32 167.64 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "e879dd93-2abe-50b8-8f3d-4f698d5ecd6e")
 		)
@@ -9739,6 +9904,17 @@
 				)
 			)
 		)
+		(property "LCSC Part #" ""
+			(at 165.1 185.42 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "2fb7ad85-7fda-5d46-a028-b9ea840ac0a7")
 		)
@@ -9810,6 +9986,17 @@
 			)
 		)
 		(property "Description" "Resistor"
+			(at 58.42 106.68 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC Part #" ""
 			(at 58.42 106.68 0)
 			(hide yes)
 			(show_name no)
@@ -10132,6 +10319,17 @@
 				)
 			)
 		)
+		(property "LCSC Part #" ""
+			(at 73.66 40.64 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "e4ed70c5-5a54-5bf8-a530-3989e7c55d5f")
 		)
@@ -10201,6 +10399,17 @@
 			)
 		)
 		(property "Description" "Connector, single row, 7 pins"
+			(at 238.76 203.2 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC Part #" ""
 			(at 238.76 203.2 0)
 			(hide yes)
 			(show_name no)
@@ -10384,6 +10593,17 @@
 				)
 			)
 		)
+		(property "LCSC Part #" ""
+			(at 276.86 99.06 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "311edc94-631a-55be-a371-5a1c00770c77")
 		)
@@ -10546,6 +10766,17 @@
 				)
 			)
 		)
+		(property "LCSC Part #" ""
+			(at 292.1 81.28 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "99437311-871e-5846-acc7-a3b898723294")
 		)
@@ -10627,6 +10858,17 @@
 				)
 			)
 		)
+		(property "LCSC Part #" ""
+			(at 373.38 208.28 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "d304e5c7-d235-546f-95a5-d622daa90a4d")
 		)
@@ -10698,6 +10940,17 @@
 			)
 		)
 		(property "Description" "Resistor"
+			(at 256.54 60.96 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC Part #" ""
 			(at 256.54 60.96 0)
 			(hide yes)
 			(show_name no)
@@ -11175,6 +11428,17 @@
 				)
 			)
 		)
+		(property "LCSC Part #" ""
+			(at 365.76 53.34 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "a060dc1a-7855-55b7-9f8e-f4248863595e")
 		)
@@ -11259,6 +11523,17 @@
 				)
 			)
 		)
+		(property "LCSC Part #" ""
+			(at 304.8 40.64 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "2c158766-966c-50a5-a9e7-778ba6ea9680")
 		)
@@ -11329,6 +11604,17 @@
 		)
 		(property "Description" "Resistor"
 			(at 269.24 213.36 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC Part #" ""
+			(at 269.24 213.36 90)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -11574,6 +11860,17 @@
 				)
 			)
 		)
+		(property "LCSC Part #" ""
+			(at 109.22 218.44 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "4a3ea7f9-2e60-5306-bec4-54c5752cc280")
 		)
@@ -11732,6 +12029,17 @@
 				)
 			)
 		)
+		(property "LCSC Part #" ""
+			(at 83.82 40.64 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "b40b1337-3a23-5ead-a4fa-c4deaee69c88")
 		)
@@ -11813,6 +12121,17 @@
 				)
 			)
 		)
+		(property "LCSC Part #" ""
+			(at 287.02 167.64 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "3b6af152-1e11-5cb1-8357-9ed7c5b3d582")
 		)
@@ -11884,6 +12203,17 @@
 			)
 		)
 		(property "Description" "Light emitting diode (pin 1 = K, pin 2 = A)"
+			(at 353.06 185.42 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC Part #" ""
 			(at 353.06 185.42 0)
 			(hide yes)
 			(show_name no)
@@ -12119,6 +12449,17 @@
 		)
 		(property "Description" "Resistor"
 			(at 353.06 99.06 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC Part #" ""
+			(at 353.06 99.06 90)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -12440,6 +12781,17 @@
 				)
 			)
 		)
+		(property "LCSC Part #" ""
+			(at 45.72 101.6 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "75c093f5-ba1f-5b8a-a5bf-42ab79b5ce3d")
 		)
@@ -12665,6 +13017,17 @@
 			)
 		)
 		(property "Description" "Light emitting diode (pin 1 = K, pin 2 = A)"
+			(at 353.06 220.98 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC Part #" ""
 			(at 353.06 220.98 0)
 			(hide yes)
 			(show_name no)
@@ -12909,6 +13272,17 @@
 				)
 			)
 		)
+		(property "LCSC Part #" ""
+			(at 345.44 208.28 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "1aacf975-ea2b-5fcc-a15e-ae2e49b95a75")
 		)
@@ -12980,6 +13354,17 @@
 			)
 		)
 		(property "Description" "N-channel MOSFET, SOT-23 pinout 1=G 2=S 3=D (AO3400A)"
+			(at 276.86 53.34 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC Part #" ""
 			(at 276.86 53.34 0)
 			(hide yes)
 			(show_name no)
@@ -13064,6 +13449,17 @@
 			)
 		)
 		(property "Description" "Resistor"
+			(at 393.7 40.64 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC Part #" ""
 			(at 393.7 40.64 0)
 			(hide yes)
 			(show_name no)
@@ -13387,6 +13783,17 @@
 				)
 			)
 		)
+		(property "LCSC Part #" ""
+			(at 154.94 185.42 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "3eb3dde3-b591-59eb-989f-d51218be0b72")
 		)
@@ -13458,6 +13865,17 @@
 			)
 		)
 		(property "Description" "Resistor"
+			(at 256.54 106.68 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC Part #" ""
 			(at 256.54 106.68 0)
 			(hide yes)
 			(show_name no)
@@ -13781,6 +14199,17 @@
 				)
 			)
 		)
+		(property "LCSC Part #" ""
+			(at 345.44 60.96 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "18fc2438-0e58-5b15-ab5e-97341032789b")
 		)
@@ -14004,6 +14433,17 @@
 			)
 		)
 		(property "Description" "Connector, single row, 5 pins"
+			(at 27.94 160.02 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC Part #" ""
 			(at 27.94 160.02 0)
 			(hide yes)
 			(show_name no)
@@ -14566,6 +15006,17 @@
 				)
 			)
 		)
+		(property "LCSC Part #" ""
+			(at 157.48 124.46 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "8"
 			(uuid "840ff90d-e100-5eee-a941-018c4cb7bb40")
 		)
@@ -14749,6 +15200,17 @@
 				)
 			)
 		)
+		(property "LCSC Part #" ""
+			(at 353.06 172.72 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "0affa0a7-6e53-52ea-bc3b-7728e6f4fc9c")
 		)
@@ -14830,6 +15292,17 @@
 				)
 			)
 		)
+		(property "LCSC Part #" ""
+			(at 299.72 167.64 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "42d752df-52a9-5f39-9481-9cdfd5460015")
 		)
@@ -14899,6 +15372,17 @@
 			)
 		)
 		(property "Description" "Schottky diode (pin 1 = K, pin 2 = A)"
+			(at 96.52 35.56 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC Part #" ""
 			(at 96.52 35.56 0)
 			(hide yes)
 			(show_name no)
@@ -14990,6 +15474,17 @@
 				)
 			)
 		)
+		(property "LCSC Part #" ""
+			(at 205.74 132.08 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "176654d2-b1ed-50c5-877b-87b407ee34d5")
 		)
@@ -15061,6 +15556,17 @@
 			)
 		)
 		(property "Description" "N-channel MOSFET, SOT-23 pinout 1=G 2=S 3=D (AO3400A)"
+			(at 365.76 99.06 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC Part #" ""
 			(at 365.76 99.06 0)
 			(hide yes)
 			(show_name no)
@@ -15143,6 +15649,17 @@
 			)
 		)
 		(property "Description" "Connector, single row, 4 pins"
+			(at 325.12 152.4 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC Part #" ""
 			(at 325.12 152.4 0)
 			(hide yes)
 			(show_name no)
@@ -15862,6 +16379,17 @@
 				)
 			)
 		)
+		(property "LCSC Part #" ""
+			(at 304.8 53.34 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "5ec74ab4-007b-5868-8eac-e3804406b83d")
 		)
@@ -15944,6 +16472,17 @@
 				)
 			)
 		)
+		(property "LCSC Part #" ""
+			(at 381 35.56 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "597bee72-71b9-5efc-b4da-a3775da51b80")
 		)
@@ -16015,6 +16554,17 @@
 			)
 		)
 		(property "Description" "Resistor"
+			(at 246.38 223.52 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC Part #" ""
 			(at 246.38 223.52 0)
 			(hide yes)
 			(show_name no)
@@ -16107,6 +16657,17 @@
 				)
 			)
 		)
+		(property "LCSC Part #" ""
+			(at 381 81.28 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "c5f42f07-202f-5bb8-984f-0e8c00775685")
 		)
@@ -16178,6 +16739,17 @@
 			)
 		)
 		(property "Description" "Resistor"
+			(at 193.04 132.08 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC Part #" ""
 			(at 193.04 132.08 0)
 			(hide yes)
 			(show_name no)
@@ -16501,6 +17073,17 @@
 				)
 			)
 		)
+		(property "LCSC Part #" ""
+			(at 353.06 208.28 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "81ffaa93-549b-505b-a848-c05848c437f7")
 		)
@@ -16570,6 +17153,17 @@
 			)
 		)
 		(property "Description" "Connector, single row, 6 pins"
+			(at 129.54 213.36 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC Part #" ""
 			(at 129.54 213.36 0)
 			(hide yes)
 			(show_name no)
@@ -16662,6 +17256,17 @@
 		)
 		(property "Description" "Resettable fuse (PTC)"
 			(at 40.64 35.56 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC Part #" ""
+			(at 40.64 35.56 90)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -16820,6 +17425,17 @@
 			)
 		)
 		(property "Description" "Resistor"
+			(at 304.8 86.36 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC Part #" ""
 			(at 304.8 86.36 0)
 			(hide yes)
 			(show_name no)
@@ -16990,6 +17606,17 @@
 			)
 		)
 		(property "Rating" "10 V min, low ESR, radial THT"
+			(at 63.5 40.64 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC Part #" ""
 			(at 63.5 40.64 0)
 			(hide yes)
 			(show_name no)
@@ -17312,6 +17939,17 @@
 				)
 			)
 		)
+		(property "LCSC Part #" ""
+			(at 193.04 119.38 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "159fa27f-e65d-5dcf-8425-924e68326a90")
 		)
@@ -17382,6 +18020,17 @@
 		)
 		(property "Description" "Resistor"
 			(at 256.54 210.82 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC Part #" ""
+			(at 256.54 210.82 90)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -17549,6 +18198,17 @@
 				)
 			)
 		)
+		(property "LCSC Part #" ""
+			(at 345.44 172.72 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "a9d11007-f5f8-5b5a-ba2d-2909f8ee7052")
 		)
@@ -17620,6 +18280,17 @@
 			)
 		)
 		(property "Description" "Resistor"
+			(at 393.7 86.36 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC Part #" ""
 			(at 393.7 86.36 0)
 			(hide yes)
 			(show_name no)
@@ -17866,6 +18537,17 @@
 				)
 			)
 		)
+		(property "LCSC Part #" ""
+			(at 215.9 185.42 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "f86563f6-d925-57ee-97e1-8f1d6736df68")
 		)
@@ -17935,6 +18617,17 @@
 			)
 		)
 		(property "Description" "Thermocouple-to-digital converter, K type, 3.3 V, SOIC-8"
+			(at 78.74 218.44 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC Part #" ""
 			(at 78.74 218.44 0)
 			(hide yes)
 			(show_name no)
@@ -18110,6 +18803,17 @@
 			)
 		)
 		(property "Description" "Connector, single row, 3 pins"
+			(at 27.94 96.52 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC Part #" ""
 			(at 27.94 96.52 0)
 			(hide yes)
 			(show_name no)
@@ -18358,6 +19062,17 @@
 				)
 			)
 		)
+		(property "LCSC Part #" ""
+			(at 304.8 99.06 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "a25c1b79-6c5f-5210-9ce7-9dd68c932ba4")
 		)
@@ -18594,6 +19309,17 @@
 				)
 			)
 		)
+		(property "LCSC Part #" ""
+			(at 345.44 106.68 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "5794f146-aecf-5910-8f1c-163f63e7d7aa")
 		)
@@ -18664,6 +19390,17 @@
 		)
 		(property "Description" "Resistor"
 			(at 264.16 53.34 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC Part #" ""
+			(at 264.16 53.34 90)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -18829,6 +19566,17 @@
 				)
 			)
 		)
+		(property "LCSC Part #" ""
+			(at 25.4 35.56 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "349e8460-ae35-5c84-b6cc-31c7cdab6ec7")
 		)
@@ -18900,6 +19648,17 @@
 			)
 		)
 		(property "Description" "Unpolarized capacitor"
+			(at 48.26 218.44 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC Part #" ""
 			(at 48.26 218.44 0)
 			(hide yes)
 			(show_name no)
@@ -19068,6 +19827,17 @@
 				)
 			)
 		)
+		(property "LCSC Part #" ""
+			(at 393.7 99.06 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "2f7e48f4-df68-528d-a207-1669606e975d")
 		)
@@ -19217,6 +19987,17 @@
 			)
 		)
 		(property "Description" "Unpolarized capacitor"
+			(at 109.22 116.84 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC Part #" ""
 			(at 109.22 116.84 0)
 			(hide yes)
 			(show_name no)
@@ -19451,6 +20232,17 @@
 			)
 		)
 		(property "Description" "Connector, single row, 4 pins"
+			(at 129.54 180.34 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC Part #" ""
 			(at 129.54 180.34 0)
 			(hide yes)
 			(show_name no)

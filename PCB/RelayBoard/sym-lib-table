@@ -1,0 +1,4 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "GaggiaGuru")(type "KiCad")(uri "${KIPRJMOD}/../GaggiaGuru.kicad_sym")(options "")(descr "Gaggia Guru project symbols (shared)"))
+)
