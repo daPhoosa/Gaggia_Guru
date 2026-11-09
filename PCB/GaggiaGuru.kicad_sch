@@ -556,7 +556,7 @@
 					)
 				)
 			)
-			(property "Footprint" "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder"
+			(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
 				(at 0 0 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -2956,7 +2956,7 @@
 					)
 				)
 			)
-			(property "Footprint" "LED_SMD:LED_0805_2012Metric_Pad1.15x1.40mm_HandSolder"
+			(property "Footprint" "LED_SMD:LED_0805_2012Metric"
 				(at 0 0 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -3916,7 +3916,7 @@
 					)
 				)
 			)
-			(property "Footprint" "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder"
+			(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
 				(at 0 0 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -4194,7 +4194,7 @@
 		)
 		(uuid "0acdb205-ddb3-454f-91b4-cd0fb945df93")
 	)
-	(text "Lamps: 5 V 30 mA relay coil (lamp current too low for an SSR).\nFlyback diodes D10 / D11 (SS14, K to +5 V) DNP: the relay board has its own.\nMains side off-board, e.g. heater:\nL - SSR - 165 C high-limit (manual reset) - thermal fuse - element - N."
+	(text "Lamps: 5 V 30 mA relay coil (lamp current too low for an SSR).\nNo flyback diode on board: the relay board has one at each coil.\nMains side off-board, e.g. heater:\nL - SSR - 165 C high-limit (manual reset) - thermal fuse - element - N."
 		(exclude_from_sim no)
 		(at 320.04 119.38 0)
 		(effects
@@ -4251,7 +4251,7 @@
 		)
 		(uuid "3e0db47d-b3eb-41a4-8033-7dc9e42652d9")
 	)
-	(text "Mains parts (5 V supply, SSR / relay load sides, dimmer triac, heater\nchain) are off-board. No low-voltage net may connect to a mains terminal.\nReference: IO_design.md, include/io_pins.h.\nDNP = do not populate unless needed.\nSMD 0805 passives / LEDs (hand-solder pads).\nJST XH (2.50 mm) connectors for all external connections."
+	(text "Mains parts (5 V supply, SSR / relay load sides, dimmer triac, heater\nchain) are off-board. No low-voltage net may connect to a mains terminal.\nReference: IO_design.md, include/io_pins.h.\nDNP = not fitted by the assembler: through-hole parts (J1-J14, C1, U1) are hand-soldered;\nC3 is fitted only if needed. SMD 0805 passives / LEDs (standard pads).\nJST XH (2.50 mm) connectors for all external connections."
 		(exclude_from_sim no)
 		(at 21.59 259.08 0)
 		(effects
@@ -6295,7 +6295,7 @@
 	)
 	(wire
 		(pts
-			(xy 304.8 104.14) (xy 304.8 111.76)
+			(xy 304.8 104.14) (xy 304.8 106.68)
 		)
 		(stroke
 			(width 0)
@@ -6395,7 +6395,7 @@
 	)
 	(wire
 		(pts
-			(xy 393.7 104.14) (xy 393.7 111.76)
+			(xy 393.7 104.14) (xy 393.7 106.68)
 		)
 		(stroke
 			(width 0)
@@ -6803,7 +6803,7 @@
 		)
 		(uuid "09575217-5908-5d35-8ba2-68f83917af2d")
 	)
-	(label "TC_SCK"
+	(label "SPI_SCK"
 		(at 279.4 210.82 0)
 		(effects
 			(font
@@ -6913,7 +6913,7 @@
 		)
 		(uuid "2f50ea47-d6f0-5b17-b2e6-19cd833bb82d")
 	)
-	(label "TC_SO"
+	(label "SPI_MISO"
 		(at 91.44 220.98 0)
 		(effects
 			(font
@@ -7013,7 +7013,7 @@
 		)
 		(uuid "4998db6e-0d2b-492a-8a1c-5962bec878e9")
 	)
-	(label "TC_SCK"
+	(label "SPI_SCK"
 		(at 195.58 53.34 0)
 		(effects
 			(font
@@ -7083,7 +7083,7 @@
 		)
 		(uuid "5993bb1b-d9d5-52bf-9ae1-fbdb0ffae4d2")
 	)
-	(label "TC_SO"
+	(label "SPI_MISO"
 		(at 248.92 215.9 0)
 		(effects
 			(font
@@ -7203,7 +7203,7 @@
 		)
 		(uuid "96b5fb97-d17c-5088-933c-38d25725f12c")
 	)
-	(label "TC_SO"
+	(label "SPI_MISO"
 		(at 195.58 50.8 0)
 		(effects
 			(font
@@ -7253,7 +7253,7 @@
 		)
 		(uuid "ac05a297-8ae4-5155-a57b-bb8ace2a2c7d")
 	)
-	(label "TC_SCK"
+	(label "SPI_SCK"
 		(at 91.44 215.9 0)
 		(effects
 			(font
@@ -7526,7 +7526,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "LED_SMD:LED_0805_2012Metric_Pad1.15x1.40mm_HandSolder"
+		(property "Footprint" "LED_SMD:LED_0805_2012Metric"
 			(at 393.7 53.34 0)
 			(hide yes)
 			(show_name no)
@@ -7583,7 +7583,7 @@
 		(in_bom yes)
 		(on_board yes)
 		(in_pos_files yes)
-		(dnp no)
+		(dnp yes)
 		(uuid "02500faa-77e1-5d69-ac54-c1c79065fa63")
 		(property "Reference" "J8"
 			(at 27.305 207.772 0)
@@ -7662,7 +7662,7 @@
 		(in_bom yes)
 		(on_board yes)
 		(in_pos_files yes)
-		(dnp no)
+		(dnp yes)
 		(uuid "02c538ab-d0a6-5282-bc41-9c93a93331cc")
 		(property "Reference" "J6"
 			(at 238.125 149.352 0)
@@ -7769,7 +7769,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder"
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
 			(at 264.16 99.06 0)
 			(hide yes)
 			(show_name no)
@@ -7903,7 +7903,7 @@
 		(in_bom yes)
 		(on_board yes)
 		(in_pos_files yes)
-		(dnp no)
+		(dnp yes)
 		(uuid "08083d7f-e255-5e9a-a8bb-939031aa8ebe")
 		(property "Reference" "U1"
 			(at 172.72 29.21 0)
@@ -8170,83 +8170,6 @@
 		)
 	)
 	(symbol
-		(lib_id "GaggiaGuru:+5V")
-		(at 294.64 111.76 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "09171be7-4be1-4784-8b22-40beee56c3b1")
-		(property "Reference" "#PWR077"
-			(at 294.64 115.57 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "+5V"
-			(at 294.64 108.204 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 294.64 111.76 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 294.64 111.76 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"+5V\""
-			(at 294.64 111.76 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "3f213e47-cc9f-4e89-b76e-123eb3b35fa6")
-		)
-		(instances
-			(project "GaggiaGuru"
-				(path "/ac1b1dcc-a738-54e1-99c3-3de31f83a9e2"
-					(reference "#PWR077")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "GaggiaGuru:C")
 		(at 71.12 106.68 0)
 		(unit 1)
@@ -8279,7 +8202,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder"
+		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
 			(at 71.12 106.68 0)
 			(hide yes)
 			(show_name no)
@@ -8358,7 +8281,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder"
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
 			(at 363.22 167.64 0)
 			(hide yes)
 			(show_name no)
@@ -8493,7 +8416,7 @@
 		(in_bom yes)
 		(on_board yes)
 		(in_pos_files yes)
-		(dnp no)
+		(dnp yes)
 		(uuid "0c606e0c-f74b-563c-888d-2f4699c18326")
 		(property "Reference" "J2"
 			(at 292.735 32.512 0)
@@ -8598,7 +8521,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder"
+		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
 			(at 373.38 172.72 0)
 			(hide yes)
 			(show_name no)
@@ -8677,7 +8600,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder"
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
 			(at 363.22 203.2 0)
 			(hide yes)
 			(show_name no)
@@ -8834,7 +8757,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder"
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
 			(at 353.06 53.34 0)
 			(hide yes)
 			(show_name no)
@@ -8915,7 +8838,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "LED_SMD:LED_0805_2012Metric_Pad1.15x1.40mm_HandSolder"
+		(property "Footprint" "LED_SMD:LED_0805_2012Metric"
 			(at 83.82 53.34 0)
 			(hide yes)
 			(show_name no)
@@ -9035,85 +8958,6 @@
 			(project "GaggiaGuru"
 				(path "/ac1b1dcc-a738-54e1-99c3-3de31f83a9e2"
 					(reference "#PWR019")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "GaggiaGuru:D_Schottky")
-		(at 388.62 111.76 180)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp yes)
-		(uuid "11ae0433-a1a1-4056-96b6-e536db639e6d")
-		(property "Reference" "D11"
-			(at 388.62 108.712 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "SS14"
-			(at 388.62 114.808 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Diode_SMD:D_SMA"
-			(at 388.62 111.76 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 388.62 111.76 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Schottky diode (pin 1 = K, pin 2 = A)"
-			(at 388.62 111.76 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "7b6dbe11-15ad-44a0-8824-b7e6c220193e")
-		)
-		(pin "2"
-			(uuid "d8b21122-aaa3-4b95-8d5f-e7a2699bb45a")
-		)
-		(instances
-			(project "GaggiaGuru"
-				(path "/ac1b1dcc-a738-54e1-99c3-3de31f83a9e2"
-					(reference "D11")
 					(unit 1)
 				)
 			)
@@ -9307,7 +9151,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder"
+		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
 			(at 129.54 137.16 0)
 			(hide yes)
 			(show_name no)
@@ -9364,7 +9208,7 @@
 		(in_bom yes)
 		(on_board yes)
 		(in_pos_files yes)
-		(dnp no)
+		(dnp yes)
 		(uuid "1706c83e-99af-59fa-a425-6156d862a464")
 		(property "Reference" "J10"
 			(at 182.245 177.292 0)
@@ -9627,7 +9471,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder"
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
 			(at 274.32 167.64 0)
 			(hide yes)
 			(show_name no)
@@ -9862,7 +9706,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder"
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
 			(at 165.1 185.42 0)
 			(hide yes)
 			(show_name no)
@@ -9943,7 +9787,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder"
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
 			(at 58.42 106.68 0)
 			(hide yes)
 			(show_name no)
@@ -10255,7 +10099,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder"
+		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
 			(at 73.66 40.64 0)
 			(hide yes)
 			(show_name no)
@@ -10312,7 +10156,7 @@
 		(in_bom yes)
 		(on_board yes)
 		(in_pos_files yes)
-		(dnp no)
+		(dnp yes)
 		(uuid "235c77ae-3f6a-4ca9-b9bb-443a7c9e5b4a")
 		(property "Reference" "J13"
 			(at 238.125 200.152 0)
@@ -10645,7 +10489,7 @@
 		(in_bom yes)
 		(on_board yes)
 		(in_pos_files yes)
-		(dnp no)
+		(dnp yes)
 		(uuid "294cb8bd-c928-569f-af9f-354a712d0345")
 		(property "Reference" "J4"
 			(at 292.735 78.232 0)
@@ -10750,7 +10594,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder"
+		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
 			(at 373.38 208.28 0)
 			(hide yes)
 			(show_name no)
@@ -10831,7 +10675,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder"
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
 			(at 256.54 60.96 0)
 			(hide yes)
 			(show_name no)
@@ -11382,7 +11226,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder"
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
 			(at 304.8 40.64 0)
 			(hide yes)
 			(show_name no)
@@ -11461,7 +11305,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder"
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
 			(at 269.24 213.36 0)
 			(hide yes)
 			(show_name no)
@@ -11697,7 +11541,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder"
+		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
 			(at 109.22 218.44 0)
 			(hide yes)
 			(show_name no)
@@ -11855,7 +11699,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder"
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
 			(at 83.82 40.64 0)
 			(hide yes)
 			(show_name no)
@@ -11912,7 +11756,7 @@
 		(in_bom yes)
 		(on_board yes)
 		(in_pos_files yes)
-		(dnp yes)
+		(dnp no)
 		(uuid "46a4cc66-d89e-5f01-8104-c98ed497db88")
 		(property "Reference" "C3"
 			(at 289.56 166.37 0)
@@ -11936,7 +11780,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder"
+		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
 			(at 287.02 167.64 0)
 			(hide yes)
 			(show_name no)
@@ -12017,7 +11861,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "LED_SMD:LED_0805_2012Metric_Pad1.15x1.40mm_HandSolder"
+		(property "Footprint" "LED_SMD:LED_0805_2012Metric"
 			(at 353.06 185.42 0)
 			(hide yes)
 			(show_name no)
@@ -12251,7 +12095,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder"
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
 			(at 353.06 99.06 0)
 			(hide yes)
 			(show_name no)
@@ -12563,7 +12407,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder"
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
 			(at 45.72 101.6 0)
 			(hide yes)
 			(show_name no)
@@ -12798,7 +12642,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "LED_SMD:LED_0805_2012Metric_Pad1.15x1.40mm_HandSolder"
+		(property "Footprint" "LED_SMD:LED_0805_2012Metric"
 			(at 353.06 220.98 0)
 			(hide yes)
 			(show_name no)
@@ -13032,7 +12876,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder"
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
 			(at 345.44 208.28 0)
 			(hide yes)
 			(show_name no)
@@ -13197,7 +13041,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder"
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
 			(at 393.7 40.64 0)
 			(hide yes)
 			(show_name no)
@@ -13510,7 +13354,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder"
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
 			(at 154.94 185.42 0)
 			(hide yes)
 			(show_name no)
@@ -13591,7 +13435,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder"
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
 			(at 256.54 106.68 0)
 			(hide yes)
 			(show_name no)
@@ -13904,7 +13748,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder"
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
 			(at 345.44 60.96 0)
 			(hide yes)
 			(show_name no)
@@ -14115,7 +13959,7 @@
 		(in_bom yes)
 		(on_board yes)
 		(in_pos_files yes)
-		(dnp no)
+		(dnp yes)
 		(uuid "858a937e-420c-461e-be3e-d3ba78414eae")
 		(property "Reference" "J14"
 			(at 27.305 156.972 0)
@@ -14189,83 +14033,6 @@
 			(project "GaggiaGuru"
 				(path "/ac1b1dcc-a738-54e1-99c3-3de31f83a9e2"
 					(reference "J14")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "GaggiaGuru:+5V")
-		(at 383.54 111.76 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board no)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "859308e3-6ca5-4948-9f64-44123050c6ac")
-		(property "Reference" "#PWR078"
-			(at 383.54 115.57 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "+5V"
-			(at 383.54 108.204 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 383.54 111.76 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 383.54 111.76 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"+5V\""
-			(at 383.54 111.76 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "361d15fe-c2c8-415d-bb00-5b1e6eb264bb")
-		)
-		(instances
-			(project "GaggiaGuru"
-				(path "/ac1b1dcc-a738-54e1-99c3-3de31f83a9e2"
-					(reference "#PWR078")
 					(unit 1)
 				)
 			)
@@ -14949,7 +14716,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder"
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
 			(at 353.06 172.72 0)
 			(hide yes)
 			(show_name no)
@@ -15030,7 +14797,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder"
+		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
 			(at 299.72 167.64 0)
 			(hide yes)
 			(show_name no)
@@ -15190,7 +14957,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder"
+		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
 			(at 205.74 132.08 0)
 			(hide yes)
 			(show_name no)
@@ -15331,7 +15098,7 @@
 		(in_bom yes)
 		(on_board yes)
 		(in_pos_files yes)
-		(dnp no)
+		(dnp yes)
 		(uuid "98e0a598-6459-5fbc-aa2c-e11faa2a457b")
 		(property "Reference" "J7"
 			(at 324.485 149.352 0)
@@ -16062,7 +15829,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "LED_SMD:LED_0805_2012Metric_Pad1.15x1.40mm_HandSolder"
+		(property "Footprint" "LED_SMD:LED_0805_2012Metric"
 			(at 304.8 53.34 0)
 			(hide yes)
 			(show_name no)
@@ -16120,7 +15887,7 @@
 		(in_bom yes)
 		(on_board yes)
 		(in_pos_files yes)
-		(dnp no)
+		(dnp yes)
 		(uuid "a333e55d-5759-5a16-8cfc-9bc6f7ae92c8")
 		(property "Reference" "J3"
 			(at 381.635 32.512 0)
@@ -16225,7 +15992,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder"
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
 			(at 246.38 223.52 0)
 			(hide yes)
 			(show_name no)
@@ -16283,7 +16050,7 @@
 		(in_bom yes)
 		(on_board yes)
 		(in_pos_files yes)
-		(dnp no)
+		(dnp yes)
 		(uuid "a8dcf924-c6c3-5cd0-b5de-a18036284c3c")
 		(property "Reference" "J5"
 			(at 381.635 78.232 0)
@@ -16388,7 +16155,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder"
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
 			(at 193.04 132.08 0)
 			(hide yes)
 			(show_name no)
@@ -16701,7 +16468,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder"
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
 			(at 353.06 208.28 0)
 			(hide yes)
 			(show_name no)
@@ -16758,7 +16525,7 @@
 		(in_bom yes)
 		(on_board yes)
 		(in_pos_files yes)
-		(dnp no)
+		(dnp yes)
 		(uuid "b1f2f0a1-785b-5a49-9501-4a2237966cf9")
 		(property "Reference" "J12"
 			(at 128.905 210.312 0)
@@ -17030,7 +16797,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder"
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
 			(at 304.8 86.36 0)
 			(hide yes)
 			(show_name no)
@@ -17165,7 +16932,7 @@
 		(in_bom yes)
 		(on_board yes)
 		(in_pos_files yes)
-		(dnp no)
+		(dnp yes)
 		(uuid "bf59c874-0bc2-5d89-838b-e40067f4da67")
 		(property "Reference" "C1"
 			(at 66.548 39.37 0)
@@ -17512,7 +17279,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder"
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
 			(at 193.04 119.38 0)
 			(hide yes)
 			(show_name no)
@@ -17591,7 +17358,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder"
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
 			(at 256.54 210.82 0)
 			(hide yes)
 			(show_name no)
@@ -17749,7 +17516,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder"
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
 			(at 345.44 172.72 0)
 			(hide yes)
 			(show_name no)
@@ -17830,7 +17597,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder"
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
 			(at 393.7 86.36 0)
 			(hide yes)
 			(show_name no)
@@ -18066,7 +17833,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder"
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
 			(at 215.9 185.42 0)
 			(hide yes)
 			(show_name no)
@@ -18298,7 +18065,7 @@
 		(in_bom yes)
 		(on_board yes)
 		(in_pos_files yes)
-		(dnp no)
+		(dnp yes)
 		(uuid "d55d885d-a8f7-593b-8d13-b2596f9678c2")
 		(property "Reference" "J9"
 			(at 27.305 93.472 0)
@@ -18558,7 +18325,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "LED_SMD:LED_0805_2012Metric_Pad1.15x1.40mm_HandSolder"
+		(property "Footprint" "LED_SMD:LED_0805_2012Metric"
 			(at 304.8 99.06 0)
 			(hide yes)
 			(show_name no)
@@ -18794,7 +18561,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder"
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
 			(at 345.44 106.68 0)
 			(hide yes)
 			(show_name no)
@@ -18873,7 +18640,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder"
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
 			(at 264.16 53.34 0)
 			(hide yes)
 			(show_name no)
@@ -19007,7 +18774,7 @@
 		(in_bom yes)
 		(on_board yes)
 		(in_pos_files yes)
-		(dnp no)
+		(dnp yes)
 		(uuid "ee998e8f-363d-5002-8b5b-c37fa6eb1d4b")
 		(property "Reference" "J1"
 			(at 24.765 32.512 0)
@@ -19110,7 +18877,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder"
+		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
 			(at 48.26 218.44 0)
 			(hide yes)
 			(show_name no)
@@ -19268,7 +19035,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "LED_SMD:LED_0805_2012Metric_Pad1.15x1.40mm_HandSolder"
+		(property "Footprint" "LED_SMD:LED_0805_2012Metric"
 			(at 393.7 99.06 0)
 			(hide yes)
 			(show_name no)
@@ -19427,7 +19194,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder"
+		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
 			(at 109.22 116.84 0)
 			(hide yes)
 			(show_name no)
@@ -19470,85 +19237,6 @@
 			(project "GaggiaGuru"
 				(path "/ac1b1dcc-a738-54e1-99c3-3de31f83a9e2"
 					(reference "C10")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "GaggiaGuru:D_Schottky")
-		(at 299.72 111.76 180)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp yes)
-		(uuid "f849cded-a1c4-4563-ba57-da06a60ddc96")
-		(property "Reference" "D10"
-			(at 299.72 108.712 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "SS14"
-			(at 299.72 114.808 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Diode_SMD:D_SMA"
-			(at 299.72 111.76 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 299.72 111.76 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Schottky diode (pin 1 = K, pin 2 = A)"
-			(at 299.72 111.76 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "038dfcb8-6077-4378-8216-36d7e34895b1")
-		)
-		(pin "2"
-			(uuid "5aa57d77-8796-42d4-946f-8f6416204781")
-		)
-		(instances
-			(project "GaggiaGuru"
-				(path "/ac1b1dcc-a738-54e1-99c3-3de31f83a9e2"
-					(reference "D10")
 					(unit 1)
 				)
 			)
@@ -19718,7 +19406,7 @@
 		(in_bom yes)
 		(on_board yes)
 		(in_pos_files yes)
-		(dnp no)
+		(dnp yes)
 		(uuid "fc835970-1ac1-54d9-aeb8-682a3a9c925c")
 		(property "Reference" "J11"
 			(at 128.905 177.292 0)
