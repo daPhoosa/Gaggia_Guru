@@ -1524,7 +1524,7 @@
 		)
 		(uuid "30bec03d-561c-587f-bc17-f78c597c4254")
 	)
-	(text "J4: 4-way screw terminal, 5.00 mm pitch.\nJ4 pins: 1 = L IN (fused line from the machine),\n2 = VALVE, 3 = COFFEE LAMP, 4 = STEAM LAMP.\nAll loads return to N in the machine wiring:\nno neutral on this board.\nL_IN feeds K1 / K2 COM and U1 pin 2."
+	(text "J4: 4-way push-in terminal, 5.00 mm pitch\n(Phoenix PTS 1,5/4-5,0-H, 1792889).\nJ4 pins: 1 = L IN (fused line from the machine),\n2 = VALVE, 3 = COFFEE LAMP, 4 = STEAM LAMP.\nAll loads return to N in the machine wiring:\nno neutral on this board.\nL_IN feeds K1 / K2 COM and U1 pin 2."
 		(exclude_from_sim no)
 		(at 214.63 99.06 0)
 		(effects
@@ -1570,7 +1570,7 @@
 		)
 		(uuid "72808f1f-0cee-5fd6-b50d-28b0b17ee819")
 	)
-	(text "Hazardous voltage on L_IN, VALVE_L, *_LAMP_L, J4,\nrelay contacts and U1 pins 1-2.\nKeep mains copper and 5 V copper on separate\nsides of the board (>= 3 mm creepage, slot if needed).\nJ103 coil pins sit 2.54 mm from NO/NC (relay pinout):\nmains-to-5 V spacing there is set by the relay.\nMains traces: 2 A (>= 1 mm wide, 1 oz).\nJST XH (2.50 mm) for 5 V, 5 mm screw terminal for mains."
+	(text "Hazardous voltage on L_IN, VALVE_L, *_LAMP_L, J4,\nrelay contacts and U1 pins 1-2.\nKeep mains copper and 5 V copper on separate\nsides of the board (>= 3 mm creepage, slot if needed).\nJ103 coil pins sit 2.54 mm from NO/NC (relay pinout):\nmains-to-5 V spacing there is set by the relay.\nMains traces: 2 A (>= 1 mm wide, 1 oz).\nJST XH (2.50 mm) for 5 V, 5 mm push-in terminal for mains."
 		(exclude_from_sim no)
 		(at 214.63 130.81 0)
 		(effects
@@ -2334,7 +2334,7 @@
 				)
 			)
 		)
-		(property "Value" "MAINS 5mm"
+		(property "Value" "PTS 1,5/4-5,0-H 1792889"
 			(at 267.335 74.422 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2367,6 +2367,28 @@
 			)
 		)
 		(property "Description" "Connector, single row, 4 pins"
+			(at 266.7 63.5 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Phoenix Contact"
+			(at 266.7 63.5 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "1792889"
 			(at 266.7 63.5 0)
 			(hide yes)
 			(show_name no)

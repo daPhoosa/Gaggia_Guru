@@ -155,8 +155,8 @@ current for an SSR to switch them reliably. All four use the same on-board drive
   - U1: Omron G3MB-202P SSR for the valve (zero cross, built-in snubber, 5 V input at about
     11 mA). RV1, a 7D241K varistor across its load pins, clamps the solenoid's turn-off
     spike. Its minimum load is 0.1 A, so check the valve's current.
-  - Mains: one 4-way 5.00 mm screw terminal J4: 1 = L in, 2 = valve, 3 = coffee lamp,
-    4 = steam lamp. The loads return to N in the machine wiring.
+  - Mains: one 4-way 5.00 mm push-in terminal J4 (Phoenix PTS 1,5/4-5,0-H, 1792889):
+    1 = L in, 2 = valve, 3 = coffee lamp, 4 = steam lamp. The loads return to N in the machine wiring.
 - **GPIO 14 (steam light)** puts out PWM pulses for a moment at boot. The pull-down and the
   relay's pull-in time (several ms) mean this gives a brief click or lamp flicker at worst,
   which is harmless.
