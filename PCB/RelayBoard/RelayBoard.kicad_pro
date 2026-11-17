@@ -547,7 +547,7 @@
     "last_paths": {
       "idf": "",
       "netlist": "./",
-      "plot": "Fab GaggiaGuru/",
+      "plot": "production/",
       "specctra_dsn": "",
       "step": "",
       "vrml": ""

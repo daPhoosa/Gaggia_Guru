@@ -983,7 +983,7 @@
 			)
 			(embedded_fonts no)
 		)
-		(symbol "GaggiaGuru:SSR_G3MB-202P"
+		(symbol "GaggiaGuru:SSR_AQG22105"
 			(pin_names
 				(offset 0.762)
 			)
@@ -1002,7 +1002,7 @@
 					)
 				)
 			)
-			(property "Value" "G3MB-202P DC5"
+			(property "Value" "AQG22105"
 				(at 0 -8.89 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -1012,7 +1012,7 @@
 					)
 				)
 			)
-			(property "Footprint" "GaggiaGuru:SSR_Omron_G3MB-202P"
+			(property "Footprint" "GaggiaGuru:SSR_Panasonic_AQG22"
 				(at 0 0 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -1023,7 +1023,7 @@
 					)
 				)
 			)
-			(property "Datasheet" "https://datasheet.octopart.com/G3MB-202P-DC5-Omron-datasheet-9689490.pdf"
+			(property "Datasheet" "https://datasheet.octopart.com/AQG22105-Panasonic-datasheet-154766269.pdf"
 				(at 0 0 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -1034,7 +1034,7 @@
 					)
 				)
 			)
-			(property "Description" "Omron G3MB-202P solid state relay, zero cross, built-in snubber, 5 VDC input (440 ohm), 0.1-2 A at 75-264 VAC. Pins 1/2 load, 3 input +, 4 input -"
+			(property "Description" "Panasonic AQG22105 solid state relay, zero cross, built-in snubber, 5 VDC input (4-6 V, about 10-15 mA), 20 mA-2 A at 75-264 VAC. Pins 1/2 load, 3 input +, 4 input -"
 				(at 0 0 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -1045,7 +1045,7 @@
 					)
 				)
 			)
-			(property "ki_keywords" "SSR solid state relay triac G3MB"
+			(property "ki_keywords" "SSR solid state relay triac Panasonic AQ-G AQG22"
 				(at 0 0 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -1056,7 +1056,7 @@
 					)
 				)
 			)
-			(symbol "SSR_G3MB-202P_0_1"
+			(symbol "SSR_AQG22105_0_1"
 				(rectangle
 					(start -7.62 7.62)
 					(end 7.62 -7.62)
@@ -1225,7 +1225,7 @@
 					)
 				)
 			)
-			(symbol "SSR_G3MB-202P_1_1"
+			(symbol "SSR_AQG22105_1_1"
 				(pin passive line
 					(at 10.16 -5.08 180)
 					(length 2.54)
@@ -1546,7 +1546,7 @@
 		)
 		(uuid "39509883-a4e9-578a-91b3-48f664184ffe")
 	)
-	(text "Valve SSR: Omron G3MB-202P (zero cross, built-in snubber)"
+	(text "Valve SSR: Panasonic AQG22105 (zero cross, built-in snubber)"
 		(exclude_from_sim no)
 		(at 90.17 125.73 0)
 		(effects
@@ -2228,7 +2228,7 @@
 		(uuid "f11fe813-2aab-5ecc-80ac-a0045cc0cf7a")
 	)
 	(symbol
-		(lib_id "GaggiaGuru:SSR_G3MB-202P")
+		(lib_id "GaggiaGuru:SSR_AQG22105")
 		(at 134.62 139.7 0)
 		(unit 1)
 		(body_style 1)
@@ -2248,7 +2248,7 @@
 				)
 			)
 		)
-		(property "Value" "G3MB-202P DC5"
+		(property "Value" "AQG22105"
 			(at 134.62 148.59 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2258,7 +2258,7 @@
 				)
 			)
 		)
-		(property "Footprint" "GaggiaGuru:SSR_Omron_G3MB-202P"
+		(property "Footprint" "GaggiaGuru:SSR_Panasonic_AQG22"
 			(at 134.62 139.7 0)
 			(hide yes)
 			(show_name no)
@@ -2280,7 +2280,7 @@
 				)
 			)
 		)
-		(property "Description" "Omron G3MB-202P solid state relay, zero cross, built-in snubber, 5 VDC input (440 ohm), 0.1-2 A at 75-264 VAC. Pins 1/2 load, 3 input +, 4 input -"
+		(property "Description" "Panasonic AQG22105 solid state relay, zero cross, built-in snubber, 5 VDC input (4-6 V, about 10-15 mA), 20 mA-2 A at 75-264 VAC. Pins 1/2 load, 3 input +, 4 input -"
 			(at 134.62 139.7 0)
 			(hide yes)
 			(show_name no)

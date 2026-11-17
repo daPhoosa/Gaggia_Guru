@@ -152,9 +152,11 @@ current for an SSR to switch them reliably. All four use the same on-board drive
   pin 2 = drive).
   - K1 / K2: CIT J1031C5VDC.15S relays (5 V, 167 Ω coil, contacts 2 A at 120 VAC,
     **125 VAC max**). Each coil has an SS14 flyback diode (D1 / D2) right at the coil.
-  - U1: Omron G3MB-202P SSR for the valve (zero cross, built-in snubber, 5 V input at about
-    11 mA). RV1, a 7D241K varistor across its load pins, clamps the solenoid's turn-off
-    spike. Its minimum load is 0.1 A, so check the valve's current.
+  - U1: Panasonic AQG22105 SSR for the valve (zero cross, built-in snubber, 5 V input at
+    about 10–15 mA, 2 A at 75–264 VAC; footprint `GaggiaGuru:SSR_Panasonic_AQG22`, pitch
+    7.62 / 10.16 / 2.54 mm, 20.5 mm tall). RV1, a 7D241K varistor across its load pins,
+    clamps the solenoid's turn-off spike. Its minimum load is 20 mA (the G3MB it replaced
+    needed 0.1 A), so a small solenoid is no longer a concern.
   - Mains: one 4-way 5.00 mm push-in terminal J4 (Phoenix PTS 1,5/4-5,0-H, 1792889):
     1 = L in, 2 = valve, 3 = coffee lamp, 4 = steam lamp. The loads return to N in the machine wiring.
 - **GPIO 14 (steam light)** puts out PWM pulses for a moment at boot. The pull-down and the
