@@ -74,6 +74,8 @@
 #define PRESSURE_SUPPLY_MIN_V       4.5f   // measured supply outside this range:
 #define PRESSURE_SUPPLY_MAX_V       5.5f   // ...no correction (measurement suspect)
 #define PRESSURE_SUPPLY_PERIOD_MS  1000UL  // re-measure the 5 V rail this often
+#define ADS_SPARE_PERIOD_MS         500UL  // read one spare input (AIN2 / AIN3) this often,
+                                          // so each is read about once a second (IO Status page)
 
 // ---- Timing -----------------------------------------------------------------
 #define CONTROL_PERIOD_MS            50UL  // control task tick

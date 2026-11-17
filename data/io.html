@@ -27,7 +27,11 @@
     </div>
 
     <ul id="pins" class="pins"><li class="muted">Loading…</li></ul>
-    <p class="muted foot" id="ioFoot">Names and types come from <code>include/io_pins.h</code>. Tap a pin for notes.</p>
+
+    <h2 class="sect" id="adcHead" hidden>ADS1115 analog inputs · I²C 0x48</h2>
+    <ul id="adc" class="pins" hidden></ul>
+
+    <p class="muted foot" id="ioFoot">Names and types come from <code>include/io_pins.h</code>. ADS1115 readings are the control task’s latest conversions. Tap a row for notes.</p>
   </main>
 
   <script src="app.js"></script>

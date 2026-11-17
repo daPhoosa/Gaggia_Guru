@@ -56,6 +56,23 @@ constexpr uint32_t kConvTimeoutMs = 10;
 
 float supplyPinMv = 0;  // last 5 V rail measurement at AIN1 (divided), 0 = none yet
 uint32_t lastSupplyMs = 0;
+uint32_t lastSpareMs = 0;
+uint8_t nextSpare = 2;  // AIN2, then AIN3, ...
+
+AdsSample samples[kAdsChannels];  // written by the control task, read via adsSamples()
+portMUX_TYPE samplesLock = portMUX_INITIALIZER_UNLOCKED;
+
+void record(uint8_t channel, bool ok, int16_t raw, float mv) {
+  portENTER_CRITICAL(&samplesLock);
+  AdsSample &s = samples[channel];
+  s.valid = ok;
+  if (ok) {
+    s.raw = raw;
+    s.mv = mv;
+  }
+  s.atMs = millis();
+  portEXIT_CRITICAL(&samplesLock);
+}
 
 bool adsWrite(uint8_t reg, uint16_t v) {
   Wire.beginTransmission(ADS1115_I2C_ADDR);
@@ -75,8 +92,8 @@ bool adsRead(uint8_t reg, uint16_t &v) {
   return true;
 }
 
-// One single-ended conversion on AIN0-3; result in millivolts at the pin.
-bool adsConvert(uint8_t channel, float &mv) {
+// One single-ended conversion on AIN0-3 (no bookkeeping).
+bool adsConvertRaw(uint8_t channel, int16_t &code) {
   if (!adsWrite(kRegConfig, kConfigBase | static_cast<uint16_t>((4u + channel) << 12))) return false;
   const uint32_t start = millis();
   uint16_t cfg = 0;
@@ -87,8 +104,17 @@ bool adsConvert(uint8_t channel, float &mv) {
   } while (!(cfg & 0x8000));  // OS bit reads 1 when the conversion is done
   uint16_t raw = 0;
   if (!adsRead(kRegConversion, raw)) return false;
-  mv = static_cast<int16_t>(raw) * kMvPerLsb;
+  code = static_cast<int16_t>(raw);
   return true;
+}
+
+// One conversion; result in millivolts at the pin. Recorded for adsSamples().
+bool adsConvert(uint8_t channel, float &mv) {
+  int16_t code = 0;
+  const bool ok = adsConvertRaw(channel, code);
+  if (ok) mv = code * kMvPerLsb;
+  record(channel, ok, code, ok ? mv : 0);
+  return ok;
 }
 }  // namespace
 
@@ -112,6 +138,20 @@ PressureReading readPressure() {
   float mv;
   if (!adsConvert(0, mv)) return pressureError("ADS1115 not responding (check I2C wiring / 3.3 V)");
   return pressureFromPinMv(mv, supplyPinMv);
+}
+
+void sampleSpareInputs() {
+  if (millis() - lastSpareMs < ADS_SPARE_PERIOD_MS) return;
+  lastSpareMs = millis();
+  float mv;
+  adsConvert(nextSpare, mv);  // result only recorded for the IO Status page
+  nextSpare = nextSpare == 2 ? 3 : 2;
+}
+
+void adsSamples(AdsSample (&out)[kAdsChannels]) {
+  portENTER_CRITICAL(&samplesLock);
+  for (uint8_t i = 0; i < kAdsChannels; ++i) out[i] = samples[i];
+  portEXIT_CRITICAL(&samplesLock);
 }
 
 }  // namespace Sensors

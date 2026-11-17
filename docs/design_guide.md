@@ -217,6 +217,12 @@ The plain `/update` fallback page in `web_server.cpp` is deliberately unstyled (
 - **Card section titles** are 15px / 600 in the text color (body size, top of the weight range).
 - **Destructive actions** (Reset to defaults, Forget Wi-Fi, Reboot) are secondary buttons. They use a two-tap confirm; only the armed state ("Tap again to confirm") turns the outline and text to the error color, because at that moment it is a real warning.
 - **IO Status pin types** (Digital / Analog / Comms) are not color-coded: the type is written as text, so no extra category tokens are needed. Pin cautions (for example strapping pins) use a warning icon in the text color, not the warning color, since they are not machine states.
+- **IO Status ADS1115 section:** the four ADS1115 inputs sit in their own list under a
+  13px / 600 text-secondary heading, using the same rows as the GPIO list (an "AIN n" badge
+  instead of "GPIO n"). Used inputs show the engineering value (for example "6.12 bar") in
+  the value style with "pin V · raw code" underneath in text-secondary; unused inputs show
+  only the pin voltage with the raw code underneath, and are dimmed like unused GPIOs. The
+  filter chips apply to both lists (used inputs count as Analog).
 - **Secondary text on surface-raised** stays above 4.5:1 (5.00 light, 6.11 dark), so chips and the connection pill use surface-raised fills.
 - **Setup page fonts:** the built-in setup page uses the system font, since it must work when the filesystem (and Inter) is missing.
 
@@ -241,4 +247,5 @@ Add any new symbol the UI needs to `--unicodes`, or it falls back to the system 
 
 | Date | Change |
 | --- | --- |
+| 2026-11-17 | IO Status: ADS1115 analog inputs section (engineering units + raw for used inputs, raw only for spares). No new tokens. |
 | 2026-11-08 | Guide added to the project. Dashboard restyled to it: tokens, Light / Dark / System toggle (Settings → Appearance), Inter bundled, header on bg, alert banner under the header, icons + labels on all status indicators, 48px targets, graph tokens `chart-temp` / `chart-pressure` added. |

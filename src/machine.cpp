@@ -42,6 +42,7 @@ void tick() {
   in.tcSampled = logic.tcDue(now);
   if (in.tcSampled) in.tc = Sensors::readThermocouple();
   in.pressure = Sensors::readPressure();
+  Sensors::sampleSpareInputs();  // AIN2 / AIN3, for the IO Status page only
   in.msSinceZeroCross = Pump::msSinceZeroCross();
   in.zeroCrossCount = Pump::zeroCrossCount();
   in.inhibited = inhibited;

@@ -287,8 +287,12 @@ L ── SSR (GPIO 26) ── 165 °C manual-reset high-limit thermostat ── 
   in other states the reading is shown but not used.
 - **Sampling:** only the control task uses the I²C bus. Every 50 ms it takes one ADS1115
   conversion, smooths the divider voltage (EMA, α = 0.3) and converts it to bar. The
-  pressure PID and the dashboard both use that one smoothed value. The pressure is not an
-  ESP32 pin, so it does not appear on the IO Status page.
+  pressure PID and the dashboard both use that one smoothed value.
+- **IO Status page:** all four ADS1115 inputs are listed under "ADS1115 analog inputs",
+  from the control task's latest conversions (the page never uses the I²C bus). AIN0 shows
+  bar and AIN1 the 5 V rail in volts, each with the pin voltage and raw code underneath;
+  the bar there is from a single unsmoothed sample. AIN2 / AIN3 show only the pin voltage
+  and raw code.
 
 ### 3.7 Future: scale — HX711 (DOUT = 35, SCK = 4)
 
@@ -336,9 +340,10 @@ Not used by the firmware yet; for a future display, SD card or other SPI device.
 
 ### 3.10 Spare analog inputs — J14 (ADS1115 AIN2 / AIN3)
 
-Not read by the firmware yet; for a future analog sensor (e.g. a second pressure sensor,
+Not used by the firmware yet; for a future analog sensor (e.g. a second pressure sensor,
 tank level, or a thermistor divider). The inputs go to U3, the same ADS1115 that reads brew
-pressure, so they are not ESP32 pins and don't appear on the IO Status page.
+pressure. They are not ESP32 pins, but the IO Status page shows their raw readings (pin
+voltage and conversion code) in its ADS1115 section.
 
 | J14 pin | Signal |
 |---|---|
@@ -355,8 +360,10 @@ pressure, so they are not ESP32 pins and don't appear on the IO Status page.
   5 V signal (or pin 3) to them directly.
 - **Noise:** there is no filter capacitor on these inputs. If a sensor's lead is long or runs
   near mains, add 100 nF from the input to GND at the sensor end, or in the divider.
-- **Firmware:** reading them is one more ADS1115 single-shot conversion on the same I²C bus,
-  done by the control task between pressure samples.
+- **Firmware:** the control task reads one of them every 500 ms (`ADS_SPARE_PERIOD_MS`),
+  alternating, so each is read about once a second. That is one extra single-shot
+  conversion (about 2–3 ms) between pressure samples. The values are only displayed. With
+  nothing connected the inputs float, so expect a wandering reading.
 
 ---
 

@@ -421,7 +421,8 @@ if (page === 'home') {
 if (page === 'io') {
   const ul = $('#pins');
   const open = new Set();          // GPIOs whose notes are expanded
-  let pins = [], filter = 'all';
+  const adcUl = $('#adc'), adcHead = $('#adcHead');
+  let pins = [], adc = [], filter = 'all';
   const matches = (p, f) => f === 'all' || (f === 'used' ? p.type !== 'Unused' : p.type === f);
 
   const el = (tag, cls, text) => {
@@ -445,32 +446,58 @@ if (page === 'io') {
     return st;
   }
 
+  // ADS1115 input: used inputs show engineering units with the raw reading
+  // underneath; unused inputs show only the raw reading (pin voltage + code).
+  function adcStateEl(a) {
+    const st = el('div', 'st');
+    if (a.raw == null) { st.append(el('span', 'lv na', '–')); return st; }
+    const v = (a.mv / 1000).toFixed(3) + ' V';
+    if (a.value != null) {
+      const av = el('div', 'av', a.value.toFixed(2) + ' ' + a.unit);
+      av.append(el('small', null, `${v} · raw ${a.raw}`));
+      st.append(av);
+    } else {
+      const av = el('div', 'av', v);
+      av.append(el('small', null, 'raw ' + a.raw));
+      st.append(av);
+    }
+    return st;
+  }
+
+  // One list row. key: open/closed memory; label + num: the left badge.
+  function rowEl(p, key, label, num, metaItems, state, macro) {
+    const li = el('li'); if (open.has(key)) li.classList.add('open');
+    const row = el('div', 'pin' + (p.type === 'Unused' ? ' unused' : ''));
+    const gp = el('div', 'gp'); gp.append(el('small', null, label), document.createTextNode(num));
+    const pn = el('div', 'pn');
+    pn.append(el('div', 'nm', p.name));
+    const meta = el('div', 'meta');
+    meta.append(el('span', 'ty ' + p.type, p.type === 'Communications' ? 'Comms' : p.type));
+    metaItems.forEach((t) => meta.append(el('span', null, t)));
+    if (p.note) { const n = el('span', 'pnote'); n.append(icon('ico-warn sm'), p.note); meta.append(n); }
+    pn.append(meta);
+    row.append(gp, pn, state);
+    const notes = el('div', 'pnotes');
+    notes.append(el('div', null, p.notes || 'No notes'));
+    const mc = el('div'); mc.append(macro[0], el('code', null, macro[1])); notes.append(mc);
+    li.append(row, notes);
+    row.onclick = () => { open.has(key) ? open.delete(key) : open.add(key); li.classList.toggle('open'); };
+    return li;
+  }
+
   function draw() {
     document.querySelectorAll('#filters .chip').forEach((c) => {
-      c.querySelector('b').textContent = pins.filter((p) => matches(p, c.dataset.f)).length;
+      c.querySelector('b').textContent = pins.filter((p) => matches(p, c.dataset.f)).length
+        + adc.filter((a) => matches(a, c.dataset.f)).length;
     });
     const shown = pins.filter((p) => matches(p, filter));
-    if (!shown.length) { ul.replaceChildren(el('li', 'muted', 'No pins in this group')); return; }
-    ul.replaceChildren(...shown.map((p) => {
-      const li = el('li'); if (open.has(p.gpio)) li.classList.add('open');
-      const row = el('div', 'pin' + (p.type === 'Unused' ? ' unused' : ''));
-      const gp = el('div', 'gp'); gp.append(el('small', null, 'GPIO'), document.createTextNode(p.gpio));
-      const pn = el('div', 'pn');
-      pn.append(el('div', 'nm', p.name));
-      const meta = el('div', 'meta');
-      meta.append(el('span', 'ty ' + p.type, p.type === 'Communications' ? 'Comms' : p.type));
-      meta.append(el('span', null, p.mode));
-      if (p.pull) meta.append(el('span', null, 'pull-' + p.pull));
-      if (p.note) { const n = el('span', 'pnote'); n.append(icon('ico-warn sm'), p.note); meta.append(n); }
-      pn.append(meta);
-      row.append(gp, pn, stateEl(p));
-      const notes = el('div', 'pnotes');
-      notes.append(el('div', null, p.notes || 'No notes'));
-      const mc = el('div'); mc.append('Macro: ', el('code', null, p.macro)); notes.append(mc);
-      li.append(row, notes);
-      row.onclick = () => { open.has(p.gpio) ? open.delete(p.gpio) : open.add(p.gpio); li.classList.toggle('open'); };
-      return li;
-    }));
+    const shownAdc = adc.filter((a) => matches(a, filter));
+    ul.replaceChildren(...(shown.length ? shown.map((p) => rowEl(p, p.gpio, 'GPIO', p.gpio,
+      [p.mode].concat(p.pull ? ['pull-' + p.pull] : []), stateEl(p), ['Macro: ', p.macro]))
+      : [el('li', 'muted', 'No pins in this group')]));
+    adcHead.hidden = adcUl.hidden = !shownAdc.length;
+    adcUl.replaceChildren(...shownAdc.map((a) => rowEl(a, 'a' + a.ch, 'AIN', a.ch,
+      [a.used ? 'In use' : 'Not used'], adcStateEl(a), ['Input: ', 'ADS1115 AIN' + a.ch])));
   }
 
   document.querySelectorAll('#filters .chip').forEach((c) => c.onclick = () => {
@@ -483,7 +510,9 @@ if (page === 'io') {
     clearTimeout(timer);
     try {
       const j = await fetch('/api/io').then((r) => r.json());
-      pins = j.pins; draw();
+      pins = j.pins;
+      adc = (j.adc || []).map((a) => ({ ...a, type: a.used ? 'Analog' : 'Unused' }));
+      draw();
     } catch (_) { /* keep last values; connection pill shows offline */ }
     if (!document.hidden) timer = setTimeout(poll, 1000);
   }

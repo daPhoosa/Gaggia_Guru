@@ -10,6 +10,7 @@
 
 #include "io_pins.h"
 #include "machine_config.h"
+#include "sensors.h"
 
 // Raw register access. (The ESP-IDF REG_* macros contain a compile-time assert
 // that warns when expanded inside an anonymous namespace.)
@@ -128,6 +129,53 @@ PinState sample(const IoPinInfo &p) {
   return s;
 }
 
+// ADS1115 inputs (PCB U3, I2C 0x48). Used inputs also get engineering units.
+struct AdcInfo {
+  const char *name;
+  bool used;
+  const char *notes;
+};
+const AdcInfo kAdc[Sensors::kAdsChannels] = {
+    {"Brew pressure", true,
+     "XDB401 output (0.5-4.5 V = 0-12 bar) through a 10k/10k divider. Bar here is computed from this one "
+     "sample with the 5 V correction; the controller and dashboard use a smoothed value."},
+    {"5 V rail", true,
+     "5 V supply through an identical 10k/10k divider. Corrects the ratiometric pressure reading "
+     "(read about once a second)."},
+    {"Spare (J14 pin 4)", false, "Direct to U3, 0-3.3 V only. Not used by the firmware; floats when nothing is connected."},
+    {"Spare (J14 pin 5)", false, "Direct to U3, 0-3.3 V only. Not used by the firmware; floats when nothing is connected."},
+};
+
+float round_to(float v, float step) { return roundf(v / step) * step; }
+
+void adcJson(JsonArray arr) {
+  Sensors::AdsSample s[Sensors::kAdsChannels];
+  Sensors::adsSamples(s);
+  for (uint8_t ch = 0; ch < Sensors::kAdsChannels; ++ch) {
+    const AdcInfo &a = kAdc[ch];
+    JsonObject o = arr.add<JsonObject>();
+    o["ch"] = ch;
+    o["name"] = a.name;
+    o["used"] = a.used;
+    o["notes"] = a.notes;
+    if (!s[ch].valid) {
+      o["note"] = s[ch].atMs == 0 ? "Not read yet" : "ADS1115 not responding";
+      continue;
+    }
+    o["raw"] = s[ch].raw;
+    o["mv"] = round_to(s[ch].mv, 0.1f);
+    if (ch == 0) {
+      const Sensors::PressureReading pr = Sensors::pressureFromPinMv(s[0].mv, s[1].valid ? s[1].mv : 0);
+      o["value"] = round_to(pr.bar, 0.01f);
+      o["unit"] = "bar";
+      if (!pr.ok) o["note"] = "Outside the sensor's valid range (disconnected?)";
+    } else if (ch == 1) {
+      o["value"] = round_to(s[1].mv / 1000.0f / PRESSURE_DIVIDER_RATIO, 0.001f);
+      o["unit"] = "V";
+    }
+  }
+}
+
 }  // namespace
 
 namespace IoStatus {
@@ -167,6 +215,7 @@ String json() {
     if (s.mv >= 0) o["mv"] = s.mv;
     if (s.note) o["note"] = s.note;
   }
+  adcJson(doc["adc"].to<JsonArray>());
   doc["uptime"] = millis() / 1000;
   String out;
   serializeJson(doc, out);
