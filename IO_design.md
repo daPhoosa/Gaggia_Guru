@@ -69,7 +69,7 @@ The carrier board that implements this is the KiCad 10 project in [`PCB/`](PCB/)
 | ESP32 with Wi-Fi | ~250 mA average, 500 mA peaks |
 | 2 SSR inputs (heater, valve) | ~10–15 mA each |
 | 2 lamp relay coils (5 V) | ~30 mA each |
-| 5 indicator LEDs (power + 4 drivers) | ~3 mA each |
+| 5 indicator LEDs (power + 4 drivers) | ~2 mA each |
 | XDB401 | < 5 mA |
 | Dimmer logic, MAX31855K | < 15 mA |
 
@@ -83,7 +83,7 @@ drawn from the ESP32U's 3V3 pin (its AMS1117-class regulator, about 1 A max):
 | MAX31855K | ~1.5 mA |
 | ADS1115 | ~0.2 mA |
 | Dimmer Z-C pull-up | < 1 mA |
-| Switch LEDs (2 × 330 Ω) and pull-downs | ~9 mA with both switches on |
+| Switch LEDs (2 × 680 Ω) and pull-downs | ~5 mA with both switches on |
 | I²C pull-ups (when low) | ~1.4 mA |
 | HX711, small OLED (future) | ~1.5 mA, ~20 mA |
 | SPI device on J13 (future) | depends: a TFT's backlight can take 20–100 mA, power it from J13's 5 V pin if its module allows |
@@ -92,8 +92,15 @@ drawn from the ESP32U's 3V3 pin (its AMS1117-class regulator, about 1 A max):
 With the ESP32's own ~250 mA average (500 mA peaks) that is well inside the regulator's
 rating. Its dissipation is about (4.7 V − 3.3 V) × 0.3 A ≈ 0.4 W: warm, not hot. Revisit
 only if a 3.3 V load of more than ~150 mA is added; give that its own regulator from 5 V.
-The analog parts tolerate Wi-Fi ripple on 3V3: the ADS1115 and MAX31855K use internal
-references, and each has its own 100 nF.
+The ADS1115 and MAX31855K use internal references, and each has its own 100 nF, but in
+testing the temperature readings were spiky and erratic until bulk capacitance was added to
+3V3. The board therefore carries a 100 µF electrolytic on each ESP32U supply rail: C13 on
++3V3 and C14 on +5V_ESP. C14 holds up the ESP32U's input during Wi-Fi current spikes so they
+don't drop extra voltage across the 5 V protection parts (F1 polyfuse, D2 Schottky). Use
+electrolytics (or tantalum) here, not large low-ESR ceramics, which can make the module's
+AMS1117-class LDO oscillate. Like C1 (100 µF on the 5 V input), C13 and C14 are radial
+through-hole parts marked DNP: the assembler leaves them off and they are hand-soldered after
+the boards arrive.
 
 ---
 
@@ -119,7 +126,7 @@ current for an SSR to switch them reliably. All four use the same on-board drive
 
   ```
   GPIO ──┬── 1 kΩ ── G   AO3400A        5V ──┬────────── SSR(+) / coil(+)
-         │                                   1 kΩ
+         │                                   1.5 kΩ
        10 kΩ                                 LED (red)
          │                                   │
         GND                     D ───────────┴────────── SSR(−) / coil(−)
@@ -128,7 +135,7 @@ current for an SSR to switch them reliably. All four use the same on-board drive
 
   The 1 kΩ gate resistor is the same value as the switch filters (fewer unique parts);
   switching speed is irrelevant for SSRs and relays. Logic is unchanged: GPIO HIGH turns the load on.
-- **Indicator LED:** 1 kΩ + red LED (about 3 mA) across the SSR input or relay coil, so it
+- **Indicator LED:** 1.5 kΩ + red LED (about 2 mA) across the SSR input or relay coil, so it
   lights exactly when the output is energised.
 - **Direct drive** (heater and valve SSRs only) is acceptable only if the SSR datasheet
   guarantees turn-on at ≤ 3.0 V and draws ≤ 12 mA. Measure the input current first. The lamp
@@ -202,7 +209,7 @@ current for an SSR to switch them reliably. All four use the same on-board drive
     enabled, but it is weak (~45 kΩ) for wires running next to mains.
   - The **1 kΩ series resistor + 100 nF capacitor** filter induced noise and protect the
     pin from ESD.
-  - **Indicator LED:** 330 Ω + red LED (about 4 mA) from the switch side of the 1 kΩ to
+  - **Indicator LED:** 680 Ω + red LED (about 2 mA) from the switch side of the 1 kΩ to
     GND, lit while the switch is on. Its current comes from the 3.3 V rail through the switch.
 - **Debounce:** the firmware needs 2 consecutive equal samples 50 ms apart (about 100 ms).
 - **Behaviour:** if Coffee is on at power-up, the pump won't start until the switch is
