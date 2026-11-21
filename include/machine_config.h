@@ -25,6 +25,12 @@
 
 // Dashboard graph time window (seconds of history shown).
 #define DEFAULT_GRAPH_WINDOW_S     60.0f
+// Dashboard graph temperature axis (fixed, °C). Max covers SAFETY_MAX_TEMP_C.
+#define DEFAULT_GRAPH_TEMP_MIN_C   10.0f
+#define DEFAULT_GRAPH_TEMP_MAX_C  160.0f
+// Dashboard graph pressure axis (fixed, bar). Default = sensor full scale.
+#define DEFAULT_GRAPH_PRESS_MIN_BAR  0.0f
+#define DEFAULT_GRAPH_PRESS_MAX_BAR 12.0f
 
 // Allowed ranges for user settings (the API rejects values outside these).
 #define LIMIT_COFFEE_TEMP_MIN      80.0f
@@ -36,6 +42,12 @@
 #define LIMIT_GAIN_MAX           1000.0f
 #define LIMIT_GRAPH_WINDOW_MIN     10.0f
 #define LIMIT_GRAPH_WINDOW_MAX    600.0f
+#define LIMIT_GRAPH_TEMP_MIN        0.0f   // both graph axis ends lie in this range
+#define LIMIT_GRAPH_TEMP_MAX      200.0f
+#define LIMIT_GRAPH_TEMP_SPAN_MIN  10.0f   // graphTempMaxC - graphTempMinC must be at least this
+#define LIMIT_GRAPH_PRESS_MIN       0.0f   // both graph pressure axis ends lie in this range
+#define LIMIT_GRAPH_PRESS_MAX      20.0f
+#define LIMIT_GRAPH_PRESS_SPAN_MIN  1.0f   // graphPressMaxBar - graphPressMinBar must be at least this
 
 // ---- Safety limits (fixed) --------------------------------------------------
 // Hardware backstop: 165 C manual-reset high-limit thermostat + thermal fuse.

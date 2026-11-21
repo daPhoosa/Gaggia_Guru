@@ -22,6 +22,10 @@ const Field kFields[] = {
     {"pressKi", offsetof(MachineSettings, pressKi), 0, LIMIT_GAIN_MAX},
     {"pressKd", offsetof(MachineSettings, pressKd), 0, LIMIT_GAIN_MAX},
     {"graphWindowS", offsetof(MachineSettings, graphWindowS), LIMIT_GRAPH_WINDOW_MIN, LIMIT_GRAPH_WINDOW_MAX},
+    {"graphTempMinC", offsetof(MachineSettings, graphTempMinC), LIMIT_GRAPH_TEMP_MIN, LIMIT_GRAPH_TEMP_MAX},
+    {"graphTempMaxC", offsetof(MachineSettings, graphTempMaxC), LIMIT_GRAPH_TEMP_MIN, LIMIT_GRAPH_TEMP_MAX},
+    {"graphPressMinBar", offsetof(MachineSettings, graphPressMinBar), LIMIT_GRAPH_PRESS_MIN, LIMIT_GRAPH_PRESS_MAX},
+    {"graphPressMaxBar", offsetof(MachineSettings, graphPressMaxBar), LIMIT_GRAPH_PRESS_MIN, LIMIT_GRAPH_PRESS_MAX},
 };
 constexpr size_t kCount = sizeof(kFields) / sizeof(kFields[0]);
 static_assert(kCount * sizeof(float) == sizeof(MachineSettings),
@@ -65,6 +69,10 @@ MachineSettings defaults() {
   s.pressKi = DEFAULT_PRESS_KI;
   s.pressKd = DEFAULT_PRESS_KD;
   s.graphWindowS = DEFAULT_GRAPH_WINDOW_S;
+  s.graphTempMinC = DEFAULT_GRAPH_TEMP_MIN_C;
+  s.graphTempMaxC = DEFAULT_GRAPH_TEMP_MAX_C;
+  s.graphPressMinBar = DEFAULT_GRAPH_PRESS_MIN_BAR;
+  s.graphPressMaxBar = DEFAULT_GRAPH_PRESS_MAX_BAR;
   return s;
 }
 
@@ -75,6 +83,16 @@ bool validate(const MachineSettings &s, char *err, size_t errLen) {
       rangeError(f, err, errLen);
       return false;
     }
+  }
+  if (s.graphTempMaxC - s.graphTempMinC < LIMIT_GRAPH_TEMP_SPAN_MIN) {
+    if (err && errLen)
+      snprintf(err, errLen, "graphTempMaxC must be at least %.0f above graphTempMinC", LIMIT_GRAPH_TEMP_SPAN_MIN);
+    return false;
+  }
+  if (s.graphPressMaxBar - s.graphPressMinBar < LIMIT_GRAPH_PRESS_SPAN_MIN) {
+    if (err && errLen)
+      snprintf(err, errLen, "graphPressMaxBar must be at least %.0f above graphPressMinBar", LIMIT_GRAPH_PRESS_SPAN_MIN);
+    return false;
   }
   return true;
 }

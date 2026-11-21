@@ -10,20 +10,42 @@
 
 namespace {
 
-constexpr uint16_t kVersion = 2;  // bump when MachineSettings layout changes
+constexpr uint16_t kVersion = 4;  // bump when MachineSettings layout changes
 
 struct Stored {
   uint16_t version;
   MachineSettings s;
 };
 
-// Version 1 layout: the first 9 floats of MachineSettings (no graphWindowS).
-struct StoredV1 {
+// Older layouts: the first N floats of MachineSettings (fields are only ever
+// appended). v1 = 9 (no graphWindowS), v2 = 10 (no graph °C axis),
+// v3 = 12 (no graph bar axis).
+template <size_t N>
+struct StoredOld {
   uint16_t version;
-  float f[9];
+  float f[N];
 };
+using StoredV1 = StoredOld<9>;
+using StoredV2 = StoredOld<10>;
+using StoredV3 = StoredOld<12>;
 static_assert(offsetof(MachineSettings, graphWindowS) == sizeof(StoredV1::f),
               "v1 migration assumes new fields were appended");
+static_assert(offsetof(MachineSettings, graphTempMinC) == sizeof(StoredV2::f),
+              "v2 migration assumes new fields were appended");
+static_assert(offsetof(MachineSettings, graphPressMinBar) == sizeof(StoredV3::f),
+              "v3 migration assumes new fields were appended");
+
+// Load an older layout into st (new fields get their defaults). False if the
+// blob isn't that version.
+template <size_t N>
+bool loadOld(Preferences &p, uint16_t version, Stored &st) {
+  StoredOld<N> old;
+  if (p.getBytes("settings", &old, sizeof(old)) != sizeof(old) || old.version != version) return false;
+  st.version = kVersion;
+  st.s = SettingsSchema::defaults();
+  memcpy(&st.s, old.f, sizeof(old.f));
+  return true;
+}
 
 MachineSettings current;
 SemaphoreHandle_t mutex = nullptr;
@@ -54,28 +76,32 @@ void begin() {
   current = defaults();
 
   Stored st;
-  StoredV1 v1;
   Preferences p;
   p.begin("guru", true);
   const size_t len = p.getBytesLength("settings");
   size_t n = 0;
-  bool migrated = false;
+  int migratedFrom = 0;
   if (len == sizeof(st)) {
     n = p.getBytes("settings", &st, sizeof(st));
-  } else if (len == sizeof(v1) && p.getBytes("settings", &v1, sizeof(v1)) == sizeof(v1) && v1.version == 1) {
-    st.version = kVersion;
-    st.s = defaults();                        // new fields get their defaults
-    memcpy(&st.s, v1.f, sizeof(v1.f));        // old fields keep the saved values
+  } else if (len == sizeof(StoredV3) && loadOld<12>(p, 3, st)) {
     n = sizeof(st);
-    migrated = true;
+    migratedFrom = 3;
+  } else if (len == sizeof(StoredV2) && loadOld<10>(p, 2, st)) {
+    n = sizeof(st);
+    migratedFrom = 2;
+  } else if (len == sizeof(StoredV1) && loadOld<9>(p, 1, st)) {
+    n = sizeof(st);
+    migratedFrom = 1;
   }
   p.end();
+  const bool migrated = migratedFrom != 0;
 
   String err;
   if (n == sizeof(st) && st.version == kVersion && validate(st.s, err)) {
     current = st.s;
     if (migrated) save(current);
-    Serial.println(migrated ? "[Settings] Migrated v1 settings from NVS" : "[Settings] Loaded from NVS");
+    if (migrated) Serial.printf("[Settings] Migrated v%d settings from NVS\n", migratedFrom);
+    else Serial.println("[Settings] Loaded from NVS");
   } else {
     Serial.println("[Settings] Using defaults");
   }

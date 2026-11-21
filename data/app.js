@@ -154,13 +154,15 @@ function renderMachine(m) {
 }
 
 // ---------- machine graph (home page, Machine card) ----------
-// Scrolls right to left: the right edge is "now". Left axis °C (auto-scaled),
-// right axis bar (fixed 0-12, the sensor range). Gridlines are shared by both.
+// Scrolls right to left: the right edge is "now". Left axis °C (fixed, from the
+// graphTempMinC / graphTempMaxC settings), right axis bar (fixed, from the
+// graphPressMinBar / graphPressMaxBar settings). Both axes are split into DIVS
+// steps, so the gridlines are shared.
 const graph = (() => {
   if (page !== 'home') return { push() {} };
   const cv = $('#mGraph'), ctx = cv.getContext('2d');
-  const KEEP_S = 600, GAP_S = 4, DIVS = 6, P_MAX = 12;
-  let windowS = 60, data = [], colors = {}, w = 0, h = 0, dpr = 1, lastDraw = 0;
+  const KEEP_S = 600, GAP_S = 4, DIVS = 6;
+  let windowS = 60, tMin = 10, tMax = 160, pMin = 0, pMax = 12, data = [], colors = {}, w = 0, h = 0, dpr = 1, lastDraw = 0;
 
   const css = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
   const readColors = () => {
@@ -181,7 +183,13 @@ const graph = (() => {
   resize();
 
   fetch('/api/settings').then((r) => r.json())
-    .then((j) => { windowS = +j.values.graphWindowS || 60; }).catch(() => {});
+    .then((j) => {
+      const v = j.values;
+      windowS = +v.graphWindowS || 60;
+      if (+v.graphTempMaxC > +v.graphTempMinC) { tMin = +v.graphTempMinC; tMax = +v.graphTempMaxC; }
+      if (+v.graphPressMaxBar > +v.graphPressMinBar) { pMin = +v.graphPressMinBar; pMax = +v.graphPressMaxBar; }
+      draw();
+    }).catch(() => {});
 
   function push(m) {
     const t = performance.now() / 1000;
@@ -195,15 +203,6 @@ const graph = (() => {
     while (data.length && data[0].t < t - KEEP_S) data.shift();
   }
 
-  // Temperature axis: DIVS equal steps of a "nice" size covering lo..hi.
-  function tempAxis(lo, hi) {
-    for (const st of [1, 2, 5, 10, 20, 25, 50]) {
-      const a = Math.floor(lo / st) * st;
-      if (a + DIVS * st >= hi) return { lo: a, st };
-    }
-    return { lo: 0, st: 50 };
-  }
-
   function draw() {
     const now = performance.now() / 1000, t0 = now - windowS;
     const L = 36, R = 28, T = 8, B = 18, pw = w - L - R, ph = h - T - B;
@@ -211,16 +210,10 @@ const graph = (() => {
     ctx.clearRect(0, 0, w, h);
     if (pw <= 0 || ph <= 0) return;
 
-    let lo = Infinity, hi = -Infinity;
-    for (const d of data) {
-      if (d.t < t0) continue;
-      for (const v of [d.temp, d.set]) if (v != null) { lo = Math.min(lo, v); hi = Math.max(hi, v); }
-    }
-    if (!isFinite(lo)) { lo = 90; hi = 110; }
-    const ta = tempAxis(lo - 2, hi + 2);
+    const ta = { lo: tMin, st: (tMax - tMin) / DIVS };
     const X = (t) => L + (t - t0) / windowS * pw;
     const YT = (v) => T + ph - (v - ta.lo) / (ta.st * DIVS) * ph;
-    const YP = (v) => T + ph - v / P_MAX * ph;
+    const YP = (v) => T + ph - (v - pMin) / (pMax - pMin) * ph;
 
     // horizontal grid + axis labels (°C left, bar right)
     ctx.font = '500 12px Inter, system-ui, sans-serif';
@@ -231,9 +224,9 @@ const graph = (() => {
       ctx.strokeStyle = colors.grid;
       ctx.beginPath(); ctx.moveTo(L, y); ctx.lineTo(L + pw, y); ctx.stroke();
       ctx.fillStyle = colors.temp; ctx.textAlign = 'right';
-      ctx.fillText(ta.lo + i * ta.st, L - 5, y);
+      ctx.fillText(+(ta.lo + i * ta.st).toFixed(1), L - 5, y);
       ctx.fillStyle = colors.press; ctx.textAlign = 'left';
-      ctx.fillText(i * P_MAX / DIVS, L + pw + 5, y);
+      ctx.fillText(+(pMin + i * (pMax - pMin) / DIVS).toFixed(1), L + pw + 5, y);
     }
     // vertical time grid, labelled in seconds ago
     // at most 6 divisions, and labels at least 44 px apart so they never collide on narrow phones

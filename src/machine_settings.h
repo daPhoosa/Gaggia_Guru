@@ -9,5 +9,7 @@ struct MachineSettings {
   float tempKp, tempKi, tempKd;
   float pressKp, pressKi, pressKd;
   float graphWindowS;  // dashboard graph history (display only)
+  float graphTempMinC, graphTempMaxC;  // dashboard graph °C axis (display only)
+  float graphPressMinBar, graphPressMaxBar;  // dashboard graph bar axis (display only)
   // New fields go at the END (settings.cpp migrates older saved layouts).
 };

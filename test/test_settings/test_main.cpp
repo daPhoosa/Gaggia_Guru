@@ -24,6 +24,37 @@ void test_default_values() {
   TEST_ASSERT_EQUAL_FLOAT(DEFAULT_STEAM_TEMP_C, d.steamTempC);
   TEST_ASSERT_EQUAL_FLOAT(DEFAULT_BREW_PRESSURE_BAR, d.brewPressureBar);
   TEST_ASSERT_EQUAL_FLOAT(DEFAULT_GRAPH_WINDOW_S, d.graphWindowS);
+  TEST_ASSERT_EQUAL_FLOAT(10.0f, d.graphTempMinC);
+  TEST_ASSERT_EQUAL_FLOAT(160.0f, d.graphTempMaxC);
+  TEST_ASSERT_EQUAL_FLOAT(0.0f, d.graphPressMinBar);
+  TEST_ASSERT_EQUAL_FLOAT(12.0f, d.graphPressMaxBar);
+}
+
+void test_graph_axis_covers_safety_trip() {
+  // The over-temperature fault point should be visible on the default graph.
+  TEST_ASSERT_TRUE(DEFAULT_GRAPH_TEMP_MAX_C >= SAFETY_MAX_TEMP_C);
+}
+
+void test_validate_graph_axis_span() {
+  MachineSettings s = defaults();
+  s.graphTempMinC = 100;
+  s.graphTempMaxC = 105;  // in range individually, but span < 10
+  TEST_ASSERT_FALSE(validate(s, err, sizeof(err)));
+  TEST_ASSERT_EQUAL_STRING("graphTempMaxC must be at least 10 above graphTempMinC", err);
+  s.graphTempMaxC = 90;   // inverted
+  TEST_ASSERT_FALSE(validate(s, err, sizeof(err)));
+  s.graphTempMaxC = 110;  // exactly the minimum span is allowed
+  TEST_ASSERT_TRUE(validate(s, err, sizeof(err)));
+}
+
+void test_validate_graph_pressure_span() {
+  MachineSettings s = defaults();
+  s.graphPressMinBar = 6;
+  s.graphPressMaxBar = 6.5f;  // in range individually, but span < 1
+  TEST_ASSERT_FALSE(validate(s, err, sizeof(err)));
+  TEST_ASSERT_EQUAL_STRING("graphPressMaxBar must be at least 1 above graphPressMinBar", err);
+  s.graphPressMaxBar = 7;  // exactly the minimum span is allowed
+  TEST_ASSERT_TRUE(validate(s, err, sizeof(err)));
 }
 
 void test_every_field_has_a_sane_range() {
@@ -109,5 +140,8 @@ int main() {
   RUN_TEST(test_set_field_rejects_unknown_key);
   RUN_TEST(test_validate_rejects_nan_and_range);
   RUN_TEST(test_get_set_by_field);
+  RUN_TEST(test_graph_axis_covers_safety_trip);
+  RUN_TEST(test_validate_graph_axis_span);
+  RUN_TEST(test_validate_graph_pressure_span);
   return UNITY_END();
 }

@@ -22,7 +22,8 @@ void set(MachineSettings &s, const Field &f, float v);
 
 MachineSettings defaults();
 
-// Every field finite and within its range. On failure writes a message to
+// Every field finite and within its range, and cross-field rules hold
+// (each graph axis max at least its LIMIT_GRAPH_*_SPAN_MIN above its min). On failure writes a message to
 // err (if given) and returns false.
 bool validate(const MachineSettings &s, char *err, size_t errLen);
 

@@ -54,6 +54,14 @@
       <section class="card">
         <h2>Dashboard graph</h2>
         <label class="field"><span>Time window (seconds)</span><input type="number" name="graphWindowS" step="10" inputmode="numeric" required></label>
+        <div class="row2">
+          <label class="field"><span>Temp axis min (°C)</span><input type="number" name="graphTempMinC" step="1" inputmode="numeric" required></label>
+          <label class="field"><span>Temp axis max (°C)</span><input type="number" name="graphTempMaxC" step="1" inputmode="numeric" required></label>
+        </div>
+        <div class="row2">
+          <label class="field"><span>Pressure axis min (bar)</span><input type="number" name="graphPressMinBar" step="0.5" inputmode="decimal" required></label>
+          <label class="field"><span>Pressure axis max (bar)</span><input type="number" name="graphPressMaxBar" step="0.5" inputmode="decimal" required></label>
+        </div>
       </section>
 
       <button type="submit" class="primary">Save</button>
