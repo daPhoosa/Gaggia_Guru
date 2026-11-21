@@ -75,7 +75,10 @@ Outputs Logic::tick(const Inputs &in, const MachineSettings &cfg) {
       tcFails_ = 0;
       tempDt = st_.tempValid ? (now - lastTcOkMs_) / 1000.0f : 0;
       lastTcOkMs_ = now;
-      st_.tempC = in.tc.tempC;
+      // Low-pass the reading; seed from the raw value on the first sample or
+      // after the sensor recovers, so it doesn't ramp up from a stale value.
+      st_.tempC = st_.tempValid ? st_.tempC + TEMP_EMA_ALPHA * (in.tc.tempC - st_.tempC) : in.tc.tempC;
+      st_.tempRawC = in.tc.tempC;
       st_.tempValid = true;
       newTemp = true;
     } else if (++tcFails_ >= SAFETY_TC_FAIL_COUNT) {
@@ -147,10 +150,11 @@ Outputs Logic::tick(const Inputs &in, const MachineSettings &cfg) {
 
   // --- safety checks (only while controlling) ---
   if (st_.state != State::Fault && st_.state != State::Inhibited) {
-    if (st_.tempValid && st_.tempC > SAFETY_MAX_TEMP_C) {
+    // Raw reading, so the filter adds no delay to the trip.
+    if (st_.tempValid && st_.tempRawC > SAFETY_MAX_TEMP_C) {
       setFault(st_.heaterDuty <= 0 ? "Boiler over-temperature (%.1f C) with heater off - heater SSR may be shorted"
                                    : "Boiler over-temperature (%.1f C)",
-               st_.tempC);
+               st_.tempRawC);
     }
     if (pumpRunning_ && in.msSinceZeroCross > ZC_TIMEOUT_MS) {
       setFault("No zero-cross signal from the pump dimmer (check Z-C wiring / dimmer power)");

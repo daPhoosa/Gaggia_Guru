@@ -92,6 +92,8 @@
 // ---- Timing -----------------------------------------------------------------
 #define CONTROL_PERIOD_MS            50UL  // control task tick
 #define TC_READ_PERIOD_MS           200UL  // MAX31855 converts in ~100 ms
+#define TEMP_EMA_ALPHA               0.3f  // boiler temp low-pass per sample (~0.56 s time constant at 200 ms);
+                                          // feeds PID, display, heater check. Over-temp trip uses the raw reading.
 #define HEATER_WINDOW_MS           1000UL  // time-proportioning window for the SSR
 #define SWITCH_DEBOUNCE_TICKS          2   // consecutive equal samples to accept a switch change
 #define READY_BAND_C                2.0f   // "at temperature" light band (+/-)

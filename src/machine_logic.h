@@ -23,7 +23,8 @@ const char *stateName(State s);
 struct Status {
   State state;
   bool tempValid;
-  float tempC;
+  float tempC;     // EMA-filtered (TEMP_EMA_ALPHA): PID, display, heater check
+  float tempRawC;  // last good unfiltered reading: over-temperature trip
   float setpointC;
   bool pressureValid;
   float pressureBar;

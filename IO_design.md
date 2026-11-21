@@ -230,6 +230,13 @@ current for an SSR to switch them reliably. All four use the same on-board drive
   the high-limit thermostat are the backstops.
 - **Bus:** the firmware bit-bangs the bus, reading 32 bits about 1 µs per clock. It reads
   every 200 ms; the chip converts in about 100 ms.
+- **Software filtering:** each good reading goes through an EMA low-pass
+  (`TEMP_EMA_ALPHA` = 0.3 per sample, about a 0.56 s time constant). The filtered value
+  feeds the PID, the dashboard and the heating check. It matters most for the PID's
+  derivative term: with Kd = 30, a single 0.25 °C count of noise would otherwise kick the
+  heater by about 37 % for one cycle. The 155 °C over-temperature trip uses the raw reading,
+  so the filter never delays it. The filter restarts from the raw value after a sensor fault
+  clears.
 - **CS on GPIO 5:** a strapping pin that must be HIGH at reset, which matches CS's idle
   level. The brief pulses on it at boot are harmless to the MAX31855.
 - **Fault handling:** 5 consecutive bad reads latch a fault. A bad read is open circuit,

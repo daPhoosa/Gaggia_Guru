@@ -124,8 +124,35 @@ void test_ready_light_within_band() {
   TEST_ASSERT_TRUE(s.out.coffeeLight);
   TEST_ASSERT_FALSE(s.out.steamLight);
   s.tempC = DEFAULT_COFFEE_TEMP_C - READY_BAND_C - 0.5f;
-  s.run(TC_READ_PERIOD_MS);
+  s.run(2000);  // let the EMA filter settle (~0.56 s time constant)
   TEST_ASSERT_FALSE(s.out.coffeeLight);
+}
+
+void test_temp_filter_damps_spike_and_settles() {
+  Sim s;
+  s.tempC = 100;
+  s.begin();
+  s.step();
+  TEST_ASSERT_EQUAL_FLOAT(100.0f, s.st().tempC);  // first sample seeds the filter
+  s.tempC = 110;                                  // one-sample spike
+  s.run(TC_READ_PERIOD_MS);
+  TEST_ASSERT_FLOAT_WITHIN(0.01f, 100.0f + TEMP_EMA_ALPHA * 10, s.st().tempC);
+  TEST_ASSERT_EQUAL_FLOAT(110.0f, s.st().tempRawC);
+  s.tempC = 100;
+  s.run(3000);
+  TEST_ASSERT_FLOAT_WITHIN(0.1f, 100.0f, s.st().tempC);
+}
+
+void test_over_temp_trips_on_raw_reading() {
+  // The trip must not wait for the filter: one raw sample over the limit faults.
+  Sim s;
+  s.tempC = SAFETY_MAX_TEMP_C - 10;
+  s.begin();
+  s.run(1000);
+  s.tempC = SAFETY_MAX_TEMP_C + 1;
+  s.run(TC_READ_PERIOD_MS);
+  TEST_ASSERT_TRUE(s.st().tempC < SAFETY_MAX_TEMP_C);  // filtered value still below
+  TEST_ASSERT_EQUAL(State::Fault, s.st().state);
 }
 
 void test_heater_off_above_setpoint() {
@@ -519,6 +546,8 @@ int main() {
   UNITY_BEGIN();
   RUN_TEST(test_starts_idle_and_heats_to_coffee_setpoint);
   RUN_TEST(test_ready_light_within_band);
+  RUN_TEST(test_temp_filter_damps_spike_and_settles);
+  RUN_TEST(test_over_temp_trips_on_raw_reading);
   RUN_TEST(test_heater_off_above_setpoint);
   RUN_TEST(test_heater_time_proportioning);
   RUN_TEST(test_brewing_after_switch_cycle);
