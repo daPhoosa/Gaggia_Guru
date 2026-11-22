@@ -8,7 +8,11 @@
 // ---------------------------------------------------------------------------
 
 // ---- User-adjustable defaults ---------------------------------------------
-#define DEFAULT_COFFEE_TEMP_C     107.0f
+#define DEFAULT_COFFEE_TEMP_C      93.0f   // brew water at the portafilter
+// Brew Temp Offset: how much hotter the boiler thermocouple reads than the
+// water at the portafilter. Coffee mode: PID target = coffee temp + offset and
+// the dashboard shows thermocouple - offset. Steam / hot water ignore it.
+#define DEFAULT_BREW_TEMP_OFFSET_C  7.0f
 #define DEFAULT_STEAM_TEMP_C      145.0f
 #define DEFAULT_BREW_PRESSURE_BAR   6.0f
 
@@ -35,6 +39,8 @@
 // Allowed ranges for user settings (the API rejects values outside these).
 #define LIMIT_COFFEE_TEMP_MIN      80.0f
 #define LIMIT_COFFEE_TEMP_MAX     120.0f
+#define LIMIT_BREW_TEMP_OFFSET_MIN -10.0f  // coffee max + offset max stays well below SAFETY_MAX_TEMP_C
+#define LIMIT_BREW_TEMP_OFFSET_MAX  20.0f
 #define LIMIT_STEAM_TEMP_MIN      120.0f
 #define LIMIT_STEAM_TEMP_MAX      150.0f   // keep well below SAFETY_MAX_TEMP_C
 #define LIMIT_PRESSURE_MIN          1.0f

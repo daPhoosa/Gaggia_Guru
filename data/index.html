@@ -29,13 +29,13 @@
         <span id="mState" class="state">–</span>
       </div>
       <div class="gauges">
-        <div class="gauge"><small>Boiler</small><b id="mTemp">–</b><span id="mSet">&nbsp;</span></div>
+        <div class="gauge"><small id="mTempL">Boiler</small><b id="mTemp">–</b><span id="mSet">&nbsp;</span></div>
         <div class="gauge"><small>Pressure</small><b id="mPress">–</b><span id="mPressT">&nbsp;</span></div>
         <div class="gauge"><small>Shot</small><b id="mShot">–</b><span>seconds</span></div>
       </div>
-      <canvas id="mGraph" class="graph" aria-label="Boiler temperature and brew pressure over time"></canvas>
+      <canvas id="mGraph" class="graph" aria-label="Temperature and brew pressure over time"></canvas>
       <div class="legend">
-        <span><i class="sw temp"></i>Boiler °C</span>
+        <span><i class="sw temp"></i>Temp °C</span>
         <span><i class="sw temp dash"></i>Target °C</span>
         <span><i class="sw press"></i>Pressure bar</span>
         <span><i class="sw press dash"></i>Target bar</span>

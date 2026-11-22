@@ -26,6 +26,7 @@ const Field kFields[] = {
     {"graphTempMaxC", offsetof(MachineSettings, graphTempMaxC), LIMIT_GRAPH_TEMP_MIN, LIMIT_GRAPH_TEMP_MAX},
     {"graphPressMinBar", offsetof(MachineSettings, graphPressMinBar), LIMIT_GRAPH_PRESS_MIN, LIMIT_GRAPH_PRESS_MAX},
     {"graphPressMaxBar", offsetof(MachineSettings, graphPressMaxBar), LIMIT_GRAPH_PRESS_MIN, LIMIT_GRAPH_PRESS_MAX},
+    {"brewTempOffsetC", offsetof(MachineSettings, brewTempOffsetC), LIMIT_BREW_TEMP_OFFSET_MIN, LIMIT_BREW_TEMP_OFFSET_MAX},
 };
 constexpr size_t kCount = sizeof(kFields) / sizeof(kFields[0]);
 static_assert(kCount * sizeof(float) == sizeof(MachineSettings),
@@ -73,6 +74,7 @@ MachineSettings defaults() {
   s.graphTempMaxC = DEFAULT_GRAPH_TEMP_MAX_C;
   s.graphPressMinBar = DEFAULT_GRAPH_PRESS_MIN_BAR;
   s.graphPressMaxBar = DEFAULT_GRAPH_PRESS_MAX_BAR;
+  s.brewTempOffsetC = DEFAULT_BREW_TEMP_OFFSET_C;
   return s;
 }
 

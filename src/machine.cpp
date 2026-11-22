@@ -138,9 +138,18 @@ String json() {
   JsonDocument doc;
   doc["type"] = "machine";
   doc["state"] = stateName(s.state);
-  if (s.tempValid) doc["temp"] = serialized(String(s.tempC, 2));
-  else doc["temp"] = nullptr;
+  // temp / setpoint are relative to the user target (coffee mode: water at the
+  // portafilter); boilerTemp / boilerSetpoint are the thermocouple values.
+  if (s.tempValid) {
+    doc["temp"] = serialized(String(Machine::displayTempC(s), 2));
+    doc["boilerTemp"] = serialized(String(s.tempC, 2));
+  } else {
+    doc["temp"] = nullptr;
+    doc["boilerTemp"] = nullptr;
+  }
   doc["setpoint"] = s.setpointC;
+  doc["boilerSetpoint"] = s.boilerSetpointC;
+  doc["tempOffset"] = s.tempOffsetC;
   if (s.pressureValid) doc["pressure"] = serialized(String(s.pressureBar, 2));
   else doc["pressure"] = nullptr;
   doc["pressureTarget"] = s.pressureTargetBar;

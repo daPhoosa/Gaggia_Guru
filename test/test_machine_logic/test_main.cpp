@@ -16,6 +16,9 @@ using Machine::Status;
 void setUp() {}
 void tearDown() {}
 
+// Thermocouple reading that puts the boiler at the coffee target (brew temp offset applied).
+constexpr float kCoffeeBoilerC = DEFAULT_COFFEE_TEMP_C + DEFAULT_BREW_TEMP_OFFSET_C;
+
 static float pinMvForBar(float bar) {
   const float sensorV = PRESSURE_V_MIN + bar / PRESSURE_FULL_SCALE_BAR * (PRESSURE_V_MAX - PRESSURE_V_MIN);
   return sensorV * 1000.0f * PRESSURE_DIVIDER_RATIO;
@@ -30,7 +33,7 @@ struct Sim {
   // "hardware"
   uint32_t now = 10000;
   bool coffee = false, steam = false;
-  float tempC = DEFAULT_COFFEE_TEMP_C;
+  float tempC = kCoffeeBoilerC;  // thermocouple
   const char *tcError = nullptr;  // non-null: thermocouple reads fail with this
   float pinMv = pinMvForBar(0);
   float supplyPinMv = 0;          // > 0: ADS1115-style reading with supply measurement
@@ -118,12 +121,12 @@ void test_starts_idle_and_heats_to_coffee_setpoint() {
 
 void test_ready_light_within_band() {
   Sim s;
-  s.tempC = DEFAULT_COFFEE_TEMP_C - READY_BAND_C + 0.25f;
+  s.tempC = kCoffeeBoilerC - READY_BAND_C + 0.25f;
   s.begin();
   s.step();
   TEST_ASSERT_TRUE(s.out.coffeeLight);
   TEST_ASSERT_FALSE(s.out.steamLight);
-  s.tempC = DEFAULT_COFFEE_TEMP_C - READY_BAND_C - 0.5f;
+  s.tempC = kCoffeeBoilerC - READY_BAND_C - 0.5f;
   s.run(2000);  // let the EMA filter settle (~0.56 s time constant)
   TEST_ASSERT_FALSE(s.out.coffeeLight);
 }
@@ -157,7 +160,7 @@ void test_over_temp_trips_on_raw_reading() {
 
 void test_heater_off_above_setpoint() {
   Sim s;
-  s.tempC = DEFAULT_COFFEE_TEMP_C + 5;
+  s.tempC = kCoffeeBoilerC + 5;
   s.begin();
   s.run(HEATER_WINDOW_MS);
   TEST_ASSERT_EQUAL_FLOAT(0.0f, s.st().heaterDuty);
@@ -169,7 +172,7 @@ void test_heater_time_proportioning() {
   s.cfg.tempKp = 10;  // 10 %/C, no I/D: 5 C below setpoint -> 50 %
   s.cfg.tempKi = 0;
   s.cfg.tempKd = 0;
-  s.tempC = DEFAULT_COFFEE_TEMP_C - 5;
+  s.tempC = kCoffeeBoilerC - 5;
   s.begin();
   s.run(HEATER_WINDOW_MS);  // settle into window alignment
   int on = 0, ticks = 0;
@@ -542,6 +545,79 @@ void test_mains_frequency() {
   TEST_ASSERT_FLOAT_WITHIN(0.5f, 60.0f, s.st().mainsHz);
 }
 
+// ---- brew temp offset ------------------------------------------------------------
+void test_brew_offset_in_coffee_mode() {
+  Sim s;
+  s.tempC = 100;  // thermocouple
+  s.begin();
+  s.step();
+  ASSERT_STATE(State::Idle, s);
+  TEST_ASSERT_EQUAL_FLOAT(DEFAULT_COFFEE_TEMP_C, s.st().setpointC);  // shown target
+  TEST_ASSERT_EQUAL_FLOAT(DEFAULT_BREW_TEMP_OFFSET_C, s.st().tempOffsetC);
+  TEST_ASSERT_EQUAL_FLOAT(kCoffeeBoilerC, s.st().boilerSetpointC);    // PID target
+  TEST_ASSERT_EQUAL_FLOAT(100.0f - DEFAULT_BREW_TEMP_OFFSET_C, Machine::displayTempC(s.st()));
+
+  // Shown temp at the target but thermocouple below target + offset: still heating.
+  s.cfg.tempKp = 10;
+  s.cfg.tempKi = 0;
+  s.cfg.tempKd = 0;
+  s.cfg.coffeeTempC = 95;
+  s.cfg.brewTempOffsetC = 10;
+  s.tempC = 100;  // shows 90, PID target 105
+  s.run(HEATER_WINDOW_MS);
+  TEST_ASSERT_EQUAL_FLOAT(90.0f, Machine::displayTempC(s.st()));
+  TEST_ASSERT_EQUAL_FLOAT(105.0f, s.st().boilerSetpointC);
+  TEST_ASSERT_EQUAL_FLOAT(50.0f, s.st().heaterDuty);  // 5 C below 105 at 10 %/C
+  TEST_ASSERT_FALSE(s.out.coffeeLight);
+
+  // Offset carries into BREWING.
+  s.setCoffee(true);
+  ASSERT_STATE(State::Brewing, s);
+  TEST_ASSERT_EQUAL_FLOAT(105.0f, s.st().boilerSetpointC);
+  TEST_ASSERT_EQUAL_FLOAT(10.0f, s.st().tempOffsetC);
+}
+
+void test_brew_offset_ready_light_uses_offset_target() {
+  Sim s;
+  s.tempC = DEFAULT_COFFEE_TEMP_C;  // shown temp would be 7 C low
+  s.begin();
+  s.step();
+  TEST_ASSERT_FALSE(s.out.coffeeLight);
+  s.tempC = kCoffeeBoilerC;
+  s.run(2000);
+  TEST_ASSERT_TRUE(s.out.coffeeLight);
+}
+
+void test_steam_ignores_brew_offset() {
+  Sim s;
+  s.tempC = DEFAULT_STEAM_TEMP_C;
+  s.begin();
+  s.step();
+  s.setSteam(true);
+  s.run(TC_READ_PERIOD_MS);
+  ASSERT_STATE(State::Steam, s);
+  TEST_ASSERT_EQUAL_FLOAT(0.0f, s.st().tempOffsetC);
+  TEST_ASSERT_EQUAL_FLOAT(DEFAULT_STEAM_TEMP_C, s.st().boilerSetpointC);
+  TEST_ASSERT_EQUAL_FLOAT(DEFAULT_STEAM_TEMP_C, Machine::displayTempC(s.st()));
+  TEST_ASSERT_TRUE(s.out.steamLight);
+  s.setCoffee(true);  // HOT_WATER: also no offset
+  ASSERT_STATE(State::HotWater, s);
+  TEST_ASSERT_EQUAL_FLOAT(0.0f, s.st().tempOffsetC);
+  TEST_ASSERT_EQUAL_FLOAT(DEFAULT_STEAM_TEMP_C, s.st().boilerSetpointC);
+}
+
+void test_over_temp_trip_ignores_brew_offset() {
+  // A large offset makes the shown temp read low; the trip uses the thermocouple.
+  Sim s;
+  s.cfg.brewTempOffsetC = LIMIT_BREW_TEMP_OFFSET_MAX;
+  s.tempC = SAFETY_MAX_TEMP_C + 1;
+  s.begin();
+  s.step();
+  TEST_ASSERT_TRUE(Machine::displayTempC(s.st()) < SAFETY_MAX_TEMP_C);
+  assertFaultContains(s, "over-temperature");
+  assertAllLoadsOff(s);
+}
+
 int main() {
   UNITY_BEGIN();
   RUN_TEST(test_starts_idle_and_heats_to_coffee_setpoint);
@@ -550,6 +626,10 @@ int main() {
   RUN_TEST(test_over_temp_trips_on_raw_reading);
   RUN_TEST(test_heater_off_above_setpoint);
   RUN_TEST(test_heater_time_proportioning);
+  RUN_TEST(test_brew_offset_in_coffee_mode);
+  RUN_TEST(test_brew_offset_ready_light_uses_offset_target);
+  RUN_TEST(test_steam_ignores_brew_offset);
+  RUN_TEST(test_over_temp_trip_ignores_brew_offset);
   RUN_TEST(test_brewing_after_switch_cycle);
   RUN_TEST(test_pump_backs_off_when_over_pressure);
   RUN_TEST(test_coffee_on_at_boot_needs_cycle);

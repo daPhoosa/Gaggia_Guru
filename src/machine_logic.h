@@ -23,9 +23,11 @@ const char *stateName(State s);
 struct Status {
   State state;
   bool tempValid;
-  float tempC;     // EMA-filtered (TEMP_EMA_ALPHA): PID, display, heater check
-  float tempRawC;  // last good unfiltered reading: over-temperature trip
-  float setpointC;
+  float tempC;     // thermocouple, EMA-filtered (TEMP_EMA_ALPHA): PID, heater check
+  float tempRawC;  // thermocouple, last good unfiltered reading: over-temperature trip
+  float tempOffsetC;      // brew temp offset in use: cfg.brewTempOffsetC in coffee mode, 0 in steam / hot water
+  float setpointC;        // user target as displayed (coffee = water at the portafilter)
+  float boilerSetpointC;  // PID target on the thermocouple = setpointC + tempOffsetC
   bool pressureValid;
   float pressureBar;
   float pressureTargetBar;  // 0 unless brewing
@@ -42,6 +44,10 @@ struct Status {
   char fault[112];          // empty unless FAULT
   char inhibitReason[32];   // filled in by machine.cpp
 };
+
+// Temperature shown to the user: thermocouple minus the brew temp offset in
+// coffee mode (estimated water at the portafilter), plain thermocouple otherwise.
+inline float displayTempC(const Status &s) { return s.tempC - s.tempOffsetC; }
 
 // Everything the logic needs from the hardware for one tick.
 struct Inputs {

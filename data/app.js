@@ -134,6 +134,9 @@ function renderMachine(m) {
 
   // "Ready" (boiler at temperature) is a real machine state: success color + icon + label.
   const ready = m.coffeeLight || m.steamLight;
+  // Coffee mode: temp / setpoint are the water at the portafilter (thermocouple
+  // minus the brew temp offset). Steam / hot water: the thermocouple itself.
+  $('#mTempL').textContent = +m.tempOffset ? 'Brew water' : 'Boiler';
   $('#mTemp').textContent = m.temp == null ? '–' : (+m.temp).toFixed(1) + '°';
   const set = $('#mSet');
   set.classList.toggle('ok', !!ready);
@@ -145,6 +148,8 @@ function renderMachine(m) {
 
   const on = (b) => b ? 'On' : 'Off';
   fillKv('#mInfo', [
+    ['Thermocouple', (m.boilerTemp == null ? '–' : (+m.boilerTemp).toFixed(1) + '°')
+                     + ` · target ${(+m.boilerSetpoint).toFixed(1)}°`],
     ['Heater', `${(+m.heaterDuty).toFixed(0)} %`],
     ['Pump', `${m.pump} %`],
     ['Valve', m.valve ? 'Open' : 'Closed'],

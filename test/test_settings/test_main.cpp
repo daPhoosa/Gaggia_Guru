@@ -20,7 +20,8 @@ void test_defaults_are_valid() {
 
 void test_default_values() {
   MachineSettings d = defaults();
-  TEST_ASSERT_EQUAL_FLOAT(DEFAULT_COFFEE_TEMP_C, d.coffeeTempC);
+  TEST_ASSERT_EQUAL_FLOAT(93.0f, d.coffeeTempC);
+  TEST_ASSERT_EQUAL_FLOAT(7.0f, d.brewTempOffsetC);
   TEST_ASSERT_EQUAL_FLOAT(DEFAULT_STEAM_TEMP_C, d.steamTempC);
   TEST_ASSERT_EQUAL_FLOAT(DEFAULT_BREW_PRESSURE_BAR, d.brewPressureBar);
   TEST_ASSERT_EQUAL_FLOAT(DEFAULT_GRAPH_WINDOW_S, d.graphWindowS);
@@ -69,6 +70,8 @@ void test_steam_limit_below_safety_trip() {
   // A user setpoint must never be able to reach the over-temperature fault.
   TEST_ASSERT_TRUE(find("steamTempC")->max < SAFETY_MAX_TEMP_C);
   TEST_ASSERT_TRUE(find("coffeeTempC")->max < SAFETY_MAX_TEMP_C);
+  // Coffee mode PID target is coffee temp + brew temp offset.
+  TEST_ASSERT_TRUE(find("coffeeTempC")->max + find("brewTempOffsetC")->max < SAFETY_MAX_TEMP_C);
 }
 
 void test_set_field_accepts_valid_text() {

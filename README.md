@@ -130,7 +130,7 @@ pointed at the machine. POSTs sent to any other name, including through a revers
 `403`. From a script:
 
 ```sh
-curl -u admin:PASSWORD -H 'X-Guru: 1' -d coffeeTempC=106 http://gaggia-guru.local/api/settings
+curl -u admin:PASSWORD -H 'X-Guru: 1' -d coffeeTempC=93 http://gaggia-guru.local/api/settings
 ```
 
 The server sends no CORS headers, so other sites can't read the API either.
@@ -156,14 +156,21 @@ Each active line must be:
 
 ## Machine operation
 
-| Coffee | Steam | State       | Boiler target | Pump                 | Valve  |
-|--------|-------|-------------|---------------|----------------------|--------|
-| off    | off   | `IDLE`      | coffee (107 °C) | off                | closed |
-| on     | off   | `BREWING`   | coffee        | PID to brew pressure (6 bar) | open |
-| off    | on    | `STEAM`     | steam (145 °C)  | off                | closed |
-| on     | on    | `HOT_WATER` | steam         | 100 %                | closed |
+| Coffee | Steam | State       | Boiler target (thermocouple) | Pump        | Valve  |
+|--------|-------|-------------|------------------------------|-------------|--------|
+| off    | off   | `IDLE`      | coffee + offset (93 + 7 = 100 °C) | off    | closed |
+| on     | off   | `BREWING`   | coffee + offset              | PID to brew pressure (6 bar) | open |
+| off    | on    | `STEAM`     | steam (145 °C)               | off         | closed |
+| on     | on    | `HOT_WATER` | steam                        | 100 %       | closed |
 
-- **Lights:** the active mode's light is on when the boiler is within ±2 °C of its target.
+- **Brew Temp Offset** (default 7 °C, range -10 to 20 °C): how much hotter the boiler
+  thermocouple reads than the water at the portafilter. The Coffee setting (default 93 °C) is
+  the water temperature; in coffee mode the heater PID aims for Coffee + offset and the
+  dashboard shows thermocouple − offset, so the reading compares directly with the target.
+  Steam and hot water ignore the offset. Safety checks always use the thermocouple; the
+  dashboard's Thermocouple row shows the raw reading and target.
+
+- **Lights:** the active mode's light is on when the thermocouple is within ±2 °C of its target.
   Both blink on a fault.
 - **Coffee switch arming:** if the Coffee switch is on at power-up (or after an update),
   it is ignored until turned off and on again. The pump also stops after 120 s of

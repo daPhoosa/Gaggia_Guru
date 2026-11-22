@@ -20,10 +20,13 @@
     <form id="setForm">
       <section class="card">
         <h2>Temperatures</h2>
+        <p class="muted">Coffee is the water temperature at the portafilter. In coffee mode the boiler aims for Coffee + Brew Temp Offset. Steam uses the boiler temperature directly.</p>
         <div class="row2">
           <label class="field"><span>Coffee (°C)</span><input type="number" name="coffeeTempC" step="0.5" inputmode="decimal" required></label>
           <label class="field"><span>Steam (°C)</span><input type="number" name="steamTempC" step="0.5" inputmode="decimal" required></label>
         </div>
+        <!-- no inputmode: the iOS decimal keypad has no minus sign, and the offset can be negative -->
+        <label class="field"><span>Brew Temp Offset (°C)</span><input type="number" name="brewTempOffsetC" step="0.5" required></label>
       </section>
 
       <section class="card">

@@ -6,11 +6,12 @@
 #include <freertos/semphr.h>
 #include <stddef.h>
 
+#include "machine_config.h"
 #include "settings_schema.h"
 
 namespace {
 
-constexpr uint16_t kVersion = 4;  // bump when MachineSettings layout changes
+constexpr uint16_t kVersion = 5;  // bump when MachineSettings layout changes
 
 struct Stored {
   uint16_t version;
@@ -19,7 +20,7 @@ struct Stored {
 
 // Older layouts: the first N floats of MachineSettings (fields are only ever
 // appended). v1 = 9 (no graphWindowS), v2 = 10 (no graph °C axis),
-// v3 = 12 (no graph bar axis).
+// v3 = 12 (no graph bar axis), v4 = 14 (no brewTempOffsetC).
 template <size_t N>
 struct StoredOld {
   uint16_t version;
@@ -28,12 +29,15 @@ struct StoredOld {
 using StoredV1 = StoredOld<9>;
 using StoredV2 = StoredOld<10>;
 using StoredV3 = StoredOld<12>;
+using StoredV4 = StoredOld<14>;
 static_assert(offsetof(MachineSettings, graphWindowS) == sizeof(StoredV1::f),
               "v1 migration assumes new fields were appended");
 static_assert(offsetof(MachineSettings, graphTempMinC) == sizeof(StoredV2::f),
               "v2 migration assumes new fields were appended");
 static_assert(offsetof(MachineSettings, graphPressMinBar) == sizeof(StoredV3::f),
               "v3 migration assumes new fields were appended");
+static_assert(offsetof(MachineSettings, brewTempOffsetC) == sizeof(StoredV4::f),
+              "v4 migration assumes new fields were appended");
 
 // Load an older layout into st (new fields get their defaults). False if the
 // blob isn't that version.
@@ -83,6 +87,9 @@ void begin() {
   int migratedFrom = 0;
   if (len == sizeof(st)) {
     n = p.getBytes("settings", &st, sizeof(st));
+  } else if (len == sizeof(StoredV4) && loadOld<14>(p, 4, st)) {
+    n = sizeof(st);
+    migratedFrom = 4;
   } else if (len == sizeof(StoredV3) && loadOld<12>(p, 3, st)) {
     n = sizeof(st);
     migratedFrom = 3;
@@ -95,6 +102,9 @@ void begin() {
   }
   p.end();
   const bool migrated = migratedFrom != 0;
+  // Before v5, coffeeTempC was the thermocouple target (default 107 C). It is
+  // now the water temp at the portafilter, so start again from the default.
+  if (migrated) st.s.coffeeTempC = DEFAULT_COFFEE_TEMP_C;
 
   String err;
   if (n == sizeof(st) && st.version == kVersion && validate(st.s, err)) {

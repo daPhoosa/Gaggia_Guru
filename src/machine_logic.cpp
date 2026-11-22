@@ -145,7 +145,13 @@ Outputs Logic::tick(const Inputs &in, const MachineSettings &cfg) {
   }
   if (st_.state == State::Brewing) st_.shotMs = now - shotStartMs_;
 
-  st_.setpointC = isSteamState(st_.state) ? cfg.steamTempC : cfg.coffeeTempC;
+  // Coffee mode: the user target is the water at the portafilter, which runs
+  // brewTempOffsetC cooler than the thermocouple. Steam / hot water: no offset.
+  // Safety checks below always use the thermocouple directly.
+  const bool steamMode = isSteamState(st_.state);
+  st_.setpointC = steamMode ? cfg.steamTempC : cfg.coffeeTempC;
+  st_.tempOffsetC = steamMode ? 0 : cfg.brewTempOffsetC;
+  st_.boilerSetpointC = st_.setpointC + st_.tempOffsetC;
   st_.pressureTargetBar = st_.state == State::Brewing ? cfg.brewPressureBar : 0;
 
   // --- safety checks (only while controlling) ---
@@ -201,7 +207,7 @@ Outputs Logic::tick(const Inputs &in, const MachineSettings &cfg) {
     if (!st_.tempValid) {
       st_.heaterDuty = 0;
     } else if (newTemp) {
-      st_.heaterDuty = tempPid_.update(st_.setpointC, st_.tempC, tempDt > 0 ? tempDt : TC_READ_PERIOD_MS / 1000.0f);
+      st_.heaterDuty = tempPid_.update(st_.boilerSetpointC, st_.tempC, tempDt > 0 ? tempDt : TC_READ_PERIOD_MS / 1000.0f);
     }
     if (now - heaterWindowStart_ >= HEATER_WINDOW_MS) heaterWindowStart_ = now;
     st_.heaterOn = (now - heaterWindowStart_) < static_cast<uint32_t>(st_.heaterDuty * (HEATER_WINDOW_MS / 100.0f));
@@ -216,7 +222,7 @@ Outputs Logic::tick(const Inputs &in, const MachineSettings &cfg) {
     st_.valveOn = st_.state == State::Brewing;
 
     // Ready lights: the active mode's light is on within +/- READY_BAND_C of its setpoint.
-    const bool ready = st_.tempValid && fabsf(st_.tempC - st_.setpointC) <= READY_BAND_C;
+    const bool ready = st_.tempValid && fabsf(st_.tempC - st_.boilerSetpointC) <= READY_BAND_C;
     st_.coffeeLight = ready && !isSteamState(st_.state);
     st_.steamLight = ready && isSteamState(st_.state);
   }
