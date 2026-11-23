@@ -25,8 +25,8 @@ The carrier board that implements this is the KiCad 10 project in [`PCB/`](PCB/)
 | Steam light relay | 14 | Out | `PIN_STEAM_LIGHT` | Steam lamp relay coil (via driver, §3.1) | `OUTPUT`, LOW at boot |
 | Coffee switch | 16 | In | `PIN_COFFEE_SW` | Coffee switch (3.3 V = on) | `INPUT_PULLDOWN` |
 | Steam switch | 17 | In | `PIN_STEAM_SW` | Steam switch (3.3 V = on) | `INPUT_PULLDOWN` |
-| Thermocouple SCK | 18 | Out | `PIN_SPI_SCK` | MAX31855K `SCK` | `OUTPUT` (bit-banged) |
-| Thermocouple SO | 19 | In | `PIN_SPI_MISO` | MAX31855K `SO` / `DO` | `INPUT` |
+| Thermocouple SCK | 18 | Out | `PIN_SPI_SCK` | MAX31855K `SCK` | VSPI `SCK` (hardware SPI) |
+| Thermocouple SO | 19 | In | `PIN_SPI_MISO` | MAX31855K `SO` / `DO` | VSPI `MISO` |
 | Thermocouple CS | 5 | Out | `PIN_TC_CS` | MAX31855K `CS` | `OUTPUT`, idles HIGH |
 | Status LED | 2 | Out | `PIN_STATUS_LED` | On-board LED | `OUTPUT` |
 | USB serial TX / RX | 1 / 3 | — | `PIN_UART0_TX/RX` | USB-UART bridge | UART0 |
@@ -228,8 +228,9 @@ current for an SSR to switch them reliably. All four use the same on-board drive
 - **Mounting:** firm mechanical contact with thermal paste, and strain-relieve the lead. A
   loose probe reads low, which drives the heater flat out; the firmware's heating check and
   the high-limit thermostat are the backstops.
-- **Bus:** the firmware bit-bangs the bus, reading 32 bits about 1 µs per clock. It reads
-  every 200 ms; the chip converts in about 100 ms.
+- **Bus:** the hardware VSPI peripheral (Arduino `SPI`, mode 0) at 1 MHz
+  (`TC_SPI_CLOCK_HZ`, chip max 5 MHz), so a 32-bit read takes about 32 µs. CS is driven by
+  hand on GPIO 5. It reads every 200 ms; the chip converts in about 100 ms.
 - **Software filtering:** each good reading goes through an EMA low-pass
   (`TEMP_EMA_ALPHA` = 0.3 per sample, about a 0.56 s time constant). The filtered value
   feeds the PID, the dashboard and the heating check. It matters most for the PID's
@@ -344,10 +345,12 @@ Not used by the firmware yet; for a future display, SD card or other SPI device.
 - **Shared with the thermocouple:** the MAX31855 sits on SCK/MISO with its own CS (GPIO 5). Its
   SO output is high-impedance while its CS is high, so it doesn't load the bus. It's limited to
   5 MHz, so each device needs its own SPI clock setting (Arduino `SPI.beginTransaction`).
-- **Firmware needed before use:** the MAX31855 is currently bit-banged on GPIO 18/19. A device
-  on J13 needs the hardware VSPI peripheral on those pins, so the thermocouple read must
-  move to the same `SPIClass` (at ≤ 5 MHz), with a mutex shared by the control task and
-  whoever drives the J13 device.
+- **Firmware:** the thermocouple already uses the hardware VSPI peripheral (global `SPI`),
+  and MOSI (GPIO 23) is attached and idles low. A J13 device's driver must use the same `SPI`
+  object with `SPI.beginTransaction()` / `endTransaction()` and its own CS. The transaction
+  holds the SPI library's bus mutex, so it is serialised with the control task's thermocouple
+  reads. Keep each transaction short (chunk long display or SD transfers), because the
+  control task waits for the bus.
 - **Cable:** the 33 Ω series resistors damp ringing on SCK and MOSI. Keep the cable short
   (< 15 cm) at display speeds.
 - **Display extras:** most SPI TFT/OLED displays also need DC (and RST): use J12's GPIO 32 / 33.

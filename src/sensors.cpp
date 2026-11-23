@@ -3,36 +3,35 @@
 #include "io_pins.h"
 #include "machine_config.h"
 
+#include <SPI.h>
 #include <Wire.h>
 
 namespace Sensors {
 
 // ---------------------------------------------------------------------------
-// MAX31855K: 32-bit frame, MSB first, data valid while SCK is low.
-// Frame layout and decoding: sensor_math.cpp.
+// MAX31855K on the hardware VSPI bus (global `SPI`): 32-bit read-only frame,
+// MSB first, SPI mode 0, max 5 MHz. Frame layout and decoding: sensor_math.cpp.
+//
+// Bus sharing: SPI.beginTransaction() takes the SPI library's bus mutex and
+// sets this device's clock/mode; it is held until endTransaction(). Any other
+// device on the bus (spare port J13) must also use transactions and its own
+// CS, and keep each transaction short so the control task isn't held up.
 // ---------------------------------------------------------------------------
 void beginThermocouple() {
   pinMode(PIN_TC_CS, OUTPUT);
   digitalWrite(PIN_TC_CS, HIGH);
-  pinMode(PIN_SPI_SCK, OUTPUT);
-  digitalWrite(PIN_SPI_SCK, LOW);
-  pinMode(PIN_SPI_MISO, INPUT);
+  // CS is driven by hand (not the SPI hardware CS), so the bus can carry more
+  // devices. SPI.begin() also attaches MOSI (GPIO 23, J13); the MAX31855
+  // ignores it, and transfer32(0) keeps it low.
+  SPI.begin(PIN_SPI_SCK, PIN_SPI_MISO, PIN_SPI_MOSI, -1);
 }
 
 static uint32_t readFrame() {
-  uint32_t v = 0;
-  digitalWrite(PIN_SPI_SCK, LOW);
+  SPI.beginTransaction(SPISettings(TC_SPI_CLOCK_HZ, MSBFIRST, SPI_MODE0));
   digitalWrite(PIN_TC_CS, LOW);
-  delayMicroseconds(2);
-  for (int i = 0; i < 32; ++i) {
-    digitalWrite(PIN_SPI_SCK, LOW);
-    delayMicroseconds(2);
-    v = (v << 1) | (digitalRead(PIN_SPI_MISO) ? 1u : 0u);
-    digitalWrite(PIN_SPI_SCK, HIGH);
-    delayMicroseconds(2);
-  }
-  digitalWrite(PIN_SPI_SCK, LOW);
+  const uint32_t v = SPI.transfer32(0);
   digitalWrite(PIN_TC_CS, HIGH);
+  SPI.endTransaction();
   return v;
 }
 

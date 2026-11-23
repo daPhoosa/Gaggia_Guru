@@ -6,7 +6,7 @@
 // Sensor drivers used only by the control task (not thread-safe on their own).
 namespace Sensors {
 
-// MAX31855K thermocouple (bit-banged SPI, read-only)
+// MAX31855K thermocouple (hardware VSPI bus, read-only; bus-sharing rules in sensors.cpp)
 void beginThermocouple();
 TcReading readThermocouple();
 

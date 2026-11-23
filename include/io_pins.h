@@ -59,7 +59,7 @@
 //                          (then 5V)
 
 // ---- Right header (top to bottom): GND, then -------------------------------
-#define PIN_SPI_MOSI      23  // SPI_MOSI | Unused | Spare SPI port J13 MOSI (VSPI, via 33R). Not used by firmware yet
+#define PIN_SPI_MOSI      23  // SPI_MOSI | Unused | Spare SPI port J13 MOSI (VSPI, via 33R). Attached to VSPI (idles low); no device uses it yet
 #define PIN_I2C_SCL       22  // I2C_SCL | Communications | I2C bus: ADS1115 pressure ADC, OLED, tank sensor
 #define PIN_UART0_TX       1  // UART0_TX | Communications | Board TX0. USB serial / programming
 #define PIN_UART0_RX       3  // UART0_RX | Communications | Board RX0. USB serial / programming
