@@ -2,6 +2,7 @@
 
 #include <ArduinoJson.h>
 #include <esp_task_wdt.h>
+#include <esp_timer.h>
 
 #include "io_pins.h"
 #include "pump.h"
@@ -17,6 +18,7 @@ portMUX_TYPE statusLock = portMUX_INITIALIZER_UNLOCKED;
 Machine::Status shared{};               // published copy, guarded by statusLock
 volatile bool inhibited = false;
 char inhibitReason[32] = "";            // guarded by statusLock
+Machine::TickStats tickStats{};         // guarded by statusLock
 
 // ---- control-task private state -------------------------------------------
 Machine::Logic logic;
@@ -71,10 +73,26 @@ void tick() {
 void controlTask(void *) {
   esp_task_wdt_add(nullptr);
   TickType_t last = xTaskGetTickCount();
+  constexpr uint32_t kStatsTicks = 1000 / CONTROL_PERIOD_MS;  // publish timing once a second
+  uint64_t sumUs = 0;
+  uint32_t maxUs = 0, peakUs = 0, n = 0;
   for (;;) {
     vTaskDelayUntil(&last, pdMS_TO_TICKS(CONTROL_PERIOD_MS));
     esp_task_wdt_reset();
+    const int64_t t0 = esp_timer_get_time();
     tick();
+    // Wall time, so it includes any time the task was preempted mid-tick.
+    const uint32_t us = static_cast<uint32_t>(esp_timer_get_time() - t0);
+    sumUs += us;
+    if (us > maxUs) maxUs = us;
+    if (us > peakUs) peakUs = us;
+    if (++n >= kStatsTicks) {
+      portENTER_CRITICAL(&statusLock);
+      tickStats = {static_cast<uint32_t>(sumUs / n), maxUs, peakUs};
+      portEXIT_CRITICAL(&statusLock);
+      sumUs = 0;
+      maxUs = n = 0;
+    }
   }
 }
 
@@ -124,6 +142,13 @@ void release() {
   inhibitReason[0] = '\0';
   portEXIT_CRITICAL(&statusLock);
   Serial.println("[Machine] Loads released");
+}
+
+TickStats tickStats() {
+  portENTER_CRITICAL(&statusLock);
+  TickStats t = ::tickStats;
+  portEXIT_CRITICAL(&statusLock);
+  return t;
 }
 
 Status status() {

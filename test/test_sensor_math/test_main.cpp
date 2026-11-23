@@ -120,6 +120,38 @@ void test_pressure_valid_range() {
   TEST_ASSERT_FALSE(pressureFromPinMv(pinMvForSensorV(PRESSURE_V_VALID_HIGH + 0.02f)).ok);  // shorted
 }
 
+// ---- MedianFilter --------------------------------------------------------------
+void test_median_filter_rejects_short_spikes() {
+  Sensors::MedianFilter<5> m;
+  for (int i = 0; i < 5; ++i) m.add(100);
+  TEST_ASSERT_EQUAL_FLOAT(100.0f, m.add(150));  // 1-sample spike
+  TEST_ASSERT_EQUAL_FLOAT(100.0f, m.add(-20));  // opposite spike: still 2 of 5
+  TEST_ASSERT_EQUAL_FLOAT(100.0f, m.add(100));
+}
+
+void test_median_filter_follows_step_after_half_window() {
+  Sensors::MedianFilter<5> m;
+  for (int i = 0; i < 5; ++i) m.add(100);
+  TEST_ASSERT_EQUAL_FLOAT(100.0f, m.add(110));
+  TEST_ASSERT_EQUAL_FLOAT(100.0f, m.add(110));
+  TEST_ASSERT_EQUAL_FLOAT(110.0f, m.add(110));  // 3 of 5
+}
+
+void test_median_filter_warm_up_and_reset() {
+  Sensors::MedianFilter<5> m;
+  TEST_ASSERT_EQUAL_FLOAT(100.0f, m.add(100));  // 1 sample: itself
+  TEST_ASSERT_EQUAL_FLOAT(105.0f, m.add(110));  // 2: mean of the middle two
+  TEST_ASSERT_EQUAL_FLOAT(100.0f, m.add(90));   // 3: true median
+  m.reset();
+  TEST_ASSERT_EQUAL_FLOAT(42.0f, m.add(42));    // old samples gone
+}
+
+void test_median_filter_window_one_passes_through() {
+  Sensors::MedianFilter<1> m;
+  TEST_ASSERT_EQUAL_FLOAT(1.5f, m.add(1.5f));
+  TEST_ASSERT_EQUAL_FLOAT(99.0f, m.add(99.0f));
+}
+
 int main() {
   UNITY_BEGIN();
   RUN_TEST(test_tc_decodes_temperatures);
@@ -134,5 +166,9 @@ int main() {
   RUN_TEST(test_pressure_supply_correction);
   RUN_TEST(test_pressure_supply_out_of_range_not_corrected);
   RUN_TEST(test_pressure_error_reading);
+  RUN_TEST(test_median_filter_rejects_short_spikes);
+  RUN_TEST(test_median_filter_follows_step_after_half_window);
+  RUN_TEST(test_median_filter_warm_up_and_reset);
+  RUN_TEST(test_median_filter_window_one_passes_through);
   return UNITY_END();
 }

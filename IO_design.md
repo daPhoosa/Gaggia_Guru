@@ -231,7 +231,9 @@ current for an SSR to switch them reliably. All four use the same on-board drive
 - **Bus:** the hardware VSPI peripheral (Arduino `SPI`, mode 0) at 1 MHz
   (`TC_SPI_CLOCK_HZ`, chip max 5 MHz), so a 32-bit read takes about 32 µs. CS is driven by
   hand on GPIO 5. It reads every 200 ms; the chip converts in about 100 ms.
-- **Software filtering:** each good reading goes through an EMA low-pass
+- **Software filtering:** each good reading first goes through a running median
+  (`TEMP_MEDIAN_WINDOW` = 5 samples, odd, 1 = off). It removes spikes up to 2 samples
+  long and delays a real step by about 2 samples (0.4 s). Then it goes through an EMA low-pass
   (`TEMP_EMA_ALPHA` = 0.3 per sample, about a 0.56 s time constant). The filtered value
   feeds the PID, the dashboard and the heating check. It matters most for the PID's
   derivative term: with Kd = 30, a single 0.25 °C count of noise would otherwise kick the

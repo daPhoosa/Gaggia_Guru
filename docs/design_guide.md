@@ -235,6 +235,10 @@ The plain `/update` fallback page in `web_server.cpp` is deliberately unstyled (
   are in the Machine card's key/value list ("Thermocouple"). Settings → Temperatures has a
   muted note explaining the offset; the offset input has no `inputmode` because the iOS
   decimal keypad has no minus sign and the offset can be negative.
+- **Device status performance rows:** "CPU load (est.)" (per core, from idle-time counting),
+  "Control tick" (average and worst execution time over the last second) and "Control tick
+  worst" (since boot, against the 50 ms period). Plain key/value rows in the text color,
+  no status colors: they are diagnostics, not machine states.
 - **Secondary text on surface-raised** stays above 4.5:1 (5.00 light, 6.11 dark), so chips and the connection pill use surface-raised fills.
 - **Setup page fonts:** the built-in setup page uses the system font, since it must work when the filesystem (and Inter) is missing.
 
@@ -259,6 +263,7 @@ Add any new symbol the UI needs to `--unicodes`, or it falls back to the system 
 
 | Date | Change |
 | --- | --- |
+| 2026-11-23 | Device status card: CPU load per core (estimated, shown as "Core 0: 12 % · Core 1: 4 %") and control tick timing rows. No new tokens. |
 | 2026-11-22 | Brew Temp Offset: Settings → Temperatures gains a muted explanation and a full-width "Brew Temp Offset (°C)" field. Dashboard boiler gauge label switches between "Brew water" (coffee mode) and "Boiler" (steam); graph legend "Boiler °C" → "Temp °C"; Machine card adds a "Thermocouple" row. No new tokens. |
 | 2026-11-20 | Machine graph: °C axis is fixed instead of auto-scaled, default 10–160 °C, and the bar axis range is adjustable, default 0–12 bar. Both set in Settings → Dashboard graph (min / max pairs, side by side). No new tokens. |
 | 2026-11-17 | IO Status: ADS1115 analog inputs section (engineering units + raw for used inputs, raw only for spares). No new tokens. |

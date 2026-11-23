@@ -23,7 +23,7 @@ const char *stateName(State s);
 struct Status {
   State state;
   bool tempValid;
-  float tempC;     // thermocouple, EMA-filtered (TEMP_EMA_ALPHA): PID, heater check
+  float tempC;     // thermocouple, median (TEMP_MEDIAN_WINDOW) then EMA (TEMP_EMA_ALPHA): PID, heater check
   float tempRawC;  // thermocouple, last good unfiltered reading: over-temperature trip
   float tempOffsetC;      // brew temp offset in use: cfg.brewTempOffsetC in coffee mode, 0 in steam / hot water
   float setpointC;        // user target as displayed (coffee = water at the portafilter)
@@ -101,6 +101,7 @@ class Logic {
 
   uint32_t lastTcMs_ = 0, lastTcOkMs_ = 0;
   uint8_t tcFails_ = 0;
+  Sensors::MedianFilter<TEMP_MEDIAN_WINDOW> tempMedian_;
   float pressPinMvFilt_ = 0;  // EMA-smoothed pin voltage (mV)
   float pressScale_ = 1.0f;   // last valid ratiometric supply correction
   bool pressPrimed_ = false;

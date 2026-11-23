@@ -99,6 +99,8 @@
 #define CONTROL_PERIOD_MS            50UL  // control task tick
 #define TC_READ_PERIOD_MS           200UL  // MAX31855 converts in ~100 ms
 #define TC_SPI_CLOCK_HZ         1000000UL  // MAX31855 SPI clock (chip max 5 MHz); 32 bits = 32 us
+#define TEMP_MEDIAN_WINDOW             7   // boiler temp median filter, odd number of samples (1 = off). Runs before
+                                          // the EMA: removes spikes up to 2 samples long, adds ~0.4 s delay at 5.
 #define TEMP_EMA_ALPHA               0.3f  // boiler temp low-pass per sample (~0.56 s time constant at 200 ms);
                                           // feeds PID, display, heater check. Over-temp trip uses the raw reading.
 #define HEATER_WINDOW_MS           1000UL  // time-proportioning window for the SSR

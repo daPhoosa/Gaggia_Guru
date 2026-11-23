@@ -20,6 +20,37 @@ struct TcReading {
 //   D2 SCV (short to VCC), D1 SCG (short to GND), D0 OC (open circuit)
 TcReading decodeMax31855(uint32_t frame);
 
+// Running median of the last N samples (N odd). Rejects spikes shorter than
+// N/2 + 1 samples, at the cost of about N/2 samples of delay on a real step.
+// Until N samples have arrived it uses what it has (mean of the middle two
+// for an even count). N = 1 passes samples straight through.
+template <uint8_t N>
+class MedianFilter {
+  static_assert(N >= 1 && N % 2 == 1, "median window must be odd");
+
+ public:
+  void reset() { count_ = next_ = 0; }
+
+  float add(float v) {
+    buf_[next_] = v;
+    next_ = (next_ + 1) % N;
+    if (count_ < N) ++count_;
+    float s[N];
+    for (uint8_t i = 0; i < count_; ++i) {  // insertion sort of a copy
+      float x = buf_[i];
+      uint8_t j = i;
+      for (; j > 0 && s[j - 1] > x; --j) s[j] = s[j - 1];
+      s[j] = x;
+    }
+    const uint8_t mid = count_ / 2;
+    return count_ % 2 ? s[mid] : (s[mid - 1] + s[mid]) / 2;
+  }
+
+ private:
+  float buf_[N];
+  uint8_t count_ = 0, next_ = 0;
+};
+
 // ---- XDB401 pressure sensor via divider -------------------------------------
 struct PressureReading {
   bool ok = false;           // false if the sensor voltage is outside its valid range, or on error

@@ -32,6 +32,7 @@
 
 // Dashboard live-update period (WebSocket push)
 #define STATUS_PUSH_INTERVAL_MS   2000UL
+#define LOOP_DELAY_MS               10   // pause at the end of each Arduino loop() pass
 
 // On-board LED, from io_pins.h (set to -1 to disable)
 #define STATUS_LED_PIN       PIN_STATUS_LED

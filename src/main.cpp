@@ -8,6 +8,7 @@
 #include <esp_ota_ops.h>
 
 #include "config.h"
+#include "cpu_load.h"
 #include "io_status.h"
 #include "machine.h"
 #include "ota.h"
@@ -46,6 +47,7 @@ void setup() {
   pinMode(STATUS_LED_PIN, OUTPUT);
 #endif
 
+  CpuLoad::begin();        // early: idle time is counted from boot
   Machine::begin();        // control starts before the (blocking) Wi-Fi connect
   WifiManager::begin();
   Ota::begin();
@@ -61,4 +63,8 @@ void loop() {
   WebUi::loop();
   updateStatusLed();
   IoStatus::loop();
+  // Arduino calls loop() again immediately; without a pause this task keeps
+  // core 1 busy (its idle task never runs). Everything above polls timers or
+  // tolerates 10 ms. The OTA early return above skips this on purpose.
+  delay(LOOP_DELAY_MS);
 }

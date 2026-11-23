@@ -36,6 +36,13 @@ void inhibit(const char *reason);
 void release();
 
 Status status();
+
+// Control tick execution time (wall clock, µs): average and worst over the last
+// second, and worst since boot. The tick period is CONTROL_PERIOD_MS.
+struct TickStats {
+  uint32_t avgUs, maxUs, peakUs;
+};
+TickStats tickStats();
 String json();  // status as JSON (for /api/machine and the WebSocket)
 
 }  // namespace Machine

@@ -6,6 +6,7 @@ const page = document.body.dataset.page;
 // ---------- helpers ----------
 const fmtBytes = (b) => b >= 1048576 ? (b / 1048576).toFixed(2) + ' MB'
                       : b >= 1024 ? (b / 1024).toFixed(1) + ' KB' : b + ' B';
+const fmtMs = (us) => (us / 1000).toFixed(us < 10000 ? 2 : 1) + ' ms';
 const fmtUptime = (s) => {
   const d = Math.floor(s / 86400), h = Math.floor(s % 86400 / 3600),
         m = Math.floor(s % 3600 / 60), sec = s % 60;
@@ -86,6 +87,10 @@ const renderPage = {
       ['Signal', s.connected ? s.rssi + ' dBm' : '–'],
       ['Storage', `${fmtBytes(s.fsUsed)} / ${fmtBytes(s.fsTotal)}`],
       ['Chip', `${s.chip} rev ${s.chipRev}`],
+      // CPU load is estimated from idle time (src/cpu_load.h); control tick is measured.
+      ['CPU load (est.)', (s.cpuLoad || []).map((p, i) => `Core ${i}: ${p == null ? '–' : (+p).toFixed(0) + ' %'}`).join(' · ') || '–'],
+      ['Control tick', s.ctrlTick ? `${fmtMs(s.ctrlTick.avgUs)} avg · ${fmtMs(s.ctrlTick.maxUs)} max` : '–'],
+      ['Control tick worst', s.ctrlTick ? `${fmtMs(s.ctrlTick.peakUs)} of ${s.ctrlTick.periodMs} ms` : '–'],
     ]);
   },
   wifi(s) {

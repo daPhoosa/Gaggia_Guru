@@ -8,6 +8,7 @@
 #include <esp_ota_ops.h>
 
 #include "config.h"
+#include "cpu_load.h"
 #include "io_status.h"
 #include "machine.h"
 #include "ota.h"
@@ -130,6 +131,18 @@ String statusJson() {
   doc["ip"] = WifiManager::ip();
   doc["rssi"] = WifiManager::isConnected() ? WiFi.RSSI() : 0;
   doc["clients"] = ws.count();
+  JsonArray cpu = doc["cpuLoad"].to<JsonArray>();  // estimated % per core, null until measured
+  for (int c = 0; c < 2; ++c) {
+    const float p = CpuLoad::percent(c);
+    if (p < 0) cpu.add(nullptr);
+    else cpu.add(serialized(String(p, 1)));
+  }
+  const Machine::TickStats ts = Machine::tickStats();
+  JsonObject ctl = doc["ctrlTick"].to<JsonObject>();  // control task execution time
+  ctl["avgUs"] = ts.avgUs;
+  ctl["maxUs"] = ts.maxUs;
+  ctl["peakUs"] = ts.peakUs;
+  ctl["periodMs"] = CONTROL_PERIOD_MS;
   String out;
   serializeJson(doc, out);
   return out;

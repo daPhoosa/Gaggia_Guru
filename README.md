@@ -45,6 +45,7 @@ src/wifi_manager.*    STA connect, fallback AP, captive DNS, scan, NVS creds
 src/ota.*             ArduinoOTA
 src/web_server.*      HTTP routes, JSON API, WebSocket, browser OTA
 src/io_status.*       read-only pin sampling for /api/io
+src/cpu_load.*        per-core CPU load estimate (idle-task loop counting) for the Device status card
 test/                 PC unit tests (pio test -e native), see test/README.md
 data/                 web UI → LittleFS: index.html (dashboard), settings.html, wifi.html,
                       update.html, io.html, shared style.css + app.js, fonts/Inter.woff2
@@ -103,7 +104,7 @@ Bump `-DFW_VERSION` in `platformio.ini` to see the new version on the dashboard.
 
 | Method | Path                           | Auth*  | Description                          |
 |--------|--------------------------------|--------|--------------------------------------|
-| GET    | `/api/status`                  | –      | Device status JSON                   |
+| GET    | `/api/status`                  | –      | Device status JSON (incl. CPU load estimate, control tick timing) |
 | WS     | `/ws`                          | –      | Status JSON pushed every 2 s         |
 | GET    | `/api/machine`                 | –      | Machine state, temperature, pressure, outputs, fault |
 | WS     | `/ws` (`"type":"machine"`)     | –      | Machine JSON pushed every 0.5 s      |

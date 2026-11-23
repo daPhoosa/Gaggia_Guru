@@ -75,9 +75,11 @@ Outputs Logic::tick(const Inputs &in, const MachineSettings &cfg) {
       tcFails_ = 0;
       tempDt = st_.tempValid ? (now - lastTcOkMs_) / 1000.0f : 0;
       lastTcOkMs_ = now;
-      // Low-pass the reading; seed from the raw value on the first sample or
-      // after the sensor recovers, so it doesn't ramp up from a stale value.
-      st_.tempC = st_.tempValid ? st_.tempC + TEMP_EMA_ALPHA * (in.tc.tempC - st_.tempC) : in.tc.tempC;
+      // Median (drops short spikes), then low-pass. Both restart on the first
+      // sample or after the sensor recovers, so they don't hold stale values.
+      if (!st_.tempValid) tempMedian_.reset();
+      const float med = tempMedian_.add(in.tc.tempC);
+      st_.tempC = st_.tempValid ? st_.tempC + TEMP_EMA_ALPHA * (med - st_.tempC) : med;
       st_.tempRawC = in.tc.tempC;
       st_.tempValid = true;
       newTemp = true;

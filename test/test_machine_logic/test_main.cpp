@@ -132,18 +132,36 @@ void test_ready_light_within_band() {
 }
 
 void test_temp_filter_damps_spike_and_settles() {
+  static_assert(TEMP_MEDIAN_WINDOW >= 5, "test assumes a median window of at least 5");
   Sim s;
   s.tempC = 100;
   s.begin();
   s.step();
   TEST_ASSERT_EQUAL_FLOAT(100.0f, s.st().tempC);  // first sample seeds the filter
-  s.tempC = 110;                                  // one-sample spike
-  s.run(TC_READ_PERIOD_MS);
-  TEST_ASSERT_FLOAT_WITHIN(0.01f, 100.0f + TEMP_EMA_ALPHA * 10, s.st().tempC);
+  s.run(TEMP_MEDIAN_WINDOW * TC_READ_PERIOD_MS);  // fill the median window
+  s.tempC = 110;                                  // two-sample spike: removed by the median
+  s.run(2 * TC_READ_PERIOD_MS);
   TEST_ASSERT_EQUAL_FLOAT(110.0f, s.st().tempRawC);
+  TEST_ASSERT_EQUAL_FLOAT(100.0f, s.st().tempC);
   s.tempC = 100;
   s.run(3000);
-  TEST_ASSERT_FLOAT_WITHIN(0.1f, 100.0f, s.st().tempC);
+  TEST_ASSERT_EQUAL_FLOAT(100.0f, s.st().tempC);
+}
+
+void test_temp_filter_follows_step() {
+  // A real step gets through the median after TEMP_MEDIAN_WINDOW / 2 + 1
+  // samples, then the EMA takes it in at TEMP_EMA_ALPHA per sample.
+  Sim s;
+  s.tempC = 100;
+  s.begin();
+  s.run(2000);
+  s.tempC = 110;
+  s.run((TEMP_MEDIAN_WINDOW / 2) * TC_READ_PERIOD_MS);
+  TEST_ASSERT_EQUAL_FLOAT(100.0f, s.st().tempC);  // median still holds the old value
+  s.run(TC_READ_PERIOD_MS);
+  TEST_ASSERT_FLOAT_WITHIN(0.01f, 100.0f + TEMP_EMA_ALPHA * 10, s.st().tempC);
+  s.run(5000);
+  TEST_ASSERT_FLOAT_WITHIN(0.01f, 110.0f, s.st().tempC);
 }
 
 void test_over_temp_trips_on_raw_reading() {
@@ -471,7 +489,10 @@ void test_heater_check_passes_when_heating() {
   s.begin();
   for (int i = 0; i < 3; ++i) {
     s.run(HEAT_CHECK_WINDOW_MS / 2);
-    s.tempC += HEAT_CHECK_MIN_RISE_C;  // +2 C per half window
+    // The check windows line up with these steps, so a window may see only
+    // one step (the next one is still in the median/EMA delay). Each step
+    // must exceed the minimum rise on its own.
+    s.tempC += HEAT_CHECK_MIN_RISE_C + 0.5f;
   }
   ASSERT_STATE(State::Idle, s);
 }
@@ -623,6 +644,7 @@ int main() {
   RUN_TEST(test_starts_idle_and_heats_to_coffee_setpoint);
   RUN_TEST(test_ready_light_within_band);
   RUN_TEST(test_temp_filter_damps_spike_and_settles);
+  RUN_TEST(test_temp_filter_follows_step);
   RUN_TEST(test_over_temp_trips_on_raw_reading);
   RUN_TEST(test_heater_off_above_setpoint);
   RUN_TEST(test_heater_time_proportioning);
