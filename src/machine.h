@@ -14,6 +14,7 @@
 // Overrides:
 //   FAULT      latched until power cycle; all loads off, both lights blink
 //   INHIBITED  firmware update / reboot in progress; all loads off
+//   TEST       output test page has manual control (see testStart); safety checks still run
 //
 // The Coffee switch must be seen OFF before it can start the pump (after boot,
 // and after the pump run-time limit stops it).
@@ -36,6 +37,15 @@ void inhibit(const char *reason);
 void release();
 
 Status status();
+
+// Output test page (manual control of the loads). testStart() checks that the
+// machine is idle with both switches off and returns a session id (0 + error
+// if not). The page must then call testUpdate() with that id at least every
+// TEST_TIMEOUT_MS; it fails (error = why the test ended) once TEST is over.
+// testStop() ends any session. Safe to call from any task.
+uint32_t testStart(String &error);
+bool testUpdate(uint32_t session, const TestCommand &cmd, String &error);
+void testStop();
 
 // Control tick execution time (wall clock, µs): average and worst over the last
 // second, and worst since boot. The tick period is CONTROL_PERIOD_MS.

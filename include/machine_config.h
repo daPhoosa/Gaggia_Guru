@@ -70,6 +70,12 @@
 #define HEAT_CHECK_MIN_RISE_C       2.0f   // ...by at least this much
 
 #define PUMP_MAX_RUN_MS          120000UL  // pump stops; Coffee switch must be cycled
+
+// Output test page (manual control). Starts only from IDLE with both switches
+// off; ends on Stop, a switch turning on, a fault, an update, or no word from
+// the page for TEST_TIMEOUT_MS. All safety checks keep running.
+#define TEST_TIMEOUT_MS            5000UL  // test page must check in at least this often
+#define TEST_HEATER_MAX_C   LIMIT_STEAM_TEMP_MAX  // manual heater held off above this (2 C hysteresis)
 #define ZC_TIMEOUT_MS               500UL  // pump demanded but no zero-cross -> FAULT
 #define PRESSURE_FAULT_MS           500UL  // pressure sensor out of range while brewing -> FAULT
 

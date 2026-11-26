@@ -116,8 +116,10 @@ const renderPage = {
 
 // ---------- machine (live, pushed every 0.5 s) ----------
 const STATE_LABEL = { IDLE: 'Idle', BREWING: 'Brewing', STEAM: 'Steam', HOT_WATER: 'Hot water',
-                      FAULT: 'Fault', INHIBITED: 'Paused' };
+                      FAULT: 'Fault', INHIBITED: 'Paused', TEST: 'Test' };
+let onMachine = null;   // per-page machine handler (output test page)
 function renderMachine(m) {
+  onMachine?.(m);
   if (page !== 'home') return;
   graph.push(m);
   const st = $('#mState');
@@ -128,6 +130,7 @@ function renderMachine(m) {
   let title = '', body = '', bad = false;
   if (m.fault) { title = 'Machine fault'; body = m.fault + ' — power-cycle the machine to clear.'; bad = true; }
   else if (m.inhibit) { title = 'Paused'; body = 'Heater and pump paused: ' + m.inhibit + '.'; }
+  else if (m.state === 'TEST') { title = 'Output test running'; body = 'Heater, pump, valve and lights are under manual control from the Output test page.'; }
   else if (m.pumpTimedOut) { title = 'Pump stopped'; body = 'Run-time limit reached. Turn the Coffee switch off to reset.'; }
   else if (m.waitSwitchCycle) { title = 'Coffee switch already on'; body = 'Turn it off and on again to start the pump.'; }
   const a = $('#mAlert');
@@ -135,7 +138,7 @@ function renderMachine(m) {
   a.classList.toggle('bad', bad);
   a.querySelector('.ico').className = 'ico ' + (bad ? 'ico-error' : 'ico-warn');
   $('#mAlertT').textContent = title; $('#mAlertB').textContent = body;
-  st.prepend(...(m.state === 'FAULT' ? [icon('ico-error sm')] : m.state === 'INHIBITED' ? [icon('ico-warn sm')] : []));
+  st.prepend(...(m.state === 'FAULT' ? [icon('ico-error sm')] : m.state === 'INHIBITED' || m.state === 'TEST' ? [icon('ico-warn sm')] : []));
 
   // "Ready" (boiler at temperature) is a real machine state: success color + icon + label.
   const ready = m.coffeeLight || m.steamLight;
@@ -287,7 +290,7 @@ const graph = (() => {
 let pollTimer;
 const pollOnce = () => {
   fetch('/api/status').then((r) => r.json()).then(render).catch(() => {});
-  if (page === 'home') fetch('/api/machine').then((r) => r.json()).then(renderMachine).catch(() => {});
+  if (page === 'home' || page === 'test') fetch('/api/machine').then((r) => r.json()).then(renderMachine).catch(() => {});
 };
 function connectWs() {
   const ws = new WebSocket(`ws://${location.host}/ws`);
@@ -521,6 +524,102 @@ if (page === 'io') {
   }
   document.addEventListener('visibilitychange', () => { if (!document.hidden) poll(); });
   poll();
+}
+
+// ---------- Output test page (admin; manual control of the loads) ----------
+// The page owns a session from /api/test start, re-sends the full command every
+// second as the keep-alive (the machine ends the test after 5 s of silence),
+// and resets to "all off" whenever the test ends for any reason.
+if (page === 'test') {
+  const outs = ['heater', 'pump', 'valve', 'coffeeLight', 'steamLight'];
+  const pctInp = $('#pumpPct');
+  let session = 0, timer = null, endMsg = '';
+  const radios = (n) => document.querySelectorAll(`input[name=${n}]`);
+  const segVal = (n) => document.querySelector(`input[name=${n}]:checked`).value;
+  const pct = () => { const v = Math.round(+pctInp.value); return Number.isFinite(v) ? Math.min(100, Math.max(0, v)) : 100; };
+  function body(action) {
+    const b = new URLSearchParams({ action });
+    if (action === 'update') {
+      b.set('session', session);
+      outs.forEach((n) => b.set(n, segVal(n)));
+      b.set('pumpPct', pct());
+    }
+    return b;
+  }
+  function setControls(on) {
+    outs.forEach((n) => radios(n).forEach((i) => { i.disabled = !on; }));
+    pctInp.disabled = !on;
+    $('#startBtn').hidden = on; $('#stopBtn').hidden = !on;
+  }
+  function ended(msg) {
+    clearInterval(timer); timer = null; session = 0;
+    outs.forEach((n) => { radios(n)[0].checked = true; });   // first option = Off / Closed
+    setControls(false);
+    endMsg = msg || '';
+  }
+  async function send() {
+    if (!session) return;
+    try { await post('/api/test', body('update')); } catch (e) { ended(e.message); }
+  }
+  $('#startBtn').onclick = async () => {
+    try {
+      const j = await post('/api/test', body('start'));
+      ended(); session = j.session; setControls(true);
+      await send();
+      timer = setInterval(send, 1000);
+    } catch (e) { endMsg = e.message; toast(e.message); }
+  };
+  $('#stopBtn').onclick = () => { ended(); post('/api/test', body('stop')).catch((e) => toast(e.message)); };
+  outs.forEach((n) => radios(n).forEach((i) => { i.onchange = send; }));
+  pctInp.onchange = () => { pctInp.value = pct(); send(); };
+  // Leaving the page stops the test now rather than after the 5 s timeout.
+  addEventListener('pagehide', () => {
+    if (session) fetch('/api/test', { method: 'POST', keepalive: true, headers: { 'X-Guru': '1' }, body: body('stop') });
+  });
+  setControls(false);
+
+  const onOff = (b) => b ? 'On' : 'Off';
+  function live(id, text, warn) {
+    const el = $(id);
+    el.className = warn ? 'warn' : '';
+    el.replaceChildren(...(warn ? [icon('ico-warn sm'), text] : ['Now ' + text]));
+  }
+  onMachine = (m) => {
+    const st = $('#tState');
+    st.textContent = STATE_LABEL[m.state] || m.state;
+    st.className = 'state ' + m.state.toLowerCase();
+    if (m.state === 'FAULT') st.prepend(icon('ico-error sm'));
+    else if (m.state === 'TEST' || m.state === 'INHIBITED') st.prepend(icon('ico-warn sm'));
+
+    // Banner: fault (error) > test running (warning) > why this page's test ended (warning).
+    let title = '', text = '', bad = false;
+    if (m.fault) { title = 'Machine fault'; text = m.fault + ' — power-cycle the machine to clear.'; bad = true; }
+    else if (m.state === 'TEST') { title = 'Output test running'; text = 'Outputs follow the controls below.'; }
+    else if (endMsg && endMsg !== 'Stopped') { title = 'Test ended'; text = endMsg + '.'; }
+    const a = $('#tAlert');
+    a.hidden = !title; a.classList.toggle('bad', bad);
+    a.querySelector('.ico').className = 'ico ' + (bad ? 'ico-error' : 'ico-warn');
+    $('#tAlertT').textContent = title; $('#tAlertB').textContent = text;
+
+    // Live output states (what the machine is actually driving).
+    const test = m.state === 'TEST';
+    if (test && m.testHeaterCapped && segVal('heater') === '1')
+      live('#aHeater', m.boilerTemp == null ? 'Held off: no temperature reading' : 'Held off above 150 °C', true);
+    else live('#aHeater', onOff(m.heater));
+    if (test && m.testPumpTimedOut) live('#aPump', 'Stopped after 120 s: switch it off and on', true);
+    else live('#aPump', m.pump ? m.pump + ' %' : 'Off');
+    live('#aValve', m.valve ? 'Open' : 'Closed');
+    live('#aCoffeeLight', onOff(m.coffeeLight));
+    live('#aSteamLight', onOff(m.steamLight));
+
+    fillKv('#tInputs', [
+      ['Coffee switch', onOff(m.coffeeSw)],
+      ['Steam switch', onOff(m.steamSw)],
+      ['Thermocouple', m.boilerTemp == null ? 'No reading' : (+m.boilerTemp).toFixed(1) + ' °C'],
+      ['Pressure', m.pressure == null ? 'Out of range' : (+m.pressure).toFixed(2) + ' bar'],
+      ['Mains (zero-cross)', (+m.mainsHz).toFixed(1) + ' Hz'],
+    ]);
+  };
 }
 
 // ---------- Settings page ----------

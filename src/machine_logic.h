@@ -16,7 +16,16 @@
 
 namespace Machine {
 
-enum class State : uint8_t { Idle, Brewing, Steam, HotWater, Fault, Inhibited };
+enum class State : uint8_t { Idle, Brewing, Steam, HotWater, Fault, Inhibited, Test };
+
+// Output test (password-protected web test page): the outputs it asks for.
+// Logic::tick applies them only in State::Test, with the safety checks still
+// running, the heater held off above TEST_HEATER_MAX_C and the pump limited to
+// PUMP_MAX_RUN_MS of continuous running.
+struct TestCommand {
+  bool heater, valve, pump, coffeeLight, steamLight;
+  uint8_t pumpPct;  // pump power while on, 0-100 %
+};
 
 const char *stateName(State s);
 
@@ -39,6 +48,9 @@ struct Status {
   bool coffeeSwitch, steamSwitch;  // debounced
   bool waitSwitchCycle;     // Coffee switch is on but ignored until cycled off/on
   bool pumpTimedOut;
+  bool testPumpTimedOut;    // TEST: pump stopped by the run-time limit; toggle it off to reset
+  bool testHeaterCapped;    // TEST: manual heater held off (above TEST_HEATER_MAX_C, 2 C hysteresis, or no valid temp)
+  char testEnd[48];         // why the last test ended or was refused (empty while TEST or never used)
   uint32_t shotMs;          // current shot time, or last shot when idle
   float mainsHz;
   char fault[112];          // empty unless FAULT
@@ -59,6 +71,9 @@ struct Inputs {
   uint32_t msSinceZeroCross;     // from the pump dimmer's zero-cross input
   uint32_t zeroCrossCount;       // running count of zero-crossings
   bool inhibited;                // firmware update / reboot in progress
+  bool testWanted;               // test page wants manual control (start / keep it going)
+  uint32_t testIdleMs;           // ms since the test page last checked in
+  TestCommand testCmd;
 };
 
 // What to drive this tick.
@@ -86,6 +101,7 @@ class Logic {
  private:
   void setFault(const char *fmt, ...) __attribute__((format(printf, 2, 3)));
   void debounce(bool raw, bool &state, uint8_t &cnt);
+  bool testAllowed(const Inputs &in);  // sets st_.testEnd when it says no
 
   Status st_{};
   Pid tempPid_, pressPid_;
@@ -114,6 +130,8 @@ class Logic {
   float heatCheckStartTemp_ = 0;
 
   uint32_t hzWindowStart_ = 0, hzZcStart_ = 0;
+
+  bool testPumpStopped_ = false;  // run-time limit hit; cleared when the pump is toggled off
 };
 
 }  // namespace Machine

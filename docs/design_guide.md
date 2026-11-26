@@ -197,6 +197,7 @@ The plain `/update` fallback page in `web_server.cpp` is deliberately unstyled (
 | `IDLE` | State chip neutral (surface-raised, text-secondary). |
 | `BREWING`, `STEAM`, `HOT_WATER` | State chip accent fill (active state, not a status color). |
 | Boiler at temperature (coffee or steam light on) | Success check icon + "Ready · 93.0°" under the boiler reading. The number itself stays the hero color. |
+| `TEST` (shown as "Test") | Warning-outline chip with icon (same as Paused). Dashboard: warning banner "Output test running". Test page: same banner while running; "Test ended" warning banner with the reason if it ended on its own. |
 | `INHIBITED` (shown as "Paused") | Warning banner under the header (icon, title "Paused", body text) + warning-outline chip with icon. |
 | Pump run-time limit, Coffee switch already on | Warning banner with icon, title and instruction. |
 | `FAULT` | Error banner under the header (icon, "Machine fault", fault text) + error-outline chip with icon. |
@@ -239,6 +240,15 @@ The plain `/update` fallback page in `web_server.cpp` is deliberately unstyled (
   "Control tick" (average and worst execution time over the last second) and "Control tick
   worst" (since boot, against the 50 ms period). Plain key/value rows in the text color,
   no status colors: they are diagnostics, not machine states.
+- **Output test page** (`test.html`, admin only, linked from the IO Status footer): one
+  "Test mode" card with the single primary action (Start test; Stop test is a secondary
+  button in the same place), an Outputs card and an Inputs key/value card. Each output is a
+  row: name plus a 13px "Now …" line showing what the machine is really driving, and a
+  two-segment Off/On (Closed/Open for the valve) control, disabled (40 %) outside a test.
+  "Held off above 150 °C" and "Stopped after 120 s" replace the "Now" line in the warning
+  color with an icon, since they are real machine states. Pump duty is a full-width number
+  field under the pump row.
+- **Footer links** (`.foot a`) use the accent color and 600 weight: tappable = accent.
 - **Secondary text on surface-raised** stays above 4.5:1 (5.00 light, 6.11 dark), so chips and the connection pill use surface-raised fills.
 - **Setup page fonts:** the built-in setup page uses the system font, since it must work when the filesystem (and Inter) is missing.
 
@@ -263,6 +273,7 @@ Add any new symbol the UI needs to `--unicodes`, or it falls back to the system 
 
 | Date | Change |
 | --- | --- |
+| 2026-11-24 | Output test page (`test.html`): output rows with Off/On segmented controls and live state, pump duty field, inputs list, banners. `TEST` state chip uses the Paused (warning outline) style. Footer links use the accent. No new tokens. |
 | 2026-11-23 | Device status card: CPU load per core (estimated, shown as "Core 0: 12 % · Core 1: 4 %") and control tick timing rows. No new tokens. |
 | 2026-11-22 | Brew Temp Offset: Settings → Temperatures gains a muted explanation and a full-width "Brew Temp Offset (°C)" field. Dashboard boiler gauge label switches between "Brew water" (coffee mode) and "Boiler" (steam); graph legend "Boiler °C" → "Temp °C"; Machine card adds a "Thermocouple" row. No new tokens. |
 | 2026-11-20 | Machine graph: °C axis is fixed instead of auto-scaled, default 10–160 °C, and the bar axis range is adjustable, default 0–12 bar. Both set in Settings → Dashboard graph (min / max pairs, side by side). No new tokens. |

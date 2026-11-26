@@ -391,6 +391,53 @@ void begin() {
     req->send(200, "application/json", Settings::json());
   });
 
+  // --- Output test page (admin only, page and API) ---
+  // POST /api/test  action=start                      -> {"ok":true,"session":n}
+  //                 action=update&session=n&heater=0|1&valve=0|1&pump=0|1&pumpPct=0-100
+  //                        &coffeeLight=0|1&steamLight=0|1   (also the keep-alive)
+  //                 action=stop
+  // Errors: 409 {"ok":false,"error":"..."} (not allowed / test ended), 400 bad request.
+  auto sendTestPage = [](AsyncWebServerRequest *req) {
+    if (!requireAdmin(req)) return;
+    AsyncWebServerResponse *res = req->beginResponse(LittleFS, "/test.html", "text/html");
+    res->addHeader("Cache-Control", "no-store");
+    req->send(res);
+  };
+  server.on("/test.html", HTTP_GET, sendTestPage);
+  server.on("/test", HTTP_GET, sendTestPage);
+
+  server.on("/api/test", HTTP_POST, [](AsyncWebServerRequest *req) {
+    if (!requireSameSite(req) || !requireAdmin(req)) return;
+    auto param = [req](const char *k) { return req->hasParam(k, true) ? req->getParam(k, true)->value() : String(); };
+    auto flag = [&param](const char *k) { return param(k) == "1"; };
+    const String action = param("action");
+    String err;
+    JsonDocument doc;
+    if (action == "start") {
+      const uint32_t session = Machine::testStart(err);
+      if (session) doc["session"] = session;
+    } else if (action == "update") {
+      const long pct = param("pumpPct").toInt();
+      if (pct < 0 || pct > 100 || param("session").isEmpty()) {
+        req->send(400, "application/json", "{\"ok\":false,\"error\":\"bad session or pumpPct\"}");
+        return;
+      }
+      const Machine::TestCommand cmd{flag("heater"), flag("valve"), flag("pump"), flag("coffeeLight"),
+                                     flag("steamLight"), static_cast<uint8_t>(pct)};
+      Machine::testUpdate(strtoul(param("session").c_str(), nullptr, 10), cmd, err);
+    } else if (action == "stop") {
+      Machine::testStop();
+    } else {
+      req->send(400, "application/json", "{\"ok\":false,\"error\":\"unknown action\"}");
+      return;
+    }
+    doc["ok"] = err.isEmpty();
+    if (!err.isEmpty()) doc["error"] = err;
+    String out;
+    serializeJson(doc, out);
+    req->send(err.isEmpty() ? 200 : 409, "application/json", out);
+  });
+
   server.on("/api/settings/reset", HTTP_POST, [](AsyncWebServerRequest *req) {
     if (!requireSameSite(req) || !requireAdmin(req)) return;
     Settings::resetToDefaults();
@@ -459,7 +506,10 @@ void begin() {
 
   // --- Static dashboard assets from LittleFS (data/ folder) ---
   // no-cache: browsers revalidate, so pages update right after an OTA filesystem upload.
-  server.serveStatic("/", LittleFS, "/").setCacheControl("no-cache");
+  // test.html only through its admin route above (the filter is a second guard).
+  server.serveStatic("/", LittleFS, "/").setCacheControl("no-cache").setFilter([](AsyncWebServerRequest *req) {
+    return !req->url().startsWith("/test");
+  });
 
   // Unknown URLs on our own host: send the browser to the root page.
   server.onNotFound([](AsyncWebServerRequest *req) {

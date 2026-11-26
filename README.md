@@ -47,7 +47,7 @@ src/web_server.*      HTTP routes, JSON API, WebSocket, browser OTA
 src/io_status.*       read-only pin sampling for /api/io
 src/cpu_load.*        per-core CPU load estimate (idle-task loop counting) for the Device status card
 test/                 PC unit tests (pio test -e native), see test/README.md
-data/                 web UI → LittleFS: index.html (dashboard), settings.html, wifi.html,
+data/                 web UI → LittleFS: index.html (dashboard), settings.html, wifi.html, test.html,
                       update.html, io.html, shared style.css + app.js, fonts/Inter.woff2
                       (styled per docs/design_guide.md)
 ```
@@ -112,6 +112,8 @@ Bump `-DFW_VERSION` in `platformio.ini` to see the new version on the dashboard.
 | POST   | `/api/settings` (any of the setting keys) | admin | Validate, apply and save settings |
 | POST   | `/api/settings/reset`          | admin  | Restore default settings             |
 | GET    | `/api/io`                      | –      | Pin names/types (from io_pins.h) + live state |
+| GET    | `/test.html` (or `/test`)      | admin  | Output test page (manual heater / pump / valve / lights) |
+| POST   | `/api/test` (`action=start`, `update`, `stop`) | admin | Start, drive (and keep alive) or stop the output test |
 | GET    | `/api/wifi/scan`               | –      | Nearby networks (async; poll)        |
 | POST   | `/api/wifi` (`ssid`, `pass`)   | admin† | Save credentials and reboot          |
 | POST   | `/api/wifi/forget`             | admin  | Clear credentials and reboot         |
@@ -164,6 +166,14 @@ Each active line must be:
 | off    | on    | `STEAM`     | steam (145 °C)               | off         | closed |
 | on     | on    | `HOT_WATER` | steam                        | 100 %       | closed |
 
+- **Output test (`TEST`):** the admin-only **Output test** page (linked from IO Status)
+  switches the heater, pump (with a duty cycle, default 100 %), valve and both lights by
+  hand, and shows the switches, thermocouple, pressure and mains frequency. It starts only
+  from `IDLE` with both switches off and ends on Stop, either switch turning on, a fault, a
+  firmware update, or 5 s without a keep-alive from the page (it sends one every second;
+  closing the page stops it at once). All safety faults stay active; the manual heater is
+  held off above 150 °C (2 °C hysteresis) and the pump stops after 120 s until toggled off
+  and on. Leaving the test with the Coffee switch on does not start a shot: it must be cycled.
 - **Brew Temp Offset** (default 7 °C, range -10 to 20 °C): how much hotter the boiler
   thermocouple reads than the water at the portafilter. The Coffee setting (default 93 °C) is
   the water temperature; in coffee mode the heater PID aims for Coffee + offset and the

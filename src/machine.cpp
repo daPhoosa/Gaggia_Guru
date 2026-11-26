@@ -20,6 +20,17 @@ volatile bool inhibited = false;
 char inhibitReason[32] = "";            // guarded by statusLock
 Machine::TickStats tickStats{};         // guarded by statusLock
 
+// Output test page request, guarded by statusLock. The web task writes it; the
+// control task passes it to Logic and drops it when TEST ends or is refused.
+struct TestRequest {
+  bool wanted;
+  uint32_t session;     // changes on every start, so a stale page can't drive a new session
+  uint32_t lastSeenMs;  // last start / update from the page
+  Machine::TestCommand cmd;
+};
+TestRequest testReq{};
+uint32_t testSessions = 0;
+
 // ---- control-task private state -------------------------------------------
 Machine::Logic logic;
 
@@ -48,6 +59,12 @@ void tick() {
   in.msSinceZeroCross = Pump::msSinceZeroCross();
   in.zeroCrossCount = Pump::zeroCrossCount();
   in.inhibited = inhibited;
+  portENTER_CRITICAL(&statusLock);
+  const TestRequest req = testReq;
+  portEXIT_CRITICAL(&statusLock);
+  in.testWanted = req.wanted;
+  in.testIdleMs = req.wanted ? now - req.lastSeenMs : 0;
+  in.testCmd = req.cmd;
 
   const State before = logic.status().state;
   const bool timedOutBefore = logic.status().pumpTimedOut;
@@ -59,6 +76,13 @@ void tick() {
   if (st.state != before) {
     Serial.printf("[Machine] %s -> %s\n", Machine::stateName(before), Machine::stateName(st.state));
     if (st.state == State::Fault) Serial.printf("[Machine] FAULT: %s\n", st.fault);
+    if (before == State::Test) Serial.printf("[Machine] Output test ended: %s\n", st.testEnd);
+  }
+  // TEST ended or was refused: drop the request so it can't restart by itself.
+  if (req.wanted && st.state != State::Test) {
+    portENTER_CRITICAL(&statusLock);
+    if (testReq.session == req.session) testReq.wanted = false;
+    portEXIT_CRITICAL(&statusLock);
   }
   if (st.pumpTimedOut && !timedOutBefore)
     Serial.println("[Machine] Pump run-time limit reached; cycle the Coffee switch");
@@ -144,6 +168,46 @@ void release() {
   Serial.println("[Machine] Loads released");
 }
 
+uint32_t testStart(String &error) {
+  const Status s = status();
+  if (s.state == State::Fault) error = "Machine fault - power-cycle to clear";
+  else if (s.state == State::Inhibited) error = "Firmware update / reboot in progress";
+  else if (s.coffeeSwitch || s.steamSwitch) error = "Turn the Coffee and Steam switches off first";
+  else if (s.state != State::Idle && s.state != State::Test) error = "Machine is not idle";
+  if (!error.isEmpty()) return 0;
+  portENTER_CRITICAL(&statusLock);
+  testReq.wanted = true;
+  if (++testSessions == 0) ++testSessions;  // 0 means "no session"
+  testReq.session = testSessions;
+  testReq.lastSeenMs = millis();
+  testReq.cmd = TestCommand{false, false, false, false, false, 100};  // everything off
+  const uint32_t session = testReq.session;
+  portEXIT_CRITICAL(&statusLock);
+  Serial.println("[Machine] Output test requested");
+  return session;
+}
+
+bool testUpdate(uint32_t session, const TestCommand &cmd, String &error) {
+  portENTER_CRITICAL(&statusLock);
+  const bool ok = testReq.wanted && session == testReq.session;
+  if (ok) {
+    testReq.cmd = cmd;
+    testReq.lastSeenMs = millis();
+  }
+  portEXIT_CRITICAL(&statusLock);
+  if (!ok) {
+    const Status s = status();
+    error = s.testEnd[0] ? s.testEnd : "Output test is not running";
+  }
+  return ok;
+}
+
+void testStop() {
+  portENTER_CRITICAL(&statusLock);
+  testReq.wanted = false;
+  portEXIT_CRITICAL(&statusLock);
+}
+
 TickStats tickStats() {
   portENTER_CRITICAL(&statusLock);
   TickStats t = ::tickStats;
@@ -191,6 +255,11 @@ String json() {
   doc["pumpTimedOut"] = s.pumpTimedOut;
   doc["shotMs"] = s.shotMs;
   doc["mainsHz"] = serialized(String(s.mainsHz, 1));
+  if (s.state == State::Test) {
+    doc["testPumpTimedOut"] = s.testPumpTimedOut;
+    doc["testHeaterCapped"] = s.testHeaterCapped;
+  }
+  if (s.testEnd[0]) doc["testEnd"] = s.testEnd;
   if (s.fault[0]) doc["fault"] = s.fault;
   if (s.inhibitReason[0]) doc["inhibit"] = s.inhibitReason;
   String out;

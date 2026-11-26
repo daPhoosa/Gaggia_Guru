@@ -20,6 +20,7 @@ const char *stateName(State s) {
     case State::HotWater: return "HOT_WATER";
     case State::Fault: return "FAULT";
     case State::Inhibited: return "INHIBITED";
+    case State::Test: return "TEST";
   }
   return "?";
 }
@@ -55,6 +56,25 @@ void Logic::debounce(bool raw, bool &state, uint8_t &cnt) {
     state = raw;
     cnt = 0;
   }
+}
+
+// Whether TEST may start or continue this tick. Faults and firmware updates
+// are handled by the state selection (they take priority).
+bool Logic::testAllowed(const Inputs &in) {
+  const char *why = nullptr;
+  if (!in.testWanted) {
+    if (st_.state == State::Test) why = "Stopped";
+  } else if (coffeeSw_ || steamSw_) {
+    why = st_.state == State::Test ? "Coffee or Steam switch turned on" : "Turn the Coffee and Steam switches off first";
+  } else if (st_.state == State::Test && in.testIdleMs > TEST_TIMEOUT_MS) {
+    why = "Test page connection lost";
+  } else if (st_.state != State::Test && st_.state != State::Idle) {
+    why = "Machine is not idle";
+  } else {
+    return true;
+  }
+  if (why) snprintf(st_.testEnd, sizeof(st_.testEnd), "%s", why);
+  return false;
 }
 
 Outputs Logic::tick(const Inputs &in, const MachineSettings &cfg) {
@@ -115,11 +135,13 @@ Outputs Logic::tick(const Inputs &in, const MachineSettings &cfg) {
   }
 
   // --- Coffee switch arming / pump run-time limit ---
-  if (!coffeeSw_) {
+  // (TEST keeps the Coffee switch disarmed, so leaving TEST with it on can't
+  // start a shot; TEST handles its own pump limit below.)
+  if (!coffeeSw_ && st_.state != State::Test) {
     coffeeArmed_ = true;
     st_.pumpTimedOut = false;
   }
-  if (pumpRunning_ && now - pumpStartMs_ >= PUMP_MAX_RUN_MS) st_.pumpTimedOut = true;
+  if (st_.state != State::Test && pumpRunning_ && now - pumpStartMs_ >= PUMP_MAX_RUN_MS) st_.pumpTimedOut = true;
   const bool coffeeActive = coffeeSw_ && coffeeArmed_ && !st_.pumpTimedOut;
   st_.waitSwitchCycle = coffeeSw_ && !coffeeActive;
 
@@ -127,11 +149,24 @@ Outputs Logic::tick(const Inputs &in, const MachineSettings &cfg) {
   State next;
   if (in.inhibited) next = State::Inhibited;
   else if (faulted_) next = State::Fault;
+  else if (testAllowed(in)) next = State::Test;
   else if (steamSw_) next = coffeeActive ? State::HotWater : State::Steam;
   else next = coffeeActive ? State::Brewing : State::Idle;
 
   // --- state entry / exit ---
   if (next != st_.state) {
+    if (next == State::Test) {
+      st_.testEnd[0] = '\0';
+      testPumpStopped_ = false;
+      coffeeArmed_ = false;
+    }
+    if (st_.state == State::Test) {
+      if (next == State::Fault) snprintf(st_.testEnd, sizeof(st_.testEnd), "Fault");
+      else if (next == State::Inhibited) snprintf(st_.testEnd, sizeof(st_.testEnd), "Firmware update / reboot");
+      pumpRunning_ = false;
+      tempPid_.reset();
+      st_.testPumpTimedOut = st_.testHeaterCapped = false;
+    }
     if (next == State::Brewing) {
       pressPid_.reset();
       shotStartMs_ = now;
@@ -146,6 +181,24 @@ Outputs Logic::tick(const Inputs &in, const MachineSettings &cfg) {
     st_.state = next;
   }
   if (st_.state == State::Brewing) st_.shotMs = now - shotStartMs_;
+
+  // TEST pump: runs while asked for, stops after PUMP_MAX_RUN_MS until toggled off.
+  if (st_.state == State::Test) {
+    const bool want = in.testCmd.pump && in.testCmd.pumpPct > 0;
+    if (!want) testPumpStopped_ = false;
+    if (want && !testPumpStopped_) {
+      if (!pumpRunning_) {
+        pumpRunning_ = true;
+        pumpStartMs_ = now;
+      } else if (now - pumpStartMs_ >= PUMP_MAX_RUN_MS) {
+        testPumpStopped_ = true;
+        pumpRunning_ = false;
+      }
+    } else {
+      pumpRunning_ = false;
+    }
+    st_.testPumpTimedOut = testPumpStopped_;
+  }
 
   // Coffee mode: the user target is the water at the portafilter, which runs
   // brewTempOffsetC cooler than the thermocouple. Steam / hot water: no offset.
@@ -190,6 +243,10 @@ Outputs Logic::tick(const Inputs &in, const MachineSettings &cfg) {
       heatCheckActive_ = false;
     }
     if (faulted_) {
+      if (st_.state == State::Test) {
+        snprintf(st_.testEnd, sizeof(st_.testEnd), "Fault");
+        st_.testPumpTimedOut = st_.testHeaterCapped = false;
+      }
       st_.state = State::Fault;
       pumpRunning_ = false;
       tempPid_.reset();
@@ -203,6 +260,19 @@ Outputs Logic::tick(const Inputs &in, const MachineSettings &cfg) {
     st_.heaterOn = st_.valveOn = false;
     const bool blink = st_.state == State::Fault && (now / 500) % 2;
     st_.coffeeLight = st_.steamLight = blink;
+  } else if (st_.state == State::Test) {
+    // Manual outputs. The safety checks above still ran this tick.
+    const TestCommand &t = in.testCmd;
+    // Heater cap with 2 C hysteresis on the filtered temperature, so noise
+    // can't chatter the SSR; the over-temperature trip still uses the raw reading.
+    if (!st_.tempValid || st_.tempC > TEST_HEATER_MAX_C) st_.testHeaterCapped = true;
+    else if (st_.tempC < TEST_HEATER_MAX_C - 2.0f) st_.testHeaterCapped = false;
+    st_.heaterOn = t.heater && !st_.testHeaterCapped;
+    st_.heaterDuty = st_.heaterOn ? 100.0f : 0.0f;
+    st_.pumpPower = pumpRunning_ ? (t.pumpPct > 100 ? 100 : t.pumpPct) : 0;
+    st_.valveOn = t.valve;
+    st_.coffeeLight = t.coffeeLight;
+    st_.steamLight = t.steamLight;
   } else {
     // Heater: PID on each new temperature sample, time-proportioned onto the SSR.
     tempPid_.setGains(cfg.tempKp, cfg.tempKi, cfg.tempKd);

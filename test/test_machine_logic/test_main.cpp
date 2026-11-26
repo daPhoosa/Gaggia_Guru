@@ -40,6 +40,9 @@ struct Sim {
   const char *pressError = nullptr;  // non-null: converter failure
   bool zeroCross = true;          // dimmer zero-cross pulses arriving
   bool inhibited = false;
+  bool testWanted = false;        // test page request (dropped like machine.cpp does)
+  uint32_t testIdleMs = 0;
+  Machine::TestCommand testCmd{};
 
   uint32_t zcCount = 0, lastZcMs = 0;
   int tcReads = 0;
@@ -70,7 +73,12 @@ struct Sim {
     in.msSinceZeroCross = now - lastZcMs;
     in.zeroCrossCount = zcCount;
     in.inhibited = inhibited;
+    in.testWanted = testWanted;
+    in.testIdleMs = testIdleMs;
+    in.testCmd = testCmd;
     out = m.tick(in, cfg);
+    // machine.cpp drops the request once TEST ends or is refused.
+    if (testWanted && m.status().state != State::Test) testWanted = false;
   }
 
   void run(uint32_t ms) {
@@ -639,6 +647,178 @@ void test_over_temp_trip_ignores_brew_offset() {
   assertAllLoadsOff(s);
 }
 
+// ---- output test mode ------------------------------------------------------------
+static void startTest(Sim &s) {
+  s.testWanted = true;
+  s.step();
+}
+
+void test_test_mode_applies_manual_outputs() {
+  Sim s;
+  s.tempC = 100;
+  s.begin();
+  s.run(500);
+  s.testCmd = {true, true, true, true, false, 60};
+  startTest(s);
+  ASSERT_STATE(State::Test, s);
+  s.run(200);
+  TEST_ASSERT_TRUE(s.out.heater);
+  TEST_ASSERT_EQUAL_FLOAT(100.0f, s.st().heaterDuty);
+  TEST_ASSERT_TRUE(s.out.valve);
+  TEST_ASSERT_EQUAL_UINT8(60, s.out.pump);
+  TEST_ASSERT_TRUE(s.out.coffeeLight);
+  TEST_ASSERT_FALSE(s.out.steamLight);
+  TEST_ASSERT_EQUAL_STRING("", s.st().testEnd);
+
+  s.testCmd = {false, false, false, false, true, 60};
+  s.run(200);
+  TEST_ASSERT_FALSE(s.out.heater);
+  TEST_ASSERT_FALSE(s.out.valve);
+  TEST_ASSERT_EQUAL_UINT8(0, s.out.pump);
+  TEST_ASSERT_TRUE(s.out.steamLight);
+}
+
+void test_test_mode_refused_with_switch_on() {
+  Sim s;
+  s.begin();
+  s.setSteam(true);
+  startTest(s);
+  ASSERT_STATE(State::Steam, s);
+  TEST_ASSERT_NOT_NULL(strstr(s.st().testEnd, "switches off first"));
+  TEST_ASSERT_FALSE(s.testWanted);
+}
+
+void test_test_mode_stop_returns_to_idle() {
+  Sim s;
+  s.begin();
+  s.testCmd = {false, true, true, false, false, 100};
+  startTest(s);
+  s.run(200);
+  s.testWanted = false;
+  s.step();
+  ASSERT_STATE(State::Idle, s);
+  TEST_ASSERT_EQUAL_STRING("Stopped", s.st().testEnd);
+  TEST_ASSERT_FALSE(s.out.valve);
+  TEST_ASSERT_EQUAL_UINT8(0, s.out.pump);
+}
+
+void test_test_mode_coffee_switch_ends_without_brewing() {
+  Sim s;
+  s.begin();
+  s.testCmd = {false, false, true, false, false, 100};
+  startTest(s);
+  s.setCoffee(true);
+  ASSERT_STATE(State::Idle, s);  // must cycle Coffee before a shot
+  TEST_ASSERT_TRUE(s.st().waitSwitchCycle);
+  TEST_ASSERT_NOT_NULL(strstr(s.st().testEnd, "switch turned on"));
+  TEST_ASSERT_EQUAL_UINT8(0, s.out.pump);
+  TEST_ASSERT_FALSE(s.out.valve);
+  s.setCoffee(false);
+  s.setCoffee(true);
+  ASSERT_STATE(State::Brewing, s);
+}
+
+void test_test_mode_steam_switch_ends() {
+  Sim s;
+  s.begin();
+  startTest(s);
+  s.setSteam(true);
+  ASSERT_STATE(State::Steam, s);
+  TEST_ASSERT_NOT_NULL(strstr(s.st().testEnd, "switch turned on"));
+}
+
+void test_test_mode_ends_when_page_goes_quiet() {
+  Sim s;
+  s.begin();
+  s.testCmd = {true, false, false, false, false, 100};
+  startTest(s);
+  s.testIdleMs = TEST_TIMEOUT_MS;
+  s.step();
+  ASSERT_STATE(State::Test, s);
+  s.testIdleMs = TEST_TIMEOUT_MS + 1;
+  s.step();
+  ASSERT_STATE(State::Idle, s);
+  TEST_ASSERT_EQUAL_STRING("Test page connection lost", s.st().testEnd);
+}
+
+void test_test_mode_heater_cap_with_hysteresis() {
+  Sim s;
+  s.tempC = TEST_HEATER_MAX_C - 5;
+  s.begin();
+  s.testCmd = {true, false, false, false, false, 100};
+  startTest(s);
+  s.run(200);
+  TEST_ASSERT_TRUE(s.out.heater);
+  TEST_ASSERT_FALSE(s.st().testHeaterCapped);
+  s.tempC = TEST_HEATER_MAX_C + 1;  // still below the 155 C trip
+  s.run(3000);
+  TEST_ASSERT_FALSE(s.out.heater);
+  TEST_ASSERT_TRUE(s.st().testHeaterCapped);
+  ASSERT_STATE(State::Test, s);
+  s.tempC = TEST_HEATER_MAX_C - 1;  // inside the hysteresis band: stays off
+  s.run(3000);
+  TEST_ASSERT_FALSE(s.out.heater);
+  s.tempC = TEST_HEATER_MAX_C - 3;
+  s.run(3000);
+  TEST_ASSERT_TRUE(s.out.heater);
+  TEST_ASSERT_FALSE(s.st().testHeaterCapped);
+}
+
+void test_test_mode_pump_run_time_limit() {
+  Sim s;
+  s.begin();
+  s.testCmd = {false, false, true, false, false, 100};
+  startTest(s);
+  s.run(PUMP_MAX_RUN_MS - 1000);
+  TEST_ASSERT_EQUAL_UINT8(100, s.out.pump);
+  s.run(2000);
+  TEST_ASSERT_EQUAL_UINT8(0, s.out.pump);
+  TEST_ASSERT_TRUE(s.st().testPumpTimedOut);
+  TEST_ASSERT_FALSE(s.st().pumpTimedOut);  // the Coffee-switch banner is not involved
+  ASSERT_STATE(State::Test, s);
+  s.testCmd.pump = false;  // toggle off and on again
+  s.step();
+  TEST_ASSERT_FALSE(s.st().testPumpTimedOut);
+  s.testCmd.pump = true;
+  s.step();
+  TEST_ASSERT_EQUAL_UINT8(100, s.out.pump);
+}
+
+void test_test_mode_safety_faults_still_apply() {
+  Sim s;
+  s.tempC = 100;
+  s.begin();
+  s.testCmd = {true, true, true, true, true, 100};
+  startTest(s);
+  s.run(200);
+  s.tempC = SAFETY_MAX_TEMP_C + 1;
+  s.run(TC_READ_PERIOD_MS);
+  assertFaultContains(s, "over-temperature");
+  assertAllLoadsOff(s);
+  TEST_ASSERT_EQUAL_STRING("Fault", s.st().testEnd);
+
+  Sim z;
+  z.begin();
+  z.testCmd = {false, false, true, false, false, 100};
+  startTest(z);
+  z.zeroCross = false;
+  z.run(ZC_TIMEOUT_MS + 200);
+  assertFaultContains(z, "zero-cross");
+  assertAllLoadsOff(z);
+}
+
+void test_test_mode_ends_on_inhibit() {
+  Sim s;
+  s.begin();
+  s.testCmd = {true, true, true, false, false, 100};
+  startTest(s);
+  s.inhibited = true;
+  s.step();
+  ASSERT_STATE(State::Inhibited, s);
+  assertAllLoadsOff(s);
+  TEST_ASSERT_EQUAL_STRING("Firmware update / reboot", s.st().testEnd);
+}
+
 int main() {
   UNITY_BEGIN();
   RUN_TEST(test_starts_idle_and_heats_to_coffee_setpoint);
@@ -653,6 +833,16 @@ int main() {
   RUN_TEST(test_steam_ignores_brew_offset);
   RUN_TEST(test_over_temp_trip_ignores_brew_offset);
   RUN_TEST(test_brewing_after_switch_cycle);
+  RUN_TEST(test_test_mode_applies_manual_outputs);
+  RUN_TEST(test_test_mode_refused_with_switch_on);
+  RUN_TEST(test_test_mode_stop_returns_to_idle);
+  RUN_TEST(test_test_mode_coffee_switch_ends_without_brewing);
+  RUN_TEST(test_test_mode_steam_switch_ends);
+  RUN_TEST(test_test_mode_ends_when_page_goes_quiet);
+  RUN_TEST(test_test_mode_heater_cap_with_hysteresis);
+  RUN_TEST(test_test_mode_pump_run_time_limit);
+  RUN_TEST(test_test_mode_safety_faults_still_apply);
+  RUN_TEST(test_test_mode_ends_on_inhibit);
   RUN_TEST(test_pump_backs_off_when_over_pressure);
   RUN_TEST(test_coffee_on_at_boot_needs_cycle);
   RUN_TEST(test_switch_glitch_is_debounced);

@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#FAF6F0" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#121110" media="(prefers-color-scheme: dark)">
+  <script>try{var t=localStorage.getItem("theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}</script>
+  <title>Output test · Gaggia Guru</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<!-- Served only through the admin-protected /test.html route (web_server.cpp). -->
+<body data-page="test">
+  <header class="bar">
+    <a class="back" href="io.html" aria-label="Back to IO Status">‹</a>
+    <h1>Output test</h1>
+    <span id="conn" class="pill off">offline</span>
+  </header>
+
+  <main>
+    <div id="tAlert" class="banner" role="alert" hidden>
+      <span class="ico ico-warn"></span>
+      <div><b id="tAlertT"></b><p id="tAlertB"></p></div>
+    </div>
+
+    <section class="card">
+      <div class="card-head">
+        <h2>Test mode</h2>
+        <span id="tState" class="state">–</span>
+      </div>
+      <p class="muted">Starts only when the machine is idle with the Coffee and Steam switches off.
+        Ends when you stop it, a switch is turned on, a fault occurs, or this page loses its
+        connection for 5 seconds. Safety checks stay on: the heater is held off above 150 °C
+        and the pump stops after 120 s.</p>
+      <button id="startBtn" class="primary">Start test</button>
+      <button id="stopBtn" hidden>Stop test</button>
+    </section>
+
+    <section class="card" id="outCard">
+      <h2>Outputs</h2>
+      <div class="orow">
+        <div><b>Heater</b><small id="aHeater">–</small></div>
+        <div class="seg" role="radiogroup" aria-label="Heater">
+          <label><input type="radio" name="heater" value="0" checked><span>Off</span></label>
+          <label><input type="radio" name="heater" value="1"><span>On</span></label>
+        </div>
+      </div>
+      <div class="orow">
+        <div><b>Pump</b><small id="aPump">–</small></div>
+        <div class="seg" role="radiogroup" aria-label="Pump">
+          <label><input type="radio" name="pump" value="0" checked><span>Off</span></label>
+          <label><input type="radio" name="pump" value="1"><span>On</span></label>
+        </div>
+        <label class="field wide"><span>Pump duty cycle (%)</span>
+          <input type="number" id="pumpPct" min="0" max="100" step="1" value="100" inputmode="numeric"></label>
+      </div>
+      <div class="orow">
+        <div><b>Valve</b><small id="aValve">–</small></div>
+        <div class="seg" role="radiogroup" aria-label="Valve">
+          <label><input type="radio" name="valve" value="0" checked><span>Closed</span></label>
+          <label><input type="radio" name="valve" value="1"><span>Open</span></label>
+        </div>
+      </div>
+      <div class="orow">
+        <div><b>Coffee light</b><small id="aCoffeeLight">–</small></div>
+        <div class="seg" role="radiogroup" aria-label="Coffee light">
+          <label><input type="radio" name="coffeeLight" value="0" checked><span>Off</span></label>
+          <label><input type="radio" name="coffeeLight" value="1"><span>On</span></label>
+        </div>
+      </div>
+      <div class="orow">
+        <div><b>Steam light</b><small id="aSteamLight">–</small></div>
+        <div class="seg" role="radiogroup" aria-label="Steam light">
+          <label><input type="radio" name="steamLight" value="0" checked><span>Off</span></label>
+          <label><input type="radio" name="steamLight" value="1"><span>On</span></label>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Inputs</h2>
+      <dl id="tInputs" class="kv"></dl>
+    </section>
+  </main>
+
+  <div id="toast" role="status"></div>
+  <script src="app.js"></script>
+</body>
+</html>
