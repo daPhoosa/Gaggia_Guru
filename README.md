@@ -178,6 +178,8 @@ Each active line must be:
   thermocouple reads than the water at the portafilter. The Coffee setting (default 93 °C) is
   the water temperature; in coffee mode the heater PID aims for Coffee + offset and the
   dashboard shows thermocouple − offset, so the reading compares directly with the target.
+  While brewing, the PID aims `BREW_TEMP_BIAS_C` (1 °C, machine_config.h) higher still to
+  make up for the incoming cold water; the shown target and ready light don't change.
   Steam and hot water ignore the offset. Safety checks always use the thermocouple; the
   dashboard's Thermocouple row shows the raw reading and target.
 

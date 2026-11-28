@@ -110,11 +110,15 @@ Outputs Logic::tick(const Inputs &in, const MachineSettings &cfg) {
     }
   }
 
+  static_assert(PRESS_EMA_ALPHA > 0 && PRESS_EMA_ALPHA <= 1, "PRESS_EMA_ALPHA must be in (0, 1]");
   const Sensors::PressureReading &pr = in.pressure;
   if (pr.ok) {
-    // Smooth the pin voltage (pump pulsation), then convert: one smoothed value
-    // feeds the PID, the dashboard and the IO Status page.
-    pressPinMvFilt_ = pressPrimed_ ? pressPinMvFilt_ + 0.3f * (pr.pinMv - pressPinMvFilt_) : pr.pinMv;
+    // Smooth the pin voltage, then convert: one smoothed value feeds the PID,
+    // the dashboard and the IO Status page. Median first (drops short spikes),
+    // then the EMA (pump pulsation).
+    if (pressBad_) pressMedian_.reset();  // don't mix in samples from before the bad patch
+    const float med = pressMedian_.add(pr.pinMv);
+    pressPinMvFilt_ = pressPrimed_ ? pressPinMvFilt_ + PRESS_EMA_ALPHA * (med - pressPinMvFilt_) : med;
     pressPrimed_ = true;
     pressScale_ = pr.supplyScale;
     pressBad_ = false;
@@ -207,6 +211,7 @@ Outputs Logic::tick(const Inputs &in, const MachineSettings &cfg) {
   st_.setpointC = steamMode ? cfg.steamTempC : cfg.coffeeTempC;
   st_.tempOffsetC = steamMode ? 0 : cfg.brewTempOffsetC;
   st_.boilerSetpointC = st_.setpointC + st_.tempOffsetC;
+  st_.pidTargetC = st_.boilerSetpointC + (st_.state == State::Brewing ? BREW_TEMP_BIAS_C : 0.0f);
   st_.pressureTargetBar = st_.state == State::Brewing ? cfg.brewPressureBar : 0;
 
   // --- safety checks (only while controlling) ---
@@ -279,7 +284,7 @@ Outputs Logic::tick(const Inputs &in, const MachineSettings &cfg) {
     if (!st_.tempValid) {
       st_.heaterDuty = 0;
     } else if (newTemp) {
-      st_.heaterDuty = tempPid_.update(st_.boilerSetpointC, st_.tempC, tempDt > 0 ? tempDt : TC_READ_PERIOD_MS / 1000.0f);
+      st_.heaterDuty = tempPid_.update(st_.pidTargetC, st_.tempC, tempDt > 0 ? tempDt : TC_READ_PERIOD_MS / 1000.0f);
     }
     if (now - heaterWindowStart_ >= HEATER_WINDOW_MS) heaterWindowStart_ = now;
     st_.heaterOn = (now - heaterWindowStart_) < static_cast<uint32_t>(st_.heaterDuty * (HEATER_WINDOW_MS / 100.0f));

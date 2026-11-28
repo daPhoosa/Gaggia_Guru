@@ -303,7 +303,7 @@ L ── SSR (GPIO 26) ── 165 °C manual-reset high-limit thermostat ── 
   unpowered) or above 4.75 V as invalid. Invalid for 500 ms while brewing latches a fault;
   in other states the reading is shown but not used.
 - **Sampling:** only the control task uses the I²C bus. Every 50 ms it takes one ADS1115
-  conversion, smooths the divider voltage (EMA, α = 0.3) and converts it to bar. The
+  conversion, smooths the divider voltage (median of the last `PRESS_MEDIAN_WINDOW` = 5 ticks, which removes spikes up to 2 ticks long and adds about 0.1 s delay, then an EMA, `PRESS_EMA_ALPHA` = 0.3 per 50 ms tick, about a 0.14 s time constant) and converts it to bar. The
   pressure PID and the dashboard both use that one smoothed value.
 - **IO Status page:** all four ADS1115 inputs are listed under "ADS1115 analog inputs",
   from the control task's latest conversions (the page never uses the I²C bus). AIN0 shows

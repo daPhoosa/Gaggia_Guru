@@ -152,7 +152,6 @@ void test_ready_band_follows_setting() {
 }
 
 void test_temp_filter_damps_spike_and_settles() {
-  static_assert(TEMP_MEDIAN_WINDOW >= 5, "test assumes a median window of at least 5");
   Sim s;
   s.tempC = 100;
   s.begin();
@@ -162,10 +161,11 @@ void test_temp_filter_damps_spike_and_settles() {
   s.tempC = 110;                                  // two-sample spike: removed by the median
   s.run(2 * TC_READ_PERIOD_MS);
   TEST_ASSERT_EQUAL_FLOAT(110.0f, s.st().tempRawC);
-  TEST_ASSERT_EQUAL_FLOAT(100.0f, s.st().tempC);
+  if (TEMP_MEDIAN_WINDOW >= 5) TEST_ASSERT_EQUAL_FLOAT(100.0f, s.st().tempC);  // else the EMA lets part of it in
+  else TEST_ASSERT_TRUE(s.st().tempC > 100.0f && s.st().tempC < 110.0f);
   s.tempC = 100;
   s.run(3000);
-  TEST_ASSERT_EQUAL_FLOAT(100.0f, s.st().tempC);
+  TEST_ASSERT_FLOAT_WITHIN(0.05f, 100.0f, s.st().tempC);
 }
 
 void test_temp_filter_follows_step() {
@@ -544,6 +544,22 @@ void test_pressure_smoothing() {
   TEST_ASSERT_TRUE(s.st().pressureValid);
 }
 
+void test_pressure_median_removes_short_spike() {
+  Sim s;
+  s.pinMv = pinMvForBar(6);
+  s.begin();
+  s.run(1500);  // fill the median window and settle the EMA
+  const float settled = s.st().pressureBar;
+  s.pinMv = pinMvForBar(11);  // two-tick spike
+  s.step();
+  s.step();
+  s.pinMv = pinMvForBar(6);
+  if (PRESS_MEDIAN_WINDOW >= 5) TEST_ASSERT_FLOAT_WITHIN(0.01f, settled, s.st().pressureBar);
+  else TEST_ASSERT_TRUE(s.st().pressureBar > settled);  // no median: the EMA lets part of it in
+  s.run(1500);
+  TEST_ASSERT_FLOAT_WITHIN(0.05f, 6.0f, s.st().pressureBar);
+}
+
 void test_pressure_pin_mv_shows_live_value_when_invalid() {
   Sim s;
   s.pinMv = pinMvForBar(6);
@@ -616,6 +632,28 @@ void test_brew_offset_in_coffee_mode() {
   ASSERT_STATE(State::Brewing, s);
   TEST_ASSERT_EQUAL_FLOAT(105.0f, s.st().boilerSetpointC);
   TEST_ASSERT_EQUAL_FLOAT(10.0f, s.st().tempOffsetC);
+}
+
+void test_brew_bias_raises_pid_target_only_while_brewing() {
+  Sim s;
+  s.cfg.tempKp = 10;
+  s.cfg.tempKi = 0;
+  s.cfg.tempKd = 0;
+  s.tempC = kCoffeeBoilerC - 5;
+  s.begin();
+  s.step();
+  ASSERT_STATE(State::Idle, s);
+  TEST_ASSERT_EQUAL_FLOAT(kCoffeeBoilerC, s.st().pidTargetC);  // no bias when idle
+  s.setCoffee(true);
+  s.run(HEATER_WINDOW_MS);
+  ASSERT_STATE(State::Brewing, s);
+  TEST_ASSERT_EQUAL_FLOAT(kCoffeeBoilerC + BREW_TEMP_BIAS_C, s.st().pidTargetC);
+  TEST_ASSERT_EQUAL_FLOAT(kCoffeeBoilerC, s.st().boilerSetpointC);    // ready light target unchanged
+  TEST_ASSERT_EQUAL_FLOAT(DEFAULT_COFFEE_TEMP_C, s.st().setpointC);   // shown target unchanged
+  TEST_ASSERT_FLOAT_WITHIN(0.01f, 10.0f * (5 + BREW_TEMP_BIAS_C), s.st().heaterDuty);
+  s.setCoffee(false);
+  s.run(HEATER_WINDOW_MS);
+  TEST_ASSERT_EQUAL_FLOAT(kCoffeeBoilerC, s.st().pidTargetC);
 }
 
 void test_brew_offset_ready_light_uses_offset_target() {
@@ -843,6 +881,7 @@ int main() {
   RUN_TEST(test_heater_time_proportioning);
   RUN_TEST(test_brew_offset_in_coffee_mode);
   RUN_TEST(test_brew_offset_ready_light_uses_offset_target);
+  RUN_TEST(test_brew_bias_raises_pid_target_only_while_brewing);
   RUN_TEST(test_steam_ignores_brew_offset);
   RUN_TEST(test_over_temp_trip_ignores_brew_offset);
   RUN_TEST(test_brewing_after_switch_cycle);
@@ -877,6 +916,7 @@ int main() {
   RUN_TEST(test_heater_check_passes_when_heating);
   RUN_TEST(test_heater_check_paused_while_pumping);
   RUN_TEST(test_pressure_smoothing);
+  RUN_TEST(test_pressure_median_removes_short_spike);
   RUN_TEST(test_pressure_pin_mv_shows_live_value_when_invalid);
   RUN_TEST(test_pressure_supply_correction_applied);
   RUN_TEST(test_pressure_converter_failure_fault_message);

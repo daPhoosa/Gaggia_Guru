@@ -36,7 +36,8 @@ struct Status {
   float tempRawC;  // thermocouple, last good unfiltered reading: over-temperature trip
   float tempOffsetC;      // brew temp offset in use: cfg.brewTempOffsetC in coffee mode, 0 in steam / hot water
   float setpointC;        // user target as displayed (coffee = water at the portafilter)
-  float boilerSetpointC;  // PID target on the thermocouple = setpointC + tempOffsetC
+  float boilerSetpointC;  // boiler target on the thermocouple = setpointC + tempOffsetC (ready light)
+  float pidTargetC;       // heater PID target: boilerSetpointC, + BREW_TEMP_BIAS_C while BREWING
   bool pressureValid;
   float pressureBar;
   float pressureTargetBar;  // 0 unless brewing
@@ -118,6 +119,7 @@ class Logic {
   uint32_t lastTcMs_ = 0, lastTcOkMs_ = 0;
   uint8_t tcFails_ = 0;
   Sensors::MedianFilter<TEMP_MEDIAN_WINDOW> tempMedian_;
+  Sensors::MedianFilter<PRESS_MEDIAN_WINDOW> pressMedian_;
   float pressPinMvFilt_ = 0;  // EMA-smoothed pin voltage (mV)
   float pressScale_ = 1.0f;   // last valid ratiometric supply correction
   bool pressPrimed_ = false;
