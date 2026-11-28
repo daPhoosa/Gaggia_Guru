@@ -12,7 +12,7 @@
 // Brew Temp Offset: how much hotter the boiler thermocouple reads than the
 // water at the portafilter. Coffee mode: PID target = coffee temp + offset and
 // the dashboard shows thermocouple - offset. Steam / hot water ignore it.
-#define DEFAULT_READY_BAND_C        3.0f   // coffee / steam light on within +/- this of the setpoint
+#define DEFAULT_READY_BAND_C        3.0f   // coffee / steam light: on once within +/- this of the setpoint, off below setpoint - this
 // While BREWING (pump running), the heater PID aims this much above the boiler
 // target to make up for the cold water coming in. PID only: the shown target and
 // the ready light keep using the Coffee setting.

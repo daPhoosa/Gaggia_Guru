@@ -265,6 +265,7 @@ Outputs Logic::tick(const Inputs &in, const MachineSettings &cfg) {
     st_.heaterOn = st_.valveOn = false;
     const bool blink = st_.state == State::Fault && (now / 500) % 2;
     st_.coffeeLight = st_.steamLight = blink;
+    readyLatched_ = false;
   } else if (st_.state == State::Test) {
     // Manual outputs. The safety checks above still ran this tick.
     const TestCommand &t = in.testCmd;
@@ -278,6 +279,7 @@ Outputs Logic::tick(const Inputs &in, const MachineSettings &cfg) {
     st_.valveOn = t.valve;
     st_.coffeeLight = t.coffeeLight;
     st_.steamLight = t.steamLight;
+    readyLatched_ = false;
   } else {
     // Heater: PID on each new temperature sample, time-proportioned onto the SSR.
     tempPid_.setGains(cfg.tempKp, cfg.tempKi, cfg.tempKd);
@@ -298,8 +300,20 @@ Outputs Logic::tick(const Inputs &in, const MachineSettings &cfg) {
     }
     st_.valveOn = st_.state == State::Brewing;
 
-    // Ready lights: the active mode's light is on within +/- cfg.readyBandC of its setpoint.
-    const bool ready = st_.tempValid && fabsf(st_.tempC - st_.boilerSetpointC) <= cfg.readyBandC;
+    // Ready lights: on once the temp has come within +/- cfg.readyBandC of the
+    // active target, then stay on while it is above the lower edge of the band
+    // (overshoot doesn't turn it off, but a boiler still hot from steaming
+    // doesn't light the Coffee light until it has cooled into the band).
+    const bool steam = isSteamState(st_.state);
+    if (!st_.tempValid || st_.tempC < st_.boilerSetpointC - cfg.readyBandC || steam != readySteam_ ||
+        st_.boilerSetpointC != readyTargetC_)
+      readyLatched_ = false;
+    if (st_.tempValid && fabsf(st_.tempC - st_.boilerSetpointC) <= cfg.readyBandC) {
+      readyLatched_ = true;
+      readySteam_ = steam;
+      readyTargetC_ = st_.boilerSetpointC;
+    }
+    const bool ready = readyLatched_;
     st_.coffeeLight = ready && !isSteamState(st_.state);
     st_.steamLight = ready && isSteamState(st_.state);
   }

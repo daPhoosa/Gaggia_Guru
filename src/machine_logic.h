@@ -123,6 +123,11 @@ class Logic {
   float pressPinMvFilt_ = 0;  // EMA-smoothed pin voltage (mV)
   float pressScale_ = 1.0f;   // last valid ratiometric supply correction
   bool pressPrimed_ = false;
+  // Ready light latch: set once the temp comes within the band of the target it
+  // was set for; cleared below the band, on a target / mode change, or outside
+  // normal control.
+  bool readyLatched_ = false, readySteam_ = false;
+  float readyTargetC_ = 0;
   uint32_t pressBadSinceMs_ = 0;
   bool pressBad_ = false;
 

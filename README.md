@@ -183,8 +183,10 @@ Each active line must be:
   Steam and hot water ignore the offset. Safety checks always use the thermocouple; the
   dashboard's Thermocouple row shows the raw reading and target.
 
-- **Lights:** the active mode's light is on when the temperature is within the **Ready band**
-  of its target (setting, default ±3 °C, range 0.5 to 10 °C; one band for both lights).
+- **Lights:** the active mode's light comes on once the temperature is within ± the **Ready
+  band** of its target, then stays on (overshoot included) until it drops more than the band
+  below the target (setting, default 3 °C, range 0.5 to 10 °C; one band for both lights).
+  Switching from steam to coffee, the Coffee light waits for the boiler to cool into the band.
   Both blink on a fault.
 - **Coffee switch arming:** if the Coffee switch is on at power-up (or after an update),
   it is ignored until turned off and on again. The pump also stops after 120 s of

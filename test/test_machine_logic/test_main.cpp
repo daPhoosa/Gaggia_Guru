@@ -139,6 +139,40 @@ void test_ready_light_within_band() {
   TEST_ASSERT_FALSE(s.out.coffeeLight);
 }
 
+void test_ready_light_stays_on_above_target() {
+  Sim s;
+  s.tempC = kCoffeeBoilerC;
+  s.begin();
+  s.run(2000);
+  TEST_ASSERT_TRUE(s.out.coffeeLight);
+  s.tempC = kCoffeeBoilerC + DEFAULT_READY_BAND_C + 5;  // overshoot: stays on
+  s.run(2000);
+  TEST_ASSERT_TRUE(s.out.coffeeLight);
+  s.tempC = kCoffeeBoilerC - DEFAULT_READY_BAND_C - 1;  // below the band: off
+  s.run(2000);
+  TEST_ASSERT_FALSE(s.out.coffeeLight);
+}
+
+void test_coffee_light_waits_for_boiler_to_cool_after_steam() {
+  Sim s;
+  s.tempC = DEFAULT_STEAM_TEMP_C;
+  s.begin();
+  s.step();
+  s.setSteam(true);
+  s.run(2000);
+  TEST_ASSERT_TRUE(s.out.steamLight);
+  s.tempC = DEFAULT_STEAM_TEMP_C + 5;  // above the steam target, below SAFETY_MAX_TEMP_C
+  s.run(2000);
+  TEST_ASSERT_TRUE(s.out.steamLight);
+  s.setSteam(false);  // back to coffee, boiler still hot
+  s.run(2000);
+  TEST_ASSERT_FALSE(s.out.coffeeLight);
+  TEST_ASSERT_FALSE(s.out.steamLight);
+  s.tempC = kCoffeeBoilerC + DEFAULT_READY_BAND_C - 0.5f;  // cooled into the band
+  s.run(5000);  // let the filtered reading settle
+  TEST_ASSERT_TRUE(s.out.coffeeLight);
+}
+
 void test_ready_band_follows_setting() {
   Sim s;
   s.cfg.readyBandC = 1.0f;
@@ -874,6 +908,8 @@ int main() {
   RUN_TEST(test_starts_idle_and_heats_to_coffee_setpoint);
   RUN_TEST(test_ready_light_within_band);
   RUN_TEST(test_ready_band_follows_setting);
+  RUN_TEST(test_ready_light_stays_on_above_target);
+  RUN_TEST(test_coffee_light_waits_for_boiler_to_cool_after_steam);
   RUN_TEST(test_temp_filter_damps_spike_and_settles);
   RUN_TEST(test_temp_filter_follows_step);
   RUN_TEST(test_over_temp_trips_on_raw_reading);

@@ -12,6 +12,6 @@ struct MachineSettings {
   float graphTempMinC, graphTempMaxC;  // dashboard graph °C axis (display only)
   float graphPressMinBar, graphPressMaxBar;  // dashboard graph bar axis (display only)
   float brewTempOffsetC;  // thermocouple minus portafilter water temp (coffee mode only)
-  float readyBandC;  // coffee / steam light on within +/- this of the setpoint
+  float readyBandC;  // coffee / steam light: on once within +/- this of the setpoint, off below setpoint - this
   // New fields go at the END (settings.cpp migrates older saved layouts).
 };
