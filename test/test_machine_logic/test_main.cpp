@@ -129,14 +129,26 @@ void test_starts_idle_and_heats_to_coffee_setpoint() {
 
 void test_ready_light_within_band() {
   Sim s;
-  s.tempC = kCoffeeBoilerC - READY_BAND_C + 0.25f;
+  s.tempC = kCoffeeBoilerC - DEFAULT_READY_BAND_C + 0.25f;
   s.begin();
   s.step();
   TEST_ASSERT_TRUE(s.out.coffeeLight);
   TEST_ASSERT_FALSE(s.out.steamLight);
-  s.tempC = kCoffeeBoilerC - READY_BAND_C - 0.5f;
+  s.tempC = kCoffeeBoilerC - DEFAULT_READY_BAND_C - 0.5f;
   s.run(2000);  // let the EMA filter settle (~0.56 s time constant)
   TEST_ASSERT_FALSE(s.out.coffeeLight);
+}
+
+void test_ready_band_follows_setting() {
+  Sim s;
+  s.cfg.readyBandC = 1.0f;
+  s.tempC = kCoffeeBoilerC - 2.0f;
+  s.begin();
+  s.run(2000);
+  TEST_ASSERT_FALSE(s.out.coffeeLight);  // outside +/-1
+  s.cfg.readyBandC = 5.0f;
+  s.step();
+  TEST_ASSERT_TRUE(s.out.coffeeLight);  // inside +/-5
 }
 
 void test_temp_filter_damps_spike_and_settles() {
@@ -823,6 +835,7 @@ int main() {
   UNITY_BEGIN();
   RUN_TEST(test_starts_idle_and_heats_to_coffee_setpoint);
   RUN_TEST(test_ready_light_within_band);
+  RUN_TEST(test_ready_band_follows_setting);
   RUN_TEST(test_temp_filter_damps_spike_and_settles);
   RUN_TEST(test_temp_filter_follows_step);
   RUN_TEST(test_over_temp_trips_on_raw_reading);

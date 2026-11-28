@@ -22,6 +22,7 @@ void test_default_values() {
   MachineSettings d = defaults();
   TEST_ASSERT_EQUAL_FLOAT(93.0f, d.coffeeTempC);
   TEST_ASSERT_EQUAL_FLOAT(7.0f, d.brewTempOffsetC);
+  TEST_ASSERT_EQUAL_FLOAT(3.0f, d.readyBandC);
   TEST_ASSERT_EQUAL_FLOAT(DEFAULT_STEAM_TEMP_C, d.steamTempC);
   TEST_ASSERT_EQUAL_FLOAT(DEFAULT_BREW_PRESSURE_BAR, d.brewPressureBar);
   TEST_ASSERT_EQUAL_FLOAT(DEFAULT_GRAPH_WINDOW_S, d.graphWindowS);

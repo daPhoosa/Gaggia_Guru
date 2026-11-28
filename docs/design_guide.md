@@ -273,6 +273,7 @@ Add any new symbol the UI needs to `--unicodes`, or it falls back to the system 
 
 | Date | Change |
 | --- | --- |
+| 2026-11-27 | Settings → Temperatures gains a full-width "Ready band (±°C)" field with a muted note under it (when the Coffee / Steam lights and the dashboard "Ready" state come on). No new tokens. |
 | 2026-11-24 | Output test page (`test.html`): output rows with Off/On segmented controls and live state, pump duty field, inputs list, banners. `TEST` state chip uses the Paused (warning outline) style. Footer links use the accent. No new tokens. |
 | 2026-11-23 | Device status card: CPU load per core (estimated, shown as "Core 0: 12 % · Core 1: 4 %") and control tick timing rows. No new tokens. |
 | 2026-11-22 | Brew Temp Offset: Settings → Temperatures gains a muted explanation and a full-width "Brew Temp Offset (°C)" field. Dashboard boiler gauge label switches between "Brew water" (coffee mode) and "Boiler" (steam); graph legend "Boiler °C" → "Temp °C"; Machine card adds a "Thermocouple" row. No new tokens. |

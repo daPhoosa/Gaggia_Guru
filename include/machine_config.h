@@ -12,6 +12,7 @@
 // Brew Temp Offset: how much hotter the boiler thermocouple reads than the
 // water at the portafilter. Coffee mode: PID target = coffee temp + offset and
 // the dashboard shows thermocouple - offset. Steam / hot water ignore it.
+#define DEFAULT_READY_BAND_C        3.0f   // coffee / steam light on within +/- this of the setpoint
 #define DEFAULT_BREW_TEMP_OFFSET_C  7.0f
 #define DEFAULT_STEAM_TEMP_C      145.0f
 #define DEFAULT_BREW_PRESSURE_BAR   6.0f
@@ -41,6 +42,8 @@
 #define LIMIT_COFFEE_TEMP_MAX     120.0f
 #define LIMIT_BREW_TEMP_OFFSET_MIN -10.0f  // coffee max + offset max stays well below SAFETY_MAX_TEMP_C
 #define LIMIT_BREW_TEMP_OFFSET_MAX  20.0f
+#define LIMIT_READY_BAND_MIN        0.5f   // below this the ready light flickers with sensor noise
+#define LIMIT_READY_BAND_MAX       10.0f
 #define LIMIT_STEAM_TEMP_MIN      120.0f
 #define LIMIT_STEAM_TEMP_MAX      150.0f   // keep well below SAFETY_MAX_TEMP_C
 #define LIMIT_PRESSURE_MIN          1.0f
@@ -111,5 +114,4 @@
                                           // feeds PID, display, heater check. Over-temp trip uses the raw reading.
 #define HEATER_WINDOW_MS           1000UL  // time-proportioning window for the SSR
 #define SWITCH_DEBOUNCE_TICKS          2   // consecutive equal samples to accept a switch change
-#define READY_BAND_C                2.0f   // "at temperature" light band (+/-)
 #define CONTROL_WDT_TIMEOUT_S          3   // control task watchdog -> panic reboot (loads OFF)

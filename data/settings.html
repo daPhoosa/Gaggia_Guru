@@ -27,6 +27,8 @@
         </div>
         <!-- no inputmode: the iOS decimal keypad has no minus sign, and the offset can be negative -->
         <label class="field"><span>Brew Temp Offset (°C)</span><input type="number" name="brewTempOffsetC" step="0.5" required></label>
+        <label class="field"><span>Ready band (±°C)</span><input type="number" name="readyBandC" step="0.5" inputmode="decimal" required></label>
+        <p class="muted">The Coffee and Steam lights come on when the temperature is within this band of its target.</p>
       </section>
 
       <section class="card">

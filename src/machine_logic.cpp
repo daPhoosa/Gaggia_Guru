@@ -293,8 +293,8 @@ Outputs Logic::tick(const Inputs &in, const MachineSettings &cfg) {
     }
     st_.valveOn = st_.state == State::Brewing;
 
-    // Ready lights: the active mode's light is on within +/- READY_BAND_C of its setpoint.
-    const bool ready = st_.tempValid && fabsf(st_.tempC - st_.boilerSetpointC) <= READY_BAND_C;
+    // Ready lights: the active mode's light is on within +/- cfg.readyBandC of its setpoint.
+    const bool ready = st_.tempValid && fabsf(st_.tempC - st_.boilerSetpointC) <= cfg.readyBandC;
     st_.coffeeLight = ready && !isSteamState(st_.state);
     st_.steamLight = ready && isSteamState(st_.state);
   }
